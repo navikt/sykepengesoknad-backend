@@ -18,6 +18,8 @@ fun FellesTestOppsett.sendSykmelding(
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
     forventaSoknader: Int = 1,
+    erUtenforVentetid: Boolean = true,
+    sykmeldingIderMedSammeVentetid: Set<String> = emptySet(),
 ): List<SykepengesoknadDTO> {
     flexSyketilfelleMockRestServiceServer.reset()
 
@@ -27,15 +29,19 @@ fun FellesTestOppsett.sendSykmelding(
             Arbeidssituasjon.NAERINGSDRIVENDE,
         )
     ) {
-        repeat(forventaSoknader) {
-            mockFlexSyketilfelleVentetidForSykmelding(sykmeldingKafkaMessage.sykmelding.id)
+        repeat(maxOf(1, forventaSoknader)) {
+            mockFlexSyketilfelleVentetidForSykmelding(
+                sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+                erUtenforVentetid = erUtenforVentetid,
+                sykmeldingIderMedSammeVentetid = sykmeldingIderMedSammeVentetid,
+            )
         }
     }
 
-    repeat(if (forventaSoknader == 0) 1 else forventaSoknader) {
+    repeat(maxOf(1, forventaSoknader)) {
         mockFlexSyketilfelleSykeforloep(
-            sykmeldingKafkaMessage.sykmelding.id,
-            oppfolgingsdato,
+            sykmeldingIder = setOf(sykmeldingKafkaMessage.sykmelding.id) + sykmeldingIderMedSammeVentetid,
+            oppfolgingsdato = oppfolgingsdato,
         )
     }
 
@@ -55,7 +61,14 @@ fun FellesTestOppsett.sendSykmelding(
             ),
         ).get()
 
-    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
+    val soknader = ventPåLagredeSoknader(antall = forventaSoknader)
+
+    flexSyketilfelleMockRestServiceServer.reset()
+    return soknader
+}
+
+fun FellesTestOppsett.ventPåLagredeSoknader(antall: Int): List<SykepengesoknadDTO> {
+    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = antall).tilSoknader()
 
     soknader.forEach {
         await().until {
@@ -66,6 +79,5 @@ fun FellesTestOppsett.sendSykmelding(
         }
     }
 
-    flexSyketilfelleMockRestServiceServer.reset()
     return soknader
 }

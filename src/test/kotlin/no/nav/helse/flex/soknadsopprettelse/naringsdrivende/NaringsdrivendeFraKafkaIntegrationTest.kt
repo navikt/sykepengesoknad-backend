@@ -12,7 +12,6 @@ import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Periode
-import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.sigrun404Feil
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
@@ -89,26 +88,13 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     inner class VentetidOgForsikring {
         @Test
         fun `Oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden`() {
-            val utenforVentetid = false
             val testdata = opprettTestdata()
 
-            mockStandardSyketilfelle(
-                testdata.sykmeldingId,
-                erUtenforVentetid = utenforVentetid,
+            sendSykmelding(
+                sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(),
                 oppfolgingsdato = testDato,
-            )
-
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = testdata.sykmelding,
-                    event = testdata.sykmeldingStatus.event,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
-                )
-
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                testdata.sykmeldingId,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                forventaSoknader = 0,
+                erUtenforVentetid = false,
             )
 
             hentSoknaderMetadata(fnr).size `should be equal to` 0
@@ -117,22 +103,14 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         fun `Oppretter søknad for næringsdrivende som er utenfor ventetiden`() {
-            val utenforVentetid = true
             val testdata = opprettTestdata()
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(
-                testdata.sykmeldingId,
-                erUtenforVentetid = utenforVentetid,
-                oppfolgingsdato = testDato,
-            )
 
             val kafkaSoknad =
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = testdata.sykmeldingId,
-                    sykmelding = testdata.sykmelding,
-                    event = testdata.sykmeldingStatus.event,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                sendSykmeldingOgHentKafkaSoknad(
+                    sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(),
+                    erUtenforVentetid = true,
                 )
 
             verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
@@ -147,22 +125,16 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         fun `Oppretter søknad for næringsdrivende når sykmeldingen er innenfor ventetiden MEN brukeren har forsikring`() {
-            val utenforVentetid = false
             val forsikring = true
             val testdata = opprettTestdata()
 
-            mockStandardSyketilfelle(
-                testdata.sykmeldingId,
-                erUtenforVentetid = utenforVentetid,
-                oppfolgingsdato = testDato,
-            )
-
             val kafkaSoknad =
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = testdata.sykmeldingId,
-                    sykmelding = testdata.sykmelding,
-                    event = testdata.sykmeldingStatus.event.medForsikringssvar(),
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                sendSykmeldingOgHentKafkaSoknad(
+                    sykmeldingKafkaMessage =
+                        testdata.tilSykmeldingKafkaMessage(
+                            event = testdata.sykmeldingStatus.event.medForsikringssvar(),
+                        ),
+                    erUtenforVentetid = false,
                 )
 
             verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
@@ -192,14 +164,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val testdata = opprettTestdata()
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = testdata.sykmeldingId,
-                    sykmelding = testdata.sykmelding,
-                    event = testdata.sykmeldingStatus.event,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                sendSykmeldingOgHentKafkaSoknad(
+                    sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(),
+                    erUtenforVentetid = true,
                 )
 
             verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
@@ -221,14 +190,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             repeat(5) {
                 SigrunMockDispatcher.enqueueResponse(sigrun404Feil())
             }
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = testdata.sykmeldingId,
-                    sykmelding = testdata.sykmelding,
-                    event = testdata.sykmeldingStatus.event,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                sendSykmeldingOgHentKafkaSoknad(
+                    sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(),
+                    erUtenforVentetid = true,
                 )
 
             verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
@@ -272,30 +238,16 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val testdata1 = opprettTestdata()
             val testdata2 = opprettTestdata(dato = testDato.plusDays(15))
 
-            mockStandardSyketilfelle(
-                testdata1.sykmeldingId,
-                testdata2.sykmeldingId,
+            sendSykmeldingOgHentKafkaSoknad(
+                sykmeldingKafkaMessage = testdata1.tilSykmeldingKafkaMessage(),
                 erUtenforVentetid = true,
-                oppfolgingsdato = testDato,
             )
 
-            with(testdata1) {
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = this.sykmeldingId,
-                    sykmelding = this.sykmelding,
-                    event = this.sykmeldingStatus.event,
-                    kafkaMetadata = this.sykmeldingStatus.kafkaMetadata,
-                )
-            }
-
-            with(testdata2) {
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = this.sykmeldingId,
-                    sykmelding = this.sykmelding,
-                    event = this.sykmeldingStatus.event,
-                    kafkaMetadata = this.sykmeldingStatus.kafkaMetadata,
-                )
-            }
+            sendSykmeldingOgHentKafkaSoknad(
+                sykmeldingKafkaMessage = testdata2.tilSykmeldingKafkaMessage(),
+                erUtenforVentetid = true,
+                sykmeldingIderMedSammeVentetid = setOf(testdata1.sykmeldingId),
+            )
 
             verifiserLagretNaringsdrivendeSoknad(
                 forventetArbeidssituasjon = RSArbeidssituasjon.NAERINGSDRIVENDE,
@@ -351,17 +303,12 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     tom = LocalDate.of(2020, 3, 15),
                 )
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true, oppfolgingsdato = testDato)
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                testdata.sykmeldingId,
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = testdata.sykmeldingStatus.event,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
-                ),
-                SYKMELDINGSENDT_TOPIC,
+            sendSykmelding(
+                sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(sykmelding = sykmelding),
+                oppfolgingsdato = testDato,
+                forventaSoknader = 2,
+                erUtenforVentetid = true,
             )
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
             val (forste, andre) = hentSoknaderMetadata(fnr).sortedBy { it.fom }
             verifiserSoknadPerioder(
@@ -421,17 +368,12 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                 )
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                testdata.sykmeldingId,
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = testdata.sykmeldingStatus.event,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
-                ),
-                SYKMELDINGSENDT_TOPIC,
+            sendSykmelding(
+                sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(sykmelding = sykmelding),
+                oppfolgingsdato = testDato,
+                forventaSoknader = 2,
+                erUtenforVentetid = true,
             )
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
             val (forste, andre) = hentSoknaderMetadata(fnr).sortedBy { it.fom }
             verifiserSoknadPerioder(
@@ -504,14 +446,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 )
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = testdata.sykmeldingId,
-                    sykmelding = testdata.sykmelding,
-                    event = oppdatertEvent,
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                sendSykmeldingOgHentKafkaSoknad(
+                    sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(event = oppdatertEvent),
+                    erUtenforVentetid = true,
                 )
 
             verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
@@ -542,14 +481,14 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val testdata = opprettTestdata()
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
 
             val forsteKafkaSoknad =
-                prosesserSykmeldingOgHentKafkaSoknad(
-                    sykmeldingId = testdata.sykmeldingId,
-                    sykmelding = testdata.sykmelding,
-                    event = testdata.sykmeldingStatus.event.medMeldingTilNavDager(forsteFom, tom),
-                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                sendSykmeldingOgHentKafkaSoknad(
+                    sykmeldingKafkaMessage =
+                        testdata.tilSykmeldingKafkaMessage(
+                            event = testdata.sykmeldingStatus.event.medMeldingTilNavDager(forsteFom, tom),
+                        ),
+                    erUtenforVentetid = true,
                 )
 
             sykepengesoknadDAO.sendSoknad(
@@ -558,9 +497,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 avsendertype = Avsendertype.BRUKER,
             )
 
-            flexSyketilfelleMockRestServiceServer.reset()
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
             val andreEvent =
                 testdata.sykmeldingStatus.event
                     .medMeldingTilNavDager(andreFom, tom)
@@ -576,11 +513,13 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                             .plusMinutes(1),
                 )
 
-            prosesserSykmeldingOgHentKafkaSoknad(
-                sykmeldingId = testdata.sykmeldingId,
-                sykmelding = testdata.sykmelding,
-                event = andreEvent,
-                kafkaMetadata = andreKafkaMetadata,
+            sendSykmeldingOgHentKafkaSoknad(
+                sykmeldingKafkaMessage =
+                    testdata.tilSykmeldingKafkaMessage(
+                        event = andreEvent,
+                        kafkaMetadata = andreKafkaMetadata,
+                    ),
+                erUtenforVentetid = true,
             )
 
             hentSoknaderMetadata(fnr)
@@ -628,6 +567,17 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding: ArbeidsgiverSykmeldingDTO,
     ) {
         val sykmeldingId: String = sykmeldingStatus.event.sykmeldingId
+
+        fun tilSykmeldingKafkaMessage(
+            sykmelding: ArbeidsgiverSykmeldingDTO = this.sykmelding,
+            event: SykmeldingStatusKafkaEventDTO = sykmeldingStatus.event,
+            kafkaMetadata: KafkaMetadataDTO = sykmeldingStatus.kafkaMetadata,
+        ): SykmeldingKafkaMessageDTO =
+            SykmeldingKafkaMessageDTO(
+                sykmelding = sykmelding,
+                event = event,
+                kafkaMetadata = kafkaMetadata,
+            )
     }
 
     private fun opprettTestdata(
@@ -659,14 +609,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val testdata = opprettTestdata(arbeidssituasjon)
 
         settOppStandardNaeringsdrivendeData()
-        mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true, oppfolgingsdato = testDato)
 
         val kafkaSoknad =
-            prosesserSykmeldingOgHentKafkaSoknad(
-                sykmeldingId = testdata.sykmeldingId,
-                sykmelding = testdata.sykmelding,
-                event = testdata.sykmeldingStatus.event,
-                kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+            sendSykmeldingOgHentKafkaSoknad(
+                sykmeldingKafkaMessage = testdata.tilSykmeldingKafkaMessage(),
+                erUtenforVentetid = true,
             )
 
         verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
@@ -715,31 +662,17 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
     }
 
-    private fun prosesserSykmeldingOgHentKafkaSoknad(
-        sykmeldingId: String,
-        sykmelding: ArbeidsgiverSykmeldingDTO,
-        event: SykmeldingStatusKafkaEventDTO,
-        kafkaMetadata: KafkaMetadataDTO,
-    ): SykepengesoknadDTO {
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = event,
-                kafkaMetadata = kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC,
-        )
-
-        return sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .single()
-            .value()
-            .tilSykepengesoknadDTO()
-    }
+    private fun sendSykmeldingOgHentKafkaSoknad(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+        erUtenforVentetid: Boolean,
+        sykmeldingIderMedSammeVentetid: Set<String> = emptySet(),
+    ): SykepengesoknadDTO =
+        sendSykmelding(
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            oppfolgingsdato = testDato,
+            erUtenforVentetid = erUtenforVentetid,
+            sykmeldingIderMedSammeVentetid = sykmeldingIderMedSammeVentetid,
+        ).single()
 
     private fun verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
         sykepengesoknadDTO: SykepengesoknadDTO,

@@ -45,38 +45,25 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
                 fom = kafkaMessage.sykmelding.tom!!.plusDays(15),
             )
 
-        mockFlexSyketilfelleVentetidForSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            erUtenforVentetid = false,
-        )
-        mockFlexSyketilfelleVentetidForSykmelding(
-            sykmeldingId = kafkaMessage1.sykmelding.id,
-            erUtenforVentetid = true,
-            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
-        )
-
-        mockFlexSyketilfelleSykeforloep(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-            oppfolgingsdato = dato,
-        )
-
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessage)))
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
+        sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessage,
-            topic = SYKMELDINGSENDT_TOPIC,
+            oppfolgingsdato = dato,
+            forventaSoknader = 0,
+            erUtenforVentetid = false,
         )
 
         hentSoknader(fnr).size `should be equal to` 0
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage1.sykmelding.id,
+        sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessage1,
-            topic = SYKMELDINGSENDT_TOPIC,
+            oppfolgingsdato = dato,
+            forventaSoknader = 2,
+            erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage.sykmelding.id),
         )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         hentSoknader(fnr).run {
             this.size `should be equal to` 2
             this.first { it.sykmeldingId == kafkaMessage.sykmelding.id }.ventetidSykmeldingUuid `should be equal to`
@@ -88,7 +75,6 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
     @Test
     fun `Oppretter ikke ventetidssoknad for selvstendig næringsdrivende hvis feil kastes`() {
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
-        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
         mockFlexSyketilfelleVentetidForSykmeldingKasterFeil(sykmeldingId = kafkaMessage.sykmelding.id)
 
@@ -121,43 +107,25 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
                 fom = kafkaMessage.sykmelding.tom!!.plusDays(15),
             )
 
-        mockFlexSyketilfelleVentetidForSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            erUtenforVentetid = true,
-            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-        )
-        mockFlexSyketilfelleVentetidForSykmelding(
-            sykmeldingId = kafkaMessage1.sykmelding.id,
-            erUtenforVentetid = true,
-            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
-        )
-
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessage, kafkaMessage1)))
 
-        // flex-syketilfelle kjenner til begge sykmeldingene når første sykmelding behandles
-        mockFlexSyketilfelleSykeforloep(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-            oppfolgingsdato = dato,
-        )
-        mockFlexSyketilfelleSykeforloep(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-            oppfolgingsdato = dato,
-        )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
+        sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessage,
-            topic = SYKMELDINGSENDT_TOPIC,
+            oppfolgingsdato = dato,
+            forventaSoknader = 2,
+            erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage1.sykmelding.id),
         )
 
         val hentSoknader = hentSoknader(fnr)
         hentSoknader.size `should be equal to` 2
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage1.sykmelding.id,
+        sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessage1,
-            topic = SYKMELDINGSENDT_TOPIC,
+            oppfolgingsdato = dato,
+            forventaSoknader = 0,
+            erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage.sykmelding.id),
         )
 
         val hentSoknader1 = hentSoknader(fnr)
@@ -170,25 +138,15 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         val kafkaMessageFørste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato)
         val kafkaMessageSiste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato.plusDays(10))
 
-        mockFlexSyketilfelleVentetidForSykmelding(
-            sykmeldingId = kafkaMessageSiste.sykmelding.id,
-            erUtenforVentetid = true,
-            sykmeldingIderMedSammeVentetid = setOf(kafkaMessageSiste.sykmelding.id, kafkaMessageFørste.sykmelding.id),
-        )
-
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessageFørste, kafkaMessageSiste)))
 
-        mockFlexSyketilfelleSykeforloep(
-            sykmeldingIder = setOf(kafkaMessageFørste.sykmelding.id, kafkaMessageSiste.sykmelding.id),
-            oppfolgingsdato = dato,
-        )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessageSiste.sykmelding.id,
+        sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessageSiste,
-            topic = SYKMELDINGSENDT_TOPIC,
+            oppfolgingsdato = dato,
+            forventaSoknader = 2,
+            erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessageFørste.sykmelding.id),
         )
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentSoknader = hentSoknader(fnr)
         hentSoknader.size `should be equal to` 2

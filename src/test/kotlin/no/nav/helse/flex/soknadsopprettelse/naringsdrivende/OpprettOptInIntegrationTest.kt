@@ -60,7 +60,7 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
                     .content(kafkaMessage.serialisertTilString()),
             ).andExpect(MockMvcResultMatchers.status().isOk)
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        ventPåLagredeSoknader(antall = 1)
         val soknader = hentSoknader(fnr)
         soknader.size `should be equal to` 1
         soknader.first().sykmeldingId `should be equal to` kafkaMessage.sykmelding.id
@@ -92,7 +92,7 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
                     .content(kafkaMessage.serialisertTilString()),
             ).andExpect(MockMvcResultMatchers.status().isOk)
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        ventPåLagredeSoknader(antall = 1)
         val soknader = hentSoknader(fnr)
         soknader.size `should be equal to` 1
         soknader.first().sykmeldingId `should be equal to` kafkaMessage.sykmelding.id
