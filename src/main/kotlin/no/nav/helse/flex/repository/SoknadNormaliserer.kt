@@ -59,6 +59,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             selvstendigNaringsdrivende = selvstendigNaringsdrivende?.serialisertTilString(),
             ventetidSykmeldingUuid = ventetidSykmeldingUuid,
             ghostInntekter = ghostInntekter?.serialisertTilString(),
+            inntektskilderDataFraInntektskomponenten = inntektskilderDataFraInntektskomponenten?.serialisertTilString(),
         )
     val perioder =
         this.soknadPerioder

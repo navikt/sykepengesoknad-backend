@@ -1,9 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
@@ -31,7 +29,6 @@ fun sjekkForGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     arbeidforholdOversiktAareg: List<ArbeidsforholdFraAAreg>,
     arbeidsgiverOrgnummerSoknad: String?,
-    eksisterendeSoknader: List<Sykepengesoknad>,
 ): List<KjentInntektskilde> {
     val andreInntekter =
         arbeidsforholdFraInntektskomponenten.map { inntekt ->
@@ -44,14 +41,8 @@ fun sjekkForGhostInntekter(
 
     val tilkomneInntekterOrgNummer = arbeidforholdOversiktAareg.map { it.arbeidsstedOrgnummer }
 
-    val eksisterendeSoknaderOrgNummer =
-        eksisterendeSoknader
-            .filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
-            .map { it.arbeidsgiverOrgnummer } // TODO skal denne filtrere på noe datoer?
-
     return andreInntekter
         .toSet()
         .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
-        .filterNot { it.orgnummer in eksisterendeSoknaderOrgNummer }
         .filterNot { it.orgnummer in tilkomneInntekterOrgNummer }
 }

@@ -178,7 +178,6 @@ class SporsmalGenerator(
                             arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
                             arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
                             arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
-                            eksisterendeSoknader = eksisterendeSoknader,
                         )
                     } else {
                         emptyList()
