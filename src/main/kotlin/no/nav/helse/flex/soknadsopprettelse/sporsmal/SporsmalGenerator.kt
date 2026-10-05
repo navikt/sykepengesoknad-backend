@@ -56,6 +56,7 @@ class SporsmalGenerator(
         val sporsmal: List<Sporsmal>,
         val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null,
         val arbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>? = null,
+        val ghostInntekter: List<KjentInntektskilde>? = null,
     )
 
     fun lagSporsmalPaSoknad(id: String) {
@@ -91,6 +92,7 @@ class SporsmalGenerator(
                             sporsmalOgAndreKjenteArbeidsforhold
                                 .arbeidsforholdFraAAreg
                                 ?.serialisertTilString(),
+                        ghostInntekter = sporsmalOgAndreKjenteArbeidsforhold.ghostInntekter?.serialisertTilString(),
                     ),
             )
         }
@@ -160,33 +162,48 @@ class SporsmalGenerator(
 
         return when (soknad.arbeidssituasjon) {
             ARBEIDSTAKER -> {
-                val arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
-                val andreKjenteArbeidsforhold =
+                val nyeAaregArbeidsforhold =
+                    tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                        .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
+                val inntektskomponentenArbeidsforhold =
                     arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!,
                     )
 
+                val ghostInntekter =
+                    if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
+                        sjekkForGhostInntekter(
+                            arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
+                            arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
+                            arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+                        )
+                    } else {
+                        emptyList()
+                    }
+
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
+
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
-                        andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                         yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                        arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
+                        nyeArbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
                         kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
                         medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
                         harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                         erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                        ghostInntekter = ghostInntekter,
                     )
                 if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                     log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
                 }
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = arbeidstakerSporsmal,
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
-                    arbeidsforholdFraAAreg = arbeidsforholdoversiktResponse,
+                    andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
+                    arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
+                    ghostInntekter = ghostInntekter,
                 )
             }
 

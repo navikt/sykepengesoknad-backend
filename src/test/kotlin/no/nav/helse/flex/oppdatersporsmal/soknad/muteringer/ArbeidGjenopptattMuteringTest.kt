@@ -7,6 +7,8 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.tilOsloInstant
@@ -65,18 +67,33 @@ class ArbeidGjenopptattMuteringTest {
                 egenmeldingsdagerFraSykmelding = null,
                 forstegangssoknad = false,
             )
+
+        val ghostInnteker =
+            listOf(
+                KjentInntektskilde(
+                    navn = "Flausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "91839209109382101",
+                ),
+                KjentInntektskilde(
+                    navn = "Pausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "8192819372819138191",
+                ),
+            )
+
         val standardSoknad =
             soknad.copy(
                 sporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
-                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        arbeidsforholdoversiktResponse = null,
+                        nyeArbeidsforholdFraAAreg = emptyList(),
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
                         erForsteSoknadISykeforlop = true,
+                        ghostInntekter = ghostInnteker,
                     ),
             )
 
@@ -141,18 +158,33 @@ class ArbeidGjenopptattMuteringTest {
                 egenmeldingsdagerFraSykmelding = null,
                 forstegangssoknad = false,
             )
+
+        val ghostInnteker =
+            listOf(
+                KjentInntektskilde(
+                    navn = "Flausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "91839209109382101",
+                ),
+                KjentInntektskilde(
+                    navn = "Pausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "8192819372819138191",
+                ),
+            )
+
         val standardSoknad =
             soknad.copy(
                 sporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
-                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        arbeidsforholdoversiktResponse = null,
+                        nyeArbeidsforholdFraAAreg = emptyList(),
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
                         erForsteSoknadISykeforlop = true,
+                        ghostInntekter = ghostInnteker,
                     ),
             )
 
@@ -180,6 +212,7 @@ class ArbeidGjenopptattMuteringTest {
     @Test
     fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() {
         val fom = LocalDate.now().minusDays(19)
+
         val soknad =
             Sykepengesoknad(
                 fnr = "1234",
@@ -219,13 +252,13 @@ class ArbeidGjenopptattMuteringTest {
                 sporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
-                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        arbeidsforholdoversiktResponse = null,
+                        nyeArbeidsforholdFraAAreg = emptyList(),
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
                         erForsteSoknadISykeforlop = true,
+                        ghostInntekter = emptyList(),
                     ),
             )
 

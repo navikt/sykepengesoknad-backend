@@ -1,6 +1,8 @@
 package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.objectMapper
 import java.io.IOException
@@ -154,3 +156,17 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
         throw RuntimeException("Feil ved parsing av periode: $this", e)
     }
 }
+
+fun KjentInntektskilde.tilKjentInntektskildeDTO(): KjenteInntektskilderDTO =
+    KjenteInntektskilderDTO(
+        navn = this.navn,
+        kilde = this.kilde.tilKildeDTO(),
+        orgnummer = this.orgnummer,
+    )
+
+fun Kilde.tilKildeDTO(): KildeDTO =
+    when (this) {
+        Kilde.INNTEKTSKOMPONENTEN -> KildeDTO.INNTEKTSKOMPONENTEN
+        Kilde.AAAREG -> KildeDTO.AAAREG
+        Kilde.SYKMELDING -> KildeDTO.SYKMELDING
+    }

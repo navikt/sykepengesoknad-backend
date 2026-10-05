@@ -13,6 +13,8 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandL
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.amshove.kluent.`should be equal to`
@@ -527,6 +529,31 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         assertThat(soknadsperioder[1].avtaltTimer).isNull()
         assertThat(soknadsperioder[1].faktiskGrad).isNull()
         assertThat(soknadsperioder[1].faktiskTimer).isNull()
+    }
+
+    @Test
+    fun `Konverterer ghost inntektskilder`() {
+        val sykepengesoknad =
+            opprettNyArbeidstakerSoknad().copy(
+                ghostInntekter =
+                    listOf(
+                        KjentInntektskilde(
+                            navn = "Arbeidsgiver 1",
+                            kilde = Kilde.INNTEKTSKOMPONENTEN,
+                            orgnummer = "123456789",
+                        ),
+                    ),
+            )
+
+        val soknad =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad,
+                Mottaker.ARBEIDSGIVER_OG_NAV,
+                false,
+                hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad).first,
+            )
+
+        assertThat(soknad.flereInntektskilderGhost).hasSize(1)
     }
 
     @Test

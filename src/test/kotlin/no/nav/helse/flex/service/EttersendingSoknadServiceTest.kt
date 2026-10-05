@@ -198,13 +198,13 @@ class EttersendingSoknadServiceTest {
             sporsmal =
                 settOppSoknadArbeidstaker(
                     sykepengesoknad = soknadMetadata,
-                    andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                    arbeidsforholdoversiktResponse = null,
+                    nyeArbeidsforholdFraAAreg = emptyList(),
                     kjentOppholdstillatelse = null,
                     medlemskapSporsmalTags = emptyList(),
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = true,
+                    ghostInntekter = emptyList(),
                 ),
         )
     }
