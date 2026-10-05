@@ -56,10 +56,11 @@ data class KjentInntektskilde(
     val orgnummer: String,
 )
 
-fun andreInntektskilderArbeidstakerV2(): Sporsmal =
-    Sporsmal(
+fun andreInntektskilderArbeidstakerV2(gruppe: Boolean = false): Sporsmal {
+    val tekst = if (gruppe) "Har du annen inntekt eller oppdrag i tillegg til dette?" else "Har du annen inntekt eller oppdrag?"
+    return Sporsmal(
         tag = ANDRE_INNTEKTSKILDER_V2,
-        sporsmalstekst = "Har du annen inntekt eller oppdrag?",
+        sporsmalstekst = tekst,
         undertekst = "Med inntekt mener vi betaling som du får for arbeid du har gjort.",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
@@ -117,6 +118,7 @@ fun andreInntektskilderArbeidstakerV2(): Sporsmal =
                 ),
             ),
     )
+}
 
 fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal =
     Sporsmal(
