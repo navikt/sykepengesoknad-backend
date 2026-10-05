@@ -49,7 +49,7 @@ data class FriskTilArbeidVedtakDbRecord(
     val ignorerArbeidssokerregister: Boolean? = null,
 )
 
-fun FriskTilArbeidVedtakDbRecord.sjekkArbeidssokerregisteret() = ignorerArbeidssokerregister != true
+fun FriskTilArbeidVedtakDbRecord.skalSjekkeArbeidssokerregisteret() = ignorerArbeidssokerregister != true
 
 fun FriskTilArbeidVedtakDbRecord.tilPeriode(): Periode {
     fun avsluttetEllerTom(): LocalDate {
