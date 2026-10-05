@@ -4,6 +4,8 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
@@ -99,6 +101,18 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
     @Test
     fun `Sender sykmelding og svarer på søknad om flere arbeidsforhold (GHOST)`() {
+        AaregMockDispatcher.enqueue(
+            listOf(
+                skapArbeidsforholdOversikt(
+                    fnr = ghostFnr,
+                    startdato = basisdato.minusDays(18),
+                    sluttdato = null,
+                    arbeidssted = "999333666",
+                    opplysningspliktigOrganisasjonsnummer = "123456789",
+                ),
+            ),
+        )
+
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = ghostFnr,
@@ -116,19 +130,19 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(ghostFnr).first { it.status == RSSoknadstatus.NY }.id,
                 fnr = ghostFnr,
             )
+
         soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(2)
-        val arbeidstaker = soknaden.inntektskilderDataFraInntektskomponenten.first()
+        val arbeidstaker = soknaden.inntektskilderDataFraInntektskomponenten[0]
         arbeidstaker.navn `should be equal to` "Bensinstasjonen AS"
         arbeidstaker.orgnummer `should be equal to` "999333666"
         arbeidstaker.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
-        val frilanser = soknaden.inntektskilderDataFraInntektskomponenten.last()
+        val frilanser = soknaden.inntektskilderDataFraInntektskomponenten[1]
         frilanser.navn `should be equal to` "Frilanseransetter AS"
         frilanser.orgnummer `should be equal to` "999333667"
         frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknad(soknaden.id).ghostInntekter)
             .containsExactlyInAnyOrder(
-                KjentInntektskilde("Bensinstasjonen AS", Kilde.INNTEKTSKOMPONENTEN, "999333666"),
                 KjentInntektskilde("Frilanseransetter AS", Kilde.INNTEKTSKOMPONENTEN, "999333667"),
             )
 
@@ -147,6 +161,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
                 .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
                 .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+                .besvarSporsmal(tag = medIndex(NYTT_ARBEIDSFORHOLD_UNDERVEIS, 0), svar = "NEI")
                 .besvarSporsmal(tag = FLERE_INNTEKTSKILDER_GHOST, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = medIndex(JOBBET_MER_I_VALG, 0), svar = "CHECKED", ferdigBesvart = false)
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
@@ -161,7 +176,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         assertThat(kafkaSoknaderMedGhost[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknaderMedGhost[0].flereInntektskilderGhost)
             .containsExactlyInAnyOrder(
-                KjenteInntektskilderDTO("Bensinstasjonen AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333666"),
                 KjenteInntektskilderDTO("Frilanseransetter AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333667"),
             )
 
@@ -180,7 +194,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                     .first()
                     .verdi `should be equal to` "CHECKED"
 
-                sporsmal.sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+                sporsmal.sporsmalstekst `should be equal to` "Frilanseransetter AS"
             }
 
         kafkaSoknaderMedGhost[0].andreInntektskilder `should be equal to`

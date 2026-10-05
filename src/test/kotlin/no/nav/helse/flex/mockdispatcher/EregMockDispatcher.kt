@@ -15,6 +15,7 @@ object EregMockDispatcher : Dispatcher() {
                 "999333666" -> "BENSINSTASJONEN AS"
                 "999333667" -> "FRILANSERANSETTER AS"
                 "999888777" -> "KIOSKEN,AVD OSLO AS"
+                "123454543" -> "Matbutikken AS"
                 else -> "UKJENT"
             }
         return skapResponse(orgnavn)

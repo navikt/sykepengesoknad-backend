@@ -13,6 +13,8 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandL
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.amshove.kluent.`should be equal to`
@@ -530,6 +532,31 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
+    fun `Konverterer ghost inntektskilder`() {
+        val sykepengesoknad =
+            opprettNyArbeidstakerSoknad().copy(
+                ghostInntekter =
+                    listOf(
+                        KjentInntektskilde(
+                            navn = "Arbeidsgiver 1",
+                            kilde = Kilde.INNTEKTSKOMPONENTEN,
+                            orgnummer = "123456789",
+                        ),
+                    ),
+            )
+
+        val soknad =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad,
+                Mottaker.ARBEIDSGIVER_OG_NAV,
+                false,
+                hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad).first,
+            )
+
+        assertThat(soknad.flereInntektskilderGhost).hasSize(1)
+    }
+
+    @Test
     fun `Beregn faktisk grad når bruker har jobbet tilsvarende grad i sykmeldingen`() {
         val avtaltTimerPerUke = 40.0
         val timerJobbetIPerioden = 20.0
@@ -627,9 +654,5 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             ferieOgPermisjon,
             null,
         ) `should be equal to` 60
-    }
-
-    @Test
-    fun `Sjekk om vi får flere ghost inntektskilder på Kafka`() {
     }
 }
