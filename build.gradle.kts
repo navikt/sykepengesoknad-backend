@@ -29,7 +29,7 @@ repositories {
 val tokenSupportVersion = "5.0.37"
 val confluentVersion = "8.2.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
-val sykepengesoknadKafkaVersion = "2026.09.25-11.42-50d2203b"
+val sykepengesoknadKafkaVersion = "2026.10.05-17.20-83aea409"
 val mockitoKotlinVersion = "2.2.0"
 val avroVersion = "1.12.2"
 val logstashLogbackEncoderVersion = "9.0"

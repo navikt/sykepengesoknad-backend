@@ -342,7 +342,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             inntekt.inntektsAar.single { it.aar == "2023" }.also { aar ->
                 aar.erFerdigLignet `should be equal to` true
                 aar.pensjonsgivendeInntekt!!.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 150_000
-                aar.pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 600_000
+                aar.pensjonsgivendeInntekt!!.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 600_000
 
                 aar.pensjonsgivendeInntektPerSkatteordning.size `should be equal to` 2
                 aar.pensjonsgivendeInntektPerSkatteordning[0].also {
