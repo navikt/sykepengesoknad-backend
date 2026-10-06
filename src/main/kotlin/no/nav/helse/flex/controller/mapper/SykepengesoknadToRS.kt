@@ -169,6 +169,8 @@ fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
         merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
         ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
         meldingTilNavDagerFraSykmelding = this.meldingTilNavDagerFraSykmelding,
+        fiskerBlad = this.fiskerBlad,
+        fiskerLottOgHyre = this.fiskerLottOgHyre,
     )
 
 fun KjentInntektskilde.tilRSKjentInntektskilde() =

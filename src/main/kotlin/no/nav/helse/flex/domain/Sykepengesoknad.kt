@@ -50,6 +50,7 @@ data class Sykepengesoknad(
     val inntektsopplysningerInnsendingId: String? = null,
     val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val fiskerBlad: FiskerBlad? = null,
+    val fiskerLottOgHyre: FiskerLottOgHyre? = null,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
     val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>? = null,
     val julesoknad: Boolean? = false,

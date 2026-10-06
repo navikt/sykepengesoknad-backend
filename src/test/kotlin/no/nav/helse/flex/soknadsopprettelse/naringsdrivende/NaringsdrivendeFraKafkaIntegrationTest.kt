@@ -10,6 +10,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.FiskerBlad
+import no.nav.helse.flex.domain.FiskerLottOgHyre
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
@@ -287,7 +288,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 forventetArbeidssituasjonDTO = ArbeidssituasjonDTO.FISKER,
                 forventetArbeidssituasjonRS = RSArbeidssituasjon.FISKER,
             )
-            verifiserFiskerblad()
+            verifiserFisker()
         }
     }
 
@@ -628,9 +629,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
-    private fun verifiserFiskerblad() {
+    private fun verifiserFisker() {
         hentSoknaderMetadata(fnr).single().also {
-            sykepengesoknadDAO.finnSykepengesoknad(it.id).fiskerBlad `should be equal to` FiskerBlad.A
+            val soknad = sykepengesoknadDAO.finnSykepengesoknad(it.id)
+            soknad.fiskerBlad `should be equal to` FiskerBlad.A
+            soknad.fiskerLottOgHyre `should be equal to` FiskerLottOgHyre.LOTT
         }
     }
 

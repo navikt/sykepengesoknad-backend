@@ -663,6 +663,10 @@ class SykepengesoknadDAOPostgres(
                             .ofNullable(resultSet.getString("fisker_blad"))
                             .map { FiskerBlad.valueOf(it) }
                             .orElse(null),
+                    fiskerLottOgHyre =
+                        resultSet
+                            .getNullableString("fisker_lott_og_hyre")
+                            ?.let { FiskerLottOgHyre.valueOf(it) },
                     arbeidsforholdFraAareg =
                         resultSet
                             .getNullableString("arbeidsforhold_fra_aareg")

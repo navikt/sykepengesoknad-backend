@@ -1,4 +1,6 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
+import no.nav.helse.flex.domain.FiskerBlad
+import no.nav.helse.flex.domain.FiskerLottOgHyre
 import no.nav.helse.flex.domain.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,4 +29,6 @@ data class RSSykepengesoknadFlexInternal(
     val merknaderFraSykmelding: List<RSMerknad>?,
     val ventetidSykmeldingUuid: String? = null,
     val meldingTilNavDagerFraSykmelding: List<Periode>? = null,
+    val fiskerBlad: FiskerBlad? = null,
+    val fiskerLottOgHyre: FiskerLottOgHyre? = null,
 )
