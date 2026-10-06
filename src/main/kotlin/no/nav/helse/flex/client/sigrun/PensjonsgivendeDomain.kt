@@ -1,5 +1,6 @@
 package no.nav.helse.flex.client.sigrun
 
+import java.time.LocalDate
 import java.util.*
 
 data class HentPensjonsgivendeInntektResponse(
@@ -9,7 +10,7 @@ data class HentPensjonsgivendeInntektResponse(
 )
 
 data class PensjonsgivendeInntekt(
-    val datoForFastsetting: String,
+    val datoForFastsetting: LocalDate,
     val skatteordning: Skatteordning,
     val pensjonsgivendeInntektAvLoennsinntekt: Int = 0,
     val pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel: Int = 0,

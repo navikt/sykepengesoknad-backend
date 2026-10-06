@@ -34,7 +34,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 400_000,
                         ),
@@ -46,7 +46,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 350_000,
                         ),
@@ -58,7 +58,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 300_000,
                         ),
@@ -70,12 +70,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2020-07-17",
+                            datoForFastsetting = LocalDate.parse("2020-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 0,
                         ),
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2020-07-19",
+                            datoForFastsetting = LocalDate.parse("2020-07-19"),
                             skatteordning = Skatteordning.SVALBARD,
                             pensjonsgivendeInntektAvNaeringsinntekt = 50_000,
                         ),
@@ -102,7 +102,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
                         ),
@@ -114,7 +114,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
                         ),
@@ -126,7 +126,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
                         ),
@@ -138,7 +138,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2020-07-17",
+                            datoForFastsetting = LocalDate.parse("2020-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 0,
                         ),
@@ -165,7 +165,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 2_000_000,
                         ),
@@ -177,7 +177,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 2_000_000,
                         ),
@@ -189,7 +189,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 2_000_000,
                         ),
@@ -217,7 +217,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 2_000_000,
                         ),
@@ -229,7 +229,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
                         ),
@@ -241,7 +241,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -269,12 +269,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 100_000,
                         ),
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.SVALBARD,
                             pensjonsgivendeInntektAvNaeringsinntekt = 150_000,
                         ),
@@ -286,17 +286,17 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
                         ),
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 250_000,
                         ),
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 1_250_000,
                         ),
@@ -308,12 +308,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 200_000,
                         ),
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.SVALBARD,
                             pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
                         ),
@@ -342,7 +342,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -354,7 +354,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -366,7 +366,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -395,7 +395,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -408,7 +408,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -437,7 +437,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -486,7 +486,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2024-07-17",
+                            datoForFastsetting = LocalDate.parse("2024-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -498,7 +498,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
@@ -510,7 +510,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
                         ),
