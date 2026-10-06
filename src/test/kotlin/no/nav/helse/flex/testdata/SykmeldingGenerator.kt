@@ -163,6 +163,7 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
         egenmeldingsdagerFraSykmelding = null,
         meldingTilNavDagerFraSykmelding = null,
         fiskerBlad = null,
+        fiskerLottOgHyre = null,
         merknader = merknader,
         arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
         arbeidsgiverNavn = null,

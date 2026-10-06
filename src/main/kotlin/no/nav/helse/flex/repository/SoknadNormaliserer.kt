@@ -54,6 +54,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
             aktivertDato = aktivertDato,
             fiskerBlad = fiskerBlad,
+            fiskerLottOgHyre = fiskerLottOgHyre,
             arbeidsforholdFraAareg = arbeidsforholdFraAareg?.serialisertTilString(),
             friskTilArbeidVedtakId = friskTilArbeidVedtakId,
             selvstendigNaringsdrivende = selvstendigNaringsdrivende?.serialisertTilString(),

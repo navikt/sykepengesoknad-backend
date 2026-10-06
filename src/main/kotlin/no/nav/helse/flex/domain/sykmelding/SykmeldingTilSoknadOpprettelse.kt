@@ -1,6 +1,7 @@
 package no.nav.helse.flex.domain.sykmelding
 
 import no.nav.helse.flex.domain.FiskerBlad
+import no.nav.helse.flex.domain.FiskerLottOgHyre
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykmeldingstype
@@ -26,6 +27,7 @@ data class SykmeldingTilSoknadOpprettelse(
     val egenmeldingsdagerFraSykmelding: String?,
     val meldingTilNavDagerFraSykmelding: List<Periode>?,
     val fiskerBlad: FiskerBlad?,
+    val fiskerLottOgHyre: FiskerLottOgHyre?,
     val merknader: List<Merknad>?,
     val arbeidsgiverOrgnummer: String?,
     val arbeidsgiverNavn: String?,
@@ -85,6 +87,15 @@ fun SykmeldingKafkaMessageDTO.tilSykmeldingTilSoknadOpprettelse() =
                 this.event.brukerSvar
                     ?.fisker
                     ?.blad
+                    ?.svar
+                    ?.name,
+            ),
+        fiskerLottOgHyre =
+            EnumUtil.konverter(
+                FiskerLottOgHyre::class.java,
+                this.event.brukerSvar
+                    ?.fisker
+                    ?.lottOgHyre
                     ?.svar
                     ?.name,
             ),

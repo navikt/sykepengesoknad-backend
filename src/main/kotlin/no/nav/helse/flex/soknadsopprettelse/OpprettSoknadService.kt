@@ -135,6 +135,7 @@ class OpprettSoknadService(
                                 tidligereArbeidsgiverOrgnummer = sykmeldingTilSoknadOpprettelse.tidligereArbeidsgiverOrgnummer,
                                 aktivertDato = null,
                                 fiskerBlad = sykmeldingTilSoknadOpprettelse.fiskerBlad,
+                                fiskerLottOgHyre = sykmeldingTilSoknadOpprettelse.fiskerLottOgHyre,
                                 selvstendigNaringsdrivende = selvstendigNaringsdrivendeInfo,
                                 ventetidSykmeldingUuid = ventetidSykmeldingUuid,
                             )
