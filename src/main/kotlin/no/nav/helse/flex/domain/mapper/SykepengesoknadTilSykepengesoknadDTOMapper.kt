@@ -41,6 +41,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             Soknadstype.GRADERT_REISETILSKUDD,
             Soknadstype.REISETILSKUDD,
             Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING,
+            Soknadstype.FISKERE,
             ->
                 konverterTilSykepengesoknadDTO(
                     sykepengesoknad = sykepengesoknad,

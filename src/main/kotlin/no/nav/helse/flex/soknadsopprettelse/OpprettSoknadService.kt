@@ -80,6 +80,7 @@ class OpprettSoknadService(
                             klippSammenligningsDato = sykmelding.datoForKlippSammenligning(),
                             orgnummer = sykmeldingTilSoknadOpprettelse.arbeidsgiverOrgnummer,
                             klippMetrikk = klippMetrikk,
+                            fiskerLottOgHyre = sykmelding.fiskerLottOgHyre,
                         ).map {
                             val selvstendigNaringsdrivendeInfo =
                                 hentSelvstendigNaringsdrivendeInfo(
@@ -124,7 +125,7 @@ class OpprettSoknadService(
                                 soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioderNy(),
                                 egenmeldtSykmelding = sykmelding.egenmeldt,
                                 merknaderFraSykmelding = sykmelding.merknader,
-                                soknadstype = bestemSoknadsTypeNy(arbeidssituasjon, perioderFraSykmeldingen),
+                                soknadstype = bestemSoknadsTypeNy(arbeidssituasjon, perioderFraSykmeldingen, sykmelding.fiskerLottOgHyre),
                                 status = Soknadstatus.FREMTIDIG,
                                 opprettet = Instant.now(),
                                 sporsmal = emptyList(),
@@ -308,6 +309,7 @@ data class SoknadSammenlikner(
     val soknadPerioder: List<Soknadsperiode>?,
     val arbeidsgiverOrgnummer: String?,
     val meldingTilNavDagerFraSykmelding: List<Periode>?,
+    val fiskerLottOgHyre: FiskerLottOgHyre?,
 )
 
 fun Sykepengesoknad.tilSoknadSammenlikner() =
@@ -320,6 +322,7 @@ fun Sykepengesoknad.tilSoknadSammenlikner() =
         soknadstype = this.soknadstype,
         soknadPerioder = this.soknadPerioder,
         meldingTilNavDagerFraSykmelding = this.meldingTilNavDagerFraSykmelding,
+        fiskerLottOgHyre = this.fiskerLottOgHyre,
     )
 
 internal fun erKunMeldingTilNavDagerForskjellig(
