@@ -171,18 +171,16 @@ class SporsmalGenerator(
                     startSykeforlop = soknad.startSykeforlop!!,
                 )
 
-            val ghostInntekter =
-                if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
-                    sjekkForGhostInntekter(
-                        arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
-                        arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
-                        arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
-                    )
-                } else {
-                    emptyList()
-                }
-
-            val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
+        val ghostInntekter =
+            if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
+                sjekkForGhostInntekter(
+                    arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
+                    arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
+                    arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+                )
+            } else {
+                emptyList()
+            }
 
             val arbeidstakerSporsmal =
                 settOppSoknadArbeidstaker(
