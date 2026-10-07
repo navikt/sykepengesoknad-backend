@@ -160,29 +160,29 @@ class SporsmalGenerator(
             else -> {}
         }
 
+        val nyeAaregArbeidsforhold =
+            tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
+        val inntektskomponentenArbeidsforhold =
+            arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
+                fnr = soknad.fnr,
+                arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
+                startSykeforlop = soknad.startSykeforlop!!,
+            )
+
+        val ghostInntekter =
+            if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
+                sjekkForGhostInntekter(
+                    arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
+                    arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
+                    arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+                )
+            } else {
+                emptyList()
+            }
+
         return when (soknad.arbeidssituasjon) {
             ARBEIDSTAKER -> {
-                val nyeAaregArbeidsforhold =
-                    tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
-                        .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
-                val inntektskomponentenArbeidsforhold =
-                    arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
-                        fnr = soknad.fnr,
-                        arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
-                        startSykeforlop = soknad.startSykeforlop!!,
-                    )
-
-                val ghostInntekter =
-                    if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
-                        sjekkForGhostInntekter(
-                            arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
-                            arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
-                            arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
-                        )
-                    } else {
-                        emptyList()
-                    }
-
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
 
                 val arbeidstakerSporsmal =
