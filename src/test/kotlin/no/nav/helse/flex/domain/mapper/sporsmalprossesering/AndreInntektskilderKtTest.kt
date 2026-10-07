@@ -103,17 +103,10 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(4)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ARBEIDSFORHOLD)
-        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(false)
-
-        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.JORDBRUKER_FISKER_REINDRIFTSUTOVER)
-        andreInntektskilder[1].sykmeldt.shouldBeEqualTo(true)
-
-        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.FRILANSER_SELVSTENDIG)
-        andreInntektskilder[2].sykmeldt.shouldBeEqualTo(true)
-
-        andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.ANNET)
-        andreInntektskilder[3].sykmeldt.shouldBeEqualTo(null)
+        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
+        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.FOSTERHJEMGODTGJORELSE)
+        andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.STYREVERV)
     }
 
     @Test

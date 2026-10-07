@@ -204,20 +204,22 @@ class SporsmalGenerator(
             )
         }
 
-        return when (soknad.arbeidssituasjon) {
-            FISKER,
-            JORDBRUKER,
-            BARNEPASSER,
-            NAERINGSDRIVENDE,
-            FRILANSER,
-            -> {
-                settOppSoknadSelvstendigOgFrilanser(
-                    sykepengesoknad = soknad,
-                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                )
-            }
+        return
+                when (soknad.arbeidssituasjon) {
+                    FISKER,
+                    JORDBRUKER,
+                    BARNEPASSER,
+                    NAERINGSDRIVENDE,
+                    FRILANSER,
+                    -> {
+                        settOppSoknadSelvstendigOgFrilanser(
+                            sykepengesoknad = soknad,
+                            sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            ghostInntekter = ghostInntekter,
+                        )
+                    }
 
             ARBEIDSLEDIG ->
                 settOppSoknadArbeidsledig(

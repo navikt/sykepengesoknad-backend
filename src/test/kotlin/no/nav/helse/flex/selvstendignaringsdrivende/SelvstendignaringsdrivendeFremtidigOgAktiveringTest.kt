@@ -104,7 +104,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                 NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
@@ -139,7 +139,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                         ),
                 ).besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
                 .besvarSporsmal(tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, svar = "NEI")
-                .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
+                .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
                 .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
                 .besvarSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA", ferdigBesvart = false)
                 .besvarSporsmal(
@@ -180,7 +180,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             )
