@@ -5,7 +5,10 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
+import no.nav.helse.flex.mockdispatcher.skapArbeidstakerOgFrilanserInntekter
+import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
@@ -46,6 +49,13 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
     @Test
     fun `Sender inn sykmelding og svarer på søknad om et arbeidsforhold`() {
+        InntektskomponentenMockDispatcher.enqueue(
+            skapHentInntekterResponse(
+                fnr = kunEttArbeidsforholdFnr,
+                loennsinntektOrgnumre = listOf("123454543"),
+            ),
+        )
+
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = kunEttArbeidsforholdFnr,
@@ -112,6 +122,8 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 ),
             ),
         )
+
+        InntektskomponentenMockDispatcher.enqueue(skapArbeidstakerOgFrilanserInntekter(ghostFnr))
 
         sendSykmelding(
             sykmeldingKafkaMessage(
