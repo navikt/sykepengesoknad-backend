@@ -185,4 +185,39 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 TIL_SLUTT,
             )
     }
+
+    @Nested
+    inner class GhostSporsmal {
+        @Test
+        fun `Søknad skal få spørsmål om ghost ettersom det er flere ghostinntekter`() {
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(fom = basisdato, tom = basisdato.plusDays(20)),
+                ),
+            )
+
+            aktiveringJob.bestillAktivering(now = basisdato.plusDays(61))
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+
+            val soknad =
+                hentSoknad(
+                    soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                    fnr = fnr,
+                )
+
+            soknad.sporsmal!!.map { it.tag } `should be equal to`
+                listOf(
+                    ANSVARSERKLARING,
+                    TILBAKE_I_ARBEID,
+                    "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
+                    FLERE_INNTEKTSKILDER_GRUPPE,
+                    OPPHOLD_UTENFOR_EOS,
+                    TIL_SLUTT,
+                )
+        }
+    }
 }
