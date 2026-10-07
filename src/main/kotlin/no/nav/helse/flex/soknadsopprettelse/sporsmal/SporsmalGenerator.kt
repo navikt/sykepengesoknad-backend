@@ -220,6 +220,7 @@ class SporsmalGenerator(
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            ghostInntekter = ghostInntekter,
                         )
                     }
 

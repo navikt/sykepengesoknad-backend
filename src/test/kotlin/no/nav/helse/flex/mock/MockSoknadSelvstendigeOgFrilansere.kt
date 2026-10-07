@@ -83,6 +83,7 @@ fun opprettNyNaeringsdrivendeSoknadGradert(): Sykepengesoknad {
                     sykepengesoknad = soknadMetadata,
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = true,
+                    ghostInntekter = emptyList(),
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
@@ -144,6 +145,7 @@ fun opprettNyNaeringsdrivendeSoknad100Prosent(): Sykepengesoknad {
                     sykepengesoknad = soknadMetadata,
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = true,
+                    ghostInntekter = emptyList(),
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad100Prosent()
@@ -204,6 +206,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                     sykepengesoknad = soknadMetadata,
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = false,
+                    ghostInntekter = emptyList(),
                 ),
             status = Soknadstatus.SENDT,
             sendtNav = Instant.now(),
@@ -234,14 +237,11 @@ private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad =
         .besvarsporsmal(OPPHOLD_UTENFOR_EOS_NAR, periodeTilJson(fom!!.plusDays(2), fom.plusDays(4)))
 
 private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad =
-    besvarsporsmal(ANDRE_INNTEKTSKILDER, "JA")
-        .besvarsporsmal(INNTEKTSKILDE_ARBEIDSFORHOLD, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, "NEI")
-        .besvarsporsmal(INNTEKTSKILDE_JORDBRUKER, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_JORDBRUKER + ER_DU_SYKMELDT, "JA")
-        .besvarsporsmal(INNTEKTSKILDE_FRILANSER_SELVSTENDIG, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_FRILANSER_SELVSTENDIG + ER_DU_SYKMELDT, "JA")
-        .besvarsporsmal(INNTEKTSKILDE_ANNET, "CHECKED")
+    besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
+        .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_STYREVERV, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_FOSTERHJEM, "CHECKED")
 
 private fun Sykepengesoknad.tilbakeIArbeid(): Sykepengesoknad =
     besvarsporsmal(TILBAKE_I_ARBEID, "JA")
