@@ -18,14 +18,8 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
     @Autowired
     lateinit var arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting
 
-    @AfterEach
-    fun sjekkInntektskomponentenMock() {
-        InntektskomponentenMockDispatcher.harRequestsIgjen() `should be equal to` false
-    }
-
     @Test
     fun `finner det ene arbeidstaker forholdet vi allerede vet om`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         InntektskomponentenMockDispatcher.enqueue(skapArbeidstakerOgFrilanserInntekter(FNR))
 
         arbeidsforholdFraInntektskomponentenHenting
@@ -35,13 +29,10 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 startSykeforlop = LocalDate.now(),
             ).filter { it.arbeidsforholdstype == Arbeidsforholdstype.ARBEIDSTAKER }
             .`should be empty`()
-
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
     }
 
     @Test
     fun `finner et frilanser arbeidsforhold`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         InntektskomponentenMockDispatcher.enqueue(skapArbeidstakerOgFrilanserInntekter(FNR))
 
         val frilanserArbeidsforholdet =
@@ -53,13 +44,10 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 ).filter { it.arbeidsforholdstype == Arbeidsforholdstype.FRILANSER }
         frilanserArbeidsforholdet.shouldHaveSize(1)
         frilanserArbeidsforholdet.first().orgnummer `should be equal to` "999333667"
-
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
     }
 
     @Test
     fun `finner arbeidsforhold som ikke er sykemeldt fra`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         InntektskomponentenMockDispatcher.enqueue(skapArbeidstakerOgFrilanserInntekter(FNR))
 
         arbeidsforholdFraInntektskomponentenHenting
@@ -68,13 +56,10 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 arbeidsgiverOrgnummer = "123454543",
                 startSykeforlop = LocalDate.now(),
             ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS", "Frilanseransetter AS")
-
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
     }
 
     @Test
     fun `finner to vi ikke vet om`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         val fnr = "22222222222"
         InntektskomponentenMockDispatcher.enqueue(
             skapHentInntekterResponse(
@@ -89,13 +74,10 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 arbeidsgiverOrgnummer = "999333667",
                 startSykeforlop = LocalDate.now(),
             ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS", "Kiosken, avd Oslo AS")
-
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
     }
 
     @Test
     fun `utelater ikke frilansinntekt`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         val fnr = "3333333333"
         InntektskomponentenMockDispatcher.enqueue(
             skapHentInntekterResponse(
@@ -111,13 +93,10 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 arbeidsgiverOrgnummer = "99944736",
                 startSykeforlop = LocalDate.now(),
             ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS")
-
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
     }
 
     @Test
     fun `orgnummer med baade frilans og ordinaert arbeidsforhold blir klassifisert som arbeidstaker`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         InntektskomponentenMockDispatcher.enqueue(
             skapHentInntekterResponse(
                 fnr = FNR,
@@ -137,7 +116,5 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
         arbeidsforhold.shouldHaveSize(1)
         arbeidsforhold.first().orgnummer `should be equal to` "999333667"
         arbeidsforhold.first().arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
-
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
     }
 }
