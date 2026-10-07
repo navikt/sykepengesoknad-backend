@@ -12,4 +12,5 @@ enum class Soknadstype(
     REISETILSKUDD(visesPåDineSykmeldte = false),
     GRADERT_REISETILSKUDD(visesPåDineSykmeldte = true),
     FRISKMELDT_TIL_ARBEIDSFORMIDLING(visesPåDineSykmeldte = false),
+    FISKERE(visesPåDineSykmeldte = false),
 }

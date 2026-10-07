@@ -99,5 +99,6 @@ class ErKunMeldingTilNavDagerForskjelligTest {
             soknadPerioder = emptyList(),
             arbeidsgiverOrgnummer = "999888777",
             meldingTilNavDagerFraSykmelding = meldingTilNavDagerFraSykmelding,
+            fiskerLottOgHyre = null,
         )
 }

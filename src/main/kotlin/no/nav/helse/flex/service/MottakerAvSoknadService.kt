@@ -50,6 +50,7 @@ class MottakerAvSoknadService(
             ANNET_ARBEIDSFORHOLD,
             REISETILSKUDD,
             FRISKMELDT_TIL_ARBEIDSFORMIDLING,
+            FISKERE,
             -> NAV
 
             BEHANDLINGSDAGER,
