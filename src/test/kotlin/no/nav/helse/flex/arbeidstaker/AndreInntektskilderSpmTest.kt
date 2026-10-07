@@ -42,6 +42,11 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
     val kunEttArbeidsforholdFnr = "11111234566"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
+    @BeforeEach
+    fun resetInntektskomponentenMock() {
+        InntektskomponentenMockDispatcher.antallKall.set(0)
+    }
+
     @AfterEach
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(3)
@@ -54,7 +59,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
     @Test
     fun `Sender inn sykmelding og svarer på søknad om et arbeidsforhold`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         InntektskomponentenMockDispatcher.enqueue(
             skapHentInntekterResponse(
                 fnr = kunEttArbeidsforholdFnr,
@@ -114,12 +118,11 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 ),
             )
 
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
+        InntektskomponentenMockDispatcher.antallKall() `should be equal to` 1
     }
 
     @Test
     fun `Sender sykmelding og svarer på søknad om flere arbeidsforhold (GHOST)`() {
-        val antallKall = InntektskomponentenMockDispatcher.antallKall()
         AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(
@@ -226,6 +229,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 ),
             )
 
-        InntektskomponentenMockDispatcher.antallKall() `should be equal to` antallKall + 1
+        InntektskomponentenMockDispatcher.antallKall() `should be equal to` 1
     }
 }
