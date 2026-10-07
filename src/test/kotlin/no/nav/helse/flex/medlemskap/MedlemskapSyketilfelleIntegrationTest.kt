@@ -89,7 +89,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         andreSoknad.medlemskapVurdering `should be` null
         andreSoknad.forstegangssoknad `should be` false
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 1
     }
 
     @Test
@@ -145,7 +145,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         overlappendeSoknad.status `should be equal to` NY
         overlappendeSoknad.forstegangssoknad `should be` true
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 2
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 2
     }
 
     @Test
@@ -203,7 +203,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         andreSoknad.medlemskapVurdering `should be` null
         andreSoknad.forstegangssoknad `should be` false
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 2
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 2
     }
 
     @Test
@@ -244,7 +244,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         reisetilskuddSoknad.medlemskapVurdering `should be` null
         reisetilskuddSoknad.forstegangssoknad `should be` false
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 1
     }
 
     @Test
@@ -291,7 +291,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         andreSoknad.medlemskapVurdering `should be` null
         andreSoknad.forstegangssoknad `should be` false
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 1
     }
 
     @Test
@@ -336,7 +336,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         andreSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         andreSoknad.forstegangssoknad `should be` true
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 2
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 2
     }
 
     @Test
@@ -407,7 +407,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
             )
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 1
     }
 
     @Test
@@ -494,7 +494,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
             )
 
-        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
+        MedlemskapMockDispatcher.antallKall() `should be equal to` 1
     }
 
     private fun lagUavklartMedlemskapVurdering() =

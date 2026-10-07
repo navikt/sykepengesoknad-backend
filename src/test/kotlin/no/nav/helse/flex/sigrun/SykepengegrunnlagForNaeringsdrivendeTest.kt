@@ -84,7 +84,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -147,7 +147,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -199,7 +199,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -251,7 +251,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -323,7 +323,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -376,7 +376,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 5
+        SigrunMockDispatcher.antallKall() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -418,7 +418,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 5
+        SigrunMockDispatcher.antallKall() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -452,7 +452,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
             sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(
                 lagSykepengesoknad(dato = LocalDate.of(2023, 10, 1)),
             )
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -470,7 +470,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
             }
         }
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 5
+        SigrunMockDispatcher.antallKall() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
@@ -520,7 +520,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad(LocalDate.of(2025, 3, 1)))
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
