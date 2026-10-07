@@ -160,16 +160,15 @@ class SporsmalGenerator(
             else -> {}
         }
 
-        if (soknad.erTilsvarendeArbeidstaker()) {
-            val nyeAaregArbeidsforhold =
-                tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
-                    .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
-            val inntektskomponentenArbeidsforhold =
-                arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
-                    fnr = soknad.fnr,
-                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
-                    startSykeforlop = soknad.startSykeforlop!!,
-                )
+        val nyeAaregArbeidsforhold =
+            tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
+        val inntektskomponentenArbeidsforhold =
+            arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
+                fnr = soknad.fnr,
+                arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
+                startSykeforlop = soknad.startSykeforlop!!,
+            )
 
             val ghostInntekter =
                 if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
@@ -184,6 +183,7 @@ class SporsmalGenerator(
 
             val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
 
+        if (soknad.erTilsvarendeArbeidstaker()) {
             val arbeidstakerSporsmal =
                 settOppSoknadArbeidstaker(
                     sykepengesoknad = soknad,
@@ -224,19 +224,20 @@ class SporsmalGenerator(
         }
 
         return when (soknad.arbeidssituasjon) {
-            FISKER,
-            JORDBRUKER,
-            BARNEPASSER,
-            NAERINGSDRIVENDE,
-            FRILANSER,
-            -> {
-                settOppSoknadSelvstendigOgFrilanser(
-                    sykepengesoknad = soknad,
-                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                )
-            }
+                    FISKER,
+                    JORDBRUKER,
+                    BARNEPASSER,
+                    NAERINGSDRIVENDE,
+                    FRILANSER,
+                    -> {
+                        settOppSoknadSelvstendigOgFrilanser(
+                            sykepengesoknad = soknad,
+                            sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            ghostInntekter = ghostInntekter,
+                        )
+                    }
 
             ARBEIDSLEDIG ->
                 settOppSoknadArbeidsledig(
