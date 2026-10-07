@@ -1,28 +1,40 @@
 package no.nav.helse.flex.frilanser
 
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
+import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
 import no.nav.helse.flex.sendSoknad
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FrilanserIntegrationTest : FellesTestOppsett() {
+    @Autowired
+    private lateinit var aktiveringJob: AktiveringJob
+
     final val fnr = "123456789"
 
     @AfterAll
@@ -52,7 +64,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
-        soknaden.inntektskilderDataFraInntektskomponenten.shouldBeNull()
+        soknaden.inntektskilderDataFraInntektskomponenten.shouldNotBeNull().shouldBeEmpty()
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -233,5 +245,53 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.SENDT)
+    }
+
+    @Test
+    @Order(11)
+    fun `frilanser får ghost-spørsmål med oppdragsgivere og kan svare på det`() {
+        val ghostFnr = "1234567659"
+        val datoLangtIFremtiden = LocalDate.parse("2025-01-01").plusYears(1000)
+        InntektskomponentenMockDispatcher.enqueue(
+            skapHentInntekterResponse(
+                fnr = ghostFnr,
+                loennsinntektOrgnumre = listOf("999333667"),
+                frilansOrgnumre = listOf("999333667"),
+            ),
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                fnr = ghostFnr,
+                sykmeldingsperioder = heltSykmeldt(fom = datoLangtIFremtiden, tom = datoLangtIFremtiden.plusDays(20)),
+            ),
+        )
+        aktiveringJob.bestillAktivering(now = datoLangtIFremtiden.plusDays(61))
+        val aktivertSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
+        aktivertSoknad.flereInntektskilderGhost.shouldNotBeNull().map { it.orgnummer } `should be equal to` listOf("999333667")
+
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(ghostFnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = ghostFnr,
+            )
+        soknad.sporsmal!!.map { it.tag } shouldContain FLERE_INNTEKTSKILDER_GRUPPE
+        soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Frilanseransetter AS"
+
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = ghostFnr)
+            .besvarSporsmal(tag = FLERE_INNTEKTSKILDER_GHOST, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(tag = medIndex(JOBBET_MER_I_VALG, 0), svar = "CHECKED", ferdigBesvart = false)
+            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
+
+        val besvartSoknad = hentSoknad(soknadId = soknad.id, fnr = ghostFnr)
+        listOf(
+            FLERE_INNTEKTSKILDER_GHOST to "JA",
+            medIndex(JOBBET_MER_I_VALG, 0) to "CHECKED",
+            ANDRE_INNTEKTSKILDER_V2 to "JA",
+            INNTEKTSKILDE_STYREVERV to "CHECKED",
+        ).forEach { (tag, forventetSvar) ->
+            besvartSoknad.getSporsmalMedTag(tag).svar.map { it.verdi } `should be equal to` listOf(forventetSvar)
+        }
     }
 }

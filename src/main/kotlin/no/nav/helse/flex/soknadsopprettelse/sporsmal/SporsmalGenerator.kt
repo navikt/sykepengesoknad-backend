@@ -126,6 +126,10 @@ class SporsmalGenerator(
         identer: FolkeregisterIdenter,
         sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     ): SporsmalOgAndreKjenteArbeidsforhold {
+        requireNotNull(soknad.startSykeforlop)
+        requireNotNull(soknad.fom)
+        requireNotNull(soknad.tom)
+
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
 
         when (soknad.soknadstype) {
@@ -160,40 +164,20 @@ class SporsmalGenerator(
             else -> {}
         }
 
-        val nyeAaregArbeidsforhold =
-            tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
-                .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
-        val inntektskomponentenArbeidsforhold =
-            arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
-                fnr = soknad.fnr,
-                arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
-                startSykeforlop = soknad.startSykeforlop!!,
-            )
-
-            val ghostInntekter =
-                if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
-                    sjekkForGhostInntekter(
-                        arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
-                        arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
-                        arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
-                    )
-                } else {
-                    emptyList()
-                }
-
-            val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
-
         if (soknad.erTilsvarendeArbeidstaker()) {
+            val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
+            val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+
             val arbeidstakerSporsmal =
                 settOppSoknadArbeidstaker(
                     sykepengesoknad = soknad,
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                    nyeArbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
+                    nyeArbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
                     kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
                     medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
                     harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                    ghostInntekter = ghostInntekter,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
                 )
 
             val naringsdrivendeSporsmal =
@@ -211,33 +195,39 @@ class SporsmalGenerator(
                 } else {
                     emptyList()
                 }
-
             if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                 log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
             }
             return SporsmalOgAndreKjenteArbeidsforhold(
                 sporsmal = arbeidstakerSporsmal + naringsdrivendeSporsmal,
-                andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
-                arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
-                ghostInntekter = ghostInntekter,
+                andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                ghostInntekter = inntektsgrunnlag.ghostInntekter,
             )
         }
 
         return when (soknad.arbeidssituasjon) {
-                    FISKER,
-                    JORDBRUKER,
-                    BARNEPASSER,
-                    NAERINGSDRIVENDE,
-                    FRILANSER,
-                    -> {
+            FISKER,
+            JORDBRUKER,
+            BARNEPASSER,
+            NAERINGSDRIVENDE,
+            FRILANSER,
+            -> {
+                val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+                SporsmalOgAndreKjenteArbeidsforhold(
+                    sporsmal =
                         settOppSoknadSelvstendigOgFrilanser(
                             sykepengesoknad = soknad,
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                            ghostInntekter = ghostInntekter,
-                        )
-                    }
+                            ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                        ),
+                    andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                    arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                )
+            }
 
             ARBEIDSLEDIG ->
                 settOppSoknadArbeidsledig(
@@ -245,7 +235,7 @@ class SporsmalGenerator(
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                     harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                )
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
 
             ANNET ->
                 settOppSoknadAnnetArbeidsforhold(
@@ -253,7 +243,7 @@ class SporsmalGenerator(
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                     harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                )
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
 
             else -> {
                 throw RuntimeException(
@@ -261,7 +251,46 @@ class SporsmalGenerator(
                         "Kan ikke generere spørsmål.",
                 )
             }
-        }.tilSporsmalOgAndreKjenteArbeidsforhold()
+        }
+    }
+
+    private data class Inntektsgrunnlag(
+        val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
+        val arbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>,
+        val ghostInntekter: List<KjentInntektskilde>,
+    )
+
+    private fun hentInntekter(
+        soknad: Sykepengesoknad,
+        eksisterendeSoknader: List<Sykepengesoknad>,
+    ): Inntektsgrunnlag {
+        val nyeAaregArbeidsforhold =
+            tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
+
+        val inntektskomponentenArbeidsforhold =
+            arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
+                fnr = soknad.fnr,
+                arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
+                startSykeforlop = soknad.startSykeforlop!!,
+            )
+
+        val ghostInntekter =
+            if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
+                sjekkForGhostInntekter(
+                    arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
+                    arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
+                    arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+                )
+            } else {
+                emptyList()
+            }
+
+        return Inntektsgrunnlag(
+            andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
+            arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
+            ghostInntekter = ghostInntekter,
+        )
     }
 
     private fun hentYrkesskadeSporsmalGrunnlag(
