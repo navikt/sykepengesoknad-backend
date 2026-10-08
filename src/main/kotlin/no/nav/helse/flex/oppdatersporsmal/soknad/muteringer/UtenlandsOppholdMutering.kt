@@ -19,7 +19,11 @@ import no.nav.helse.flex.util.periodeHarDagerUtenforAndrePerioder
 import java.util.*
 
 fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
-    if (erIkkeAvType(Soknadstype.ARBEIDSTAKERE)) {
+    if (erIkkeAvType(Soknadstype.ARBEIDSTAKERE, Soknadstype.FISKERE)) {
+        return this
+    }
+
+    if (!this.erTilsvarendeArbeidstaker()) {
         return this
     }
 
