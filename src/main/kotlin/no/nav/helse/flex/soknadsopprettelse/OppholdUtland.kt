@@ -92,11 +92,6 @@ private fun arbeidsgiverSporsmal(): Sporsmal =
         undersporsmal =
             listOf(
                 Sporsmal(
-                    tag = SYKMELDINGSGRAD,
-                    sporsmalstekst = "Er du 100 % sykmeldt?",
-                    svartype = JA_NEI,
-                ),
-                Sporsmal(
                     tag = FERIE,
                     sporsmalstekst = "Har du avtalt med arbeidsgiveren din at du skal ta ut feriedager i hele perioden?",
                     svartype = JA_NEI,

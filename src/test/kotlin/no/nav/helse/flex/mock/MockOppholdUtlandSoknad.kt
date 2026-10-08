@@ -21,7 +21,6 @@ private fun leggSvarPaSoknad(
 
 private fun Sykepengesoknad.arbeidsgiver(feriesvarverdi: String): Sykepengesoknad =
     besvarsporsmal(ARBEIDSGIVER, "JA")
-        .besvarsporsmal(SYKMELDINGSGRAD, "JA")
         .besvarsporsmal(FERIE, feriesvarverdi)
 
 private fun Sykepengesoknad.perioder(): Sykepengesoknad =

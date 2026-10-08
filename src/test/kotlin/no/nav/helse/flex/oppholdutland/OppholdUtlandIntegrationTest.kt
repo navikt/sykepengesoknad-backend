@@ -139,7 +139,6 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
 
         SoknadBesvarer(soknad, this, fnr)
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE, "JA", mutert = true, ferdigBesvart = false)
             .besvarSporsmal(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(AVKLART_MED_SYKMELDER, svar = "JA")

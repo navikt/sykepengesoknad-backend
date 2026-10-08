@@ -92,20 +92,6 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Test sortering av spørsmål om andre arbeidsgivere`() {
-        val soknad = settOppSoknadOppholdUtland("12345")
-        val soknadShufflet = soknad.shuffleSporsmalRekursivt()
-        val soknadSortert = soknadShufflet.sorterUndersporsmal()
-
-        val forventetSortering =
-            listOf(
-                SYKMELDINGSGRAD,
-                FERIE,
-            )
-        soknadSortert.getSporsmalMedTag(ARBEIDSGIVER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
-    }
-
-    @Test
     fun `Test sortering av spørsmål om reise med bil`() {
         val sporsmalet = reiseMedBilSpørsmål("1 til 2. juli", LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()

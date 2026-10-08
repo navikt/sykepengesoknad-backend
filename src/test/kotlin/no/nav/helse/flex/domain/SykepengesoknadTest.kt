@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.soknadsopprettelse.FERIE
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -24,7 +25,6 @@ class SykepengesoknadTest {
                 Svartype.LAND,
                 Svartype.JA_NEI,
                 Svartype.JA_NEI,
-                Svartype.JA_NEI,
                 Svartype.OPPSUMMERING,
             ),
         )
@@ -45,7 +45,7 @@ class SykepengesoknadTest {
                             it.isEmpty()
                         }.toTypedArray()[0]
                 }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),Har,Er,Har")
+        ).isEqualTo("Når,Hvilke(t),Har,Har")
     }
 
     @Test
@@ -66,7 +66,7 @@ class SykepengesoknadTest {
                 .map { i ->
                     i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
                 }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har")
+        ).isEqualTo("Når,Hvilke(t),HEISANN,Har")
     }
 
     @Test
@@ -90,7 +90,7 @@ class SykepengesoknadTest {
     @Test
     fun fjernHovedsporsmal() {
         var sykepengesoknad = sykepengesoknad
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(5)
 
         sykepengesoknad = sykepengesoknad.fjernSporsmal("ARBEIDSGIVER")
 
@@ -101,11 +101,11 @@ class SykepengesoknadTest {
     @Test
     fun fjernUndersporsmal() {
         var sykepengesoknad = sykepengesoknad
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
-
-        sykepengesoknad = sykepengesoknad.fjernSporsmal("SYKMELDINGSGRAD")
-
         assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(5)
+
+        sykepengesoknad = sykepengesoknad.fjernSporsmal(FERIE)
+
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(4)
         assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().stream().anyMatch { (_, tag) -> tag == "2" }).isFalse()
     }
 
