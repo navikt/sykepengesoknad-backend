@@ -2,7 +2,9 @@ package no.nav.helse.flex.domain
 
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class SykepengesoknadTest {
     private val sykepengesoknad: Sykepengesoknad
@@ -28,6 +30,29 @@ class SykepengesoknadTest {
                 Svartype.OPPSUMMERING,
             ),
         )
+    }
+
+    @Test
+    fun soknadstyperSomKreverDatoerKanIkkeMangleFomOgTom() {
+        assertThatThrownBy {
+            sykepengesoknad.copy(
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                fom = null,
+                tom = null,
+            )
+        }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun soknadstyperSomKreverArbeidssituasjonKanIkkeMangleDen() {
+        assertThatThrownBy {
+            sykepengesoknad.copy(
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                fom = LocalDate.of(2026, 1, 1),
+                tom = LocalDate.of(2026, 1, 31),
+                arbeidssituasjon = null,
+            )
+        }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
