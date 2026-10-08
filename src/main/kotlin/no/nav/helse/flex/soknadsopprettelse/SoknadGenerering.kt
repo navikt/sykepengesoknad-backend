@@ -67,7 +67,7 @@ private fun Sequence<Sykepengesoknad>.finnTidligereSoknaderMedSammeArbeidssituas
     this
         .filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
         .filter { it.sykmeldingId != null && it.startSykeforlop != null }
-        .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon } // TODO: FiskerLottOgHyre?
+        .filter { it.erLikDetaljertArbeidssituasjon(sykepengesoknad.arbeidssituasjon, sykepengesoknad.fiskerLottOgHyre) }
 
 // Om det er arbeidssituasjon ARBEIDSTAKER med søknadstype BEHANDLINGSDAGER, GRADERT_REISETILSKUD eller ARBEIDSTAKER
 // sjekkes det at arbeidsgiver er den samme.

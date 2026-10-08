@@ -124,7 +124,7 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO =
         Soknadstype.ARBEIDSLEDIG -> SoknadstypeDTO.ARBEIDSLEDIG
         Soknadstype.GRADERT_REISETILSKUDD -> SoknadstypeDTO.GRADERT_REISETILSKUDD
         Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
-        Soknadstype.FISKERE -> TODO()
+        Soknadstype.FISKERE -> SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE // TODO: Endre til FISKERE når DTO er oppdatert
     }
 
 fun String.getJsonPeriode(): PeriodeDTO =
