@@ -16,32 +16,38 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
-fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
+fun opprettNyArbeidstakerSoknad(
+    svarPaSoknad: Boolean = true,
+    basisDato: LocalDate = now(),
+): Sykepengesoknad {
+    val basisTidspunkt = basisDato.minusDays(1).atStartOfDay()
     val soknadMetadata =
         Sykepengesoknad(
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.NY,
-            opprettet = Instant.now(),
+            opprettet = basisTidspunkt.tilOsloInstant(),
             sporsmal = emptyList(),
             fnr = "fnr-7454630",
-            startSykeforlop = now().minusMonths(1),
-            fom = now().minusMonths(1),
-            tom = now().minusMonths(1).plusDays(8),
+            startSykeforlop = basisDato.minusMonths(1),
+            fom = basisDato.minusMonths(1),
+            tom = basisDato.minusMonths(1).plusDays(8),
             arbeidssituasjon = ARBEIDSTAKER,
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
+            sykmeldingSkrevet = basisTidspunkt.minusMonths(1).tilOsloInstant(),
             soknadPerioder =
                 listOf(
                     SykmeldingsperiodeAGDTO(
-                        fom = now().minusMonths(1),
-                        tom = now().minusMonths(1).plusDays(4),
+                        fom = basisDato.minusMonths(1),
+                        tom = basisDato.minusMonths(1).plusDays(4),
                         gradert = GradertDTO(grad = 100, reisetilskudd = false),
                         type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
@@ -50,8 +56,8 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                         reisetilskudd = false,
                     ),
                     SykmeldingsperiodeAGDTO(
-                        fom = now().minusMonths(1).plusDays(5),
-                        tom = now().minusMonths(1).plusDays(8),
+                        fom = basisDato.minusMonths(1).plusDays(5),
+                        tom = basisDato.minusMonths(1).plusDays(8),
                         gradert = GradertDTO(grad = 40, reisetilskudd = false),
                         type = PeriodetypeDTO.GRADERT,
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
@@ -67,28 +73,31 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
             forstegangssoknad = false,
         )
 
-    val sykepengesoknad =
-        leggSvarPaSoknad(
-            soknadMetadata.copy(
-                sporsmal =
-                    settOppSoknadArbeidstaker(
-                        sykepengesoknad = soknadMetadata,
-                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = emptyList(),
-                        kjentOppholdstillatelse = null,
-                        medlemskapSporsmalTags = emptyList(),
-                        harTidligereUtenlandskSpm = false,
-                        erForsteSoknadISykeforlop = true,
-                        ghostInntekter = emptyList(),
-                    ),
-            ),
-        ).sorterSporsmal()
+    val soknadMedSporsmal =
+        soknadMetadata.copy(
+            sporsmal =
+                settOppSoknadArbeidstaker(
+                    sykepengesoknad = soknadMetadata,
+                    yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                    nyeArbeidsforholdFraAAreg = emptyList(),
+                    kjentOppholdstillatelse = null,
+                    medlemskapSporsmalTags = emptyList(),
+                    harTidligereUtenlandskSpm = false,
+                    erForsteSoknadISykeforlop = true,
+                    ghostInntekter = emptyList(),
+                ),
+        )
+    if (!svarPaSoknad) {
+        return soknadMedSporsmal
+    }
+
+    val sykepengesoknad = leggSvarPaSoknad(soknadMedSporsmal).sorterSporsmal()
 
     sykepengesoknad.validerSvarPaSoknad()
 
     return sykepengesoknad.copy(
-        sendtNav = Instant.now(),
-        sendtArbeidsgiver = Instant.now(),
+        sendtNav = basisTidspunkt.tilOsloInstant(),
+        sendtArbeidsgiver = basisTidspunkt.tilOsloInstant(),
         status = Soknadstatus.SENDT,
     )
 }
