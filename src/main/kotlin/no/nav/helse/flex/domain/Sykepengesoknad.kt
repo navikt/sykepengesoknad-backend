@@ -63,6 +63,16 @@ data class Sykepengesoknad(
         require(soknadstype == Soknadstype.OPPHOLD_UTLAND || (fom != null && tom != null)) {
             "Søknad $id av type $soknadstype må ha fom og tom"
         }
+        require(
+            soknadstype in
+                listOf(
+                    Soknadstype.OPPHOLD_UTLAND,
+                    Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING,
+                ) ||
+                arbeidssituasjon != null,
+        ) {
+            "Søknad $id av type $soknadstype må ha arbeidssituasjon"
+        }
     }
 
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
