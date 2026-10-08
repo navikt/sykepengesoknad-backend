@@ -60,8 +60,16 @@ data class Sykepengesoknad(
     val ghostInntekter: List<KjentInntektskilde>? = null,
 ) : Serializable {
     init {
-        require(soknadstype == Soknadstype.OPPHOLD_UTLAND || (fom != null && tom != null)) {
-            "Søknad $id av type $soknadstype må ha fom og tom"
+        if (soknadstype.kreverFomOgTom) {
+            require(fom != null && tom != null) {
+                "Søknad $id av type $soknadstype må ha fom og tom"
+            }
+        }
+
+        if (soknadstype.kreverArbeidssituasjon) {
+            require(arbeidssituasjon != null) {
+                "Søknad $id av type $soknadstype må ha arbeidssituasjon"
+            }
         }
     }
 
