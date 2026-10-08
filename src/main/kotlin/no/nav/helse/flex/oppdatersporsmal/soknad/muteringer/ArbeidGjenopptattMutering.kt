@@ -11,10 +11,10 @@ import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSok
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
 fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
-    if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
+    if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD, FISKERE)) {
         return this
     }
-    if (soknadstype == GRADERT_REISETILSKUDD) {
+    if (soknadstype == GRADERT_REISETILSKUDD) { // TODO: fiskere? Bugs?
         if (!listOf(ARBEIDSTAKER, NAERINGSDRIVENDE, FRILANSER).contains(arbeidssituasjon)) {
             return this
         }
@@ -53,7 +53,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         }
 
     val oppdaterteSporsmal =
-        if (arbeidssituasjon == ARBEIDSTAKER) {
+        if (this.erTilsvarendeArbeidstaker()) {
             jobbetDuIPeriodenSporsmal(
                 this.skapOppdaterteSoknadsperioder(
                     arbeidGjenopptattDato,
@@ -85,7 +85,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
 
     val sporsmalSomSkalFjernes = mutableListOf<String>()
 
-    if (this.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
+    if (this.erTilsvarendeSelvstendig()) {
         if (this.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis()) {
             oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntektGradert(this.fom, oppdatertTom))
             sporsmalSomSkalFjernes.add(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
@@ -95,7 +95,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         }
     }
 
-    if (this.arbeidssituasjon == ARBEIDSTAKER) {
+    if (this.erTilsvarendeArbeidstaker()) {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(utlandArbeidstaker)
@@ -113,7 +113,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             sporsmalSomSkalFjernes.add(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }
     }
-    if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) {
+    if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) { // Jordbruker, fisker? BUG?
         oppdaterteSporsmal.add(utlandNaringsdrivende)
     }
 

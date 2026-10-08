@@ -78,7 +78,7 @@ data class Sykepengesoknad(
     fun erTilsvarendeArbeidstaker(): Boolean =
         when (arbeidssituasjon) {
             FISKER -> {
-                fiskerLottOgHyre == null || fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE)
+                fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE)
             }
             ARBEIDSTAKER -> true
             else -> false
