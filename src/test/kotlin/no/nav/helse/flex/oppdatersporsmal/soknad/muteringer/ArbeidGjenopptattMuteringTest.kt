@@ -1,6 +1,8 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
+import no.nav.helse.flex.mock.opprettNyFiskerHyreSoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
@@ -11,67 +13,74 @@ import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be null`
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 class ArbeidGjenopptattMuteringTest {
-    @Test
-    fun `spørsmål i søknaden gjenoppstår hvis de av en eller annen grunn mangla`() {
-        val soknad = opprettNyArbeidstakerSoknad(svarPaSoknad = false)
+    private val testDato: LocalDate = LocalDate.of(2024, 6, 1)
 
-        val soknadUtenOppholdUtenforEOS =
-            soknad
-                .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-                .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
+    private fun forHverSoknadstype(test: (soknad: Sykepengesoknad) -> Unit): List<DynamicTest> =
+        listOf(
+            "arbeidstaker" to opprettNyArbeidstakerSoknad(svarPaSoknad = false, basisDato = testDato),
+            "fisker hyre" to opprettNyFiskerHyreSoknad(svarPaSoknad = false, basisDato = testDato),
+        ).map { (navn, soknad) -> dynamicTest(navn) { test(soknad) } }
 
-        soknadUtenOppholdUtenforEOS.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
-        soknadUtenOppholdUtenforEOS.sporsmal.shouldHaveSize(8)
+    @TestFactory
+    fun `spørsmål i søknaden gjenoppstår hvis de av en eller annen grunn mangla`() =
+        forHverSoknadstype { soknad ->
+            val soknadUtenOppholdUtenforEOS =
+                soknad
+                    .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
+                    .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
 
-        val mutertSoknad = soknadUtenOppholdUtenforEOS.arbeidGjenopptattMutering()
+            soknadUtenOppholdUtenforEOS.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
+            soknadUtenOppholdUtenforEOS.sporsmal.shouldHaveSize(8)
 
-        mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
-        mutertSoknad.sporsmal.shouldHaveSize(9)
-    }
+            val mutertSoknad = soknadUtenOppholdUtenforEOS.arbeidGjenopptattMutering()
 
-    @Test
-    fun `mutering av spørsmål om perioder som kommer etter svar på tilbake i arbeid`() {
-        val basisdato = LocalDate.now()
-        val soknad = opprettNyArbeidstakerSoknad(svarPaSoknad = false, basisDato = basisdato)
+            mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+            mutertSoknad.sporsmal.shouldHaveSize(9)
+        }
 
-        soknad.sporsmal.shouldHaveSize(9)
-        soknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_0").`should not be null`()
+    @TestFactory
+    fun `mutering av spørsmål om perioder som kommer etter svar på tilbake i arbeid`() =
+        forHverSoknadstype { soknad ->
+            soknad.sporsmal.shouldHaveSize(9)
+            soknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_0").`should not be null`()
 
-        val mutertSoknadUtenSpm =
-            soknad
-                .besvarsporsmal(TILBAKE_I_ARBEID, svar = "JA")
-                .besvarsporsmal(TILBAKE_NAR, svar = soknad.fom!!.plusDays(4).format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering()
+            val mutertSoknadUtenSpm =
+                soknad
+                    .besvarsporsmal(TILBAKE_I_ARBEID, svar = "JA")
+                    .besvarsporsmal(TILBAKE_NAR, svar = soknad.fom!!.plusDays(4).format(ISO_LOCAL_DATE))
+                    .arbeidGjenopptattMutering()
 
-        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
-        mutertSoknadUtenSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should be null`()
+            mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
+            mutertSoknadUtenSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should be null`()
 
-        val mutertSoknadMedSpm =
-            mutertSoknadUtenSpm
-                .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-                .arbeidGjenopptattMutering()
+            val mutertSoknadMedSpm =
+                mutertSoknadUtenSpm
+                    .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
+                    .arbeidGjenopptattMutering()
 
-        mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
-        mutertSoknadMedSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should not be null`()
-    }
+            mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
+            mutertSoknadMedSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should not be null`()
+        }
 
-    @Test
-    fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() {
-        val soknad = opprettNyArbeidstakerSoknad(svarPaSoknad = false)
+    @TestFactory
+    fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() =
+        forHverSoknadstype { soknad ->
+            val soknadMedEgenPermisjonSpmTekst =
+                soknad.replaceSporsmal(
+                    soknad.getSporsmalMedTag(PERMISJON_V2).copy(sporsmalstekst = "Var De i permisjon?"),
+                )
 
-        val soknadMedEgenPermisjonSpmTekst =
-            soknad.replaceSporsmal(
-                soknad.getSporsmalMedTag(PERMISJON_V2).copy(sporsmalstekst = "Var De i permisjon?"),
-            )
-
-        val arbeidGjenopptattMutering = soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
-        soknadMedEgenPermisjonSpmTekst `should be equal to` arbeidGjenopptattMutering
-    }
+            val arbeidGjenopptattMutering = soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
+            soknadMedEgenPermisjonSpmTekst `should be equal to` arbeidGjenopptattMutering
+        }
 
     @Test
     fun `Tilbake i fullt arbeid skal oppdatere spørsmålet næringsdrivende opprettholdt inntekt gradert med ny tom dato`() {
