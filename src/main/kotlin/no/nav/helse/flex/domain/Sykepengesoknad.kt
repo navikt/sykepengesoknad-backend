@@ -65,6 +65,21 @@ data class Sykepengesoknad(
         }
     }
 
+    fun erLikDetaljertArbeidssituasjon(
+        arbeidssituasjon: Arbeidssituasjon?,
+        lottOgHyre: FiskerLottOgHyre?,
+    ): Boolean =
+        when (arbeidssituasjon) {
+            Arbeidssituasjon.FISKER -> {
+                // TODO: sjekke soknadstype og?
+                val likLottOgHyre = fiskerLottOgHyre != null && fiskerLottOgHyre == lottOgHyre
+                return likLottOgHyre && this.arbeidssituasjon == arbeidssituasjon
+            }
+            else -> {
+                this.arbeidssituasjon == arbeidssituasjon
+            }
+        }
+
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
 
     fun getSporsmalMedTag(tag: String): Sporsmal =
