@@ -179,6 +179,7 @@ fun skapSykmeldingStatusKafkaMessageDTO(
     arbeidsgiver: ArbeidsgiverStatusKafkaDTO? = null,
     sykmeldingId: String = UUID.randomUUID().toString(),
     tidligereArbeidsgiverOrgnummer: String? = null,
+    lottOgHyre: LottOgHyre? = null,
 ): SykmeldingStatusKafkaMessageDTO =
     SykmeldingStatusKafkaMessageDTO(
         event =
@@ -206,7 +207,7 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                     ),
                 brukerSvar =
                     when (arbeidssituasjon) {
-                        Arbeidssituasjon.FISKER -> lagFiskerInnsendtSkjemaSvar(arbeidssituasjon)
+                        Arbeidssituasjon.FISKER -> lagFiskerInnsendtSkjemaSvar(arbeidssituasjon, lottOgHyre ?: LottOgHyre.LOTT)
                         else -> lagKomplettInnsendtSkjemaSvar(arbeidssituasjon)
                     },
             ).let {
@@ -252,11 +253,14 @@ fun lagKomplettInnsendtSkjemaSvar(
         fisker = fiskerSvar,
     )
 
-fun lagFiskerInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettInnsendtSkjemaSvar {
+fun lagFiskerInnsendtSkjemaSvar(
+    arbeidssituasjon: Arbeidssituasjon,
+    lottOgHyre: LottOgHyre,
+): KomplettInnsendtSkjemaSvar {
     val fiskerSvar =
         FiskereSvarKafkaDTO(
             blad = SporsmalSvar("Hvilket blad?", Blad.A),
-            lottOgHyre = SporsmalSvar("Lott eller hyre?", LottOgHyre.LOTT),
+            lottOgHyre = SporsmalSvar("Lott eller hyre?", lottOgHyre),
         )
 
     return lagKomplettInnsendtSkjemaSvar(arbeidssituasjon, fiskerSvar)
@@ -405,6 +409,7 @@ fun sykmeldingKafkaMessage(
     syketilfelleStartDato: LocalDate? = null,
     mottattTidspunkt: OffsetDateTime = OffsetDateTime.now(),
     kontaktDato: LocalDate? = null,
+    lottOgHyre: LottOgHyre? = null,
 ): SykmeldingKafkaMessageDTO {
     val faktiskArbeidsgiver =
         if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
@@ -429,6 +434,7 @@ fun sykmeldingKafkaMessage(
             sykmeldingId = sykmeldingId,
             timestamp = timestamp,
             tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
+            lottOgHyre = lottOgHyre,
         )
 
     val sykmelding =

@@ -10,7 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradertArbeidstaker
 
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
-    arbeidsgiverNavn: String,
+    arbeidsgiverNavn: String?,
 ): List<Sporsmal> =
     soknadsperioder
         .lastIndex
