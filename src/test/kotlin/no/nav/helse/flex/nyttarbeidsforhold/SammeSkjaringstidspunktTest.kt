@@ -2,7 +2,6 @@ package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNySoknad
@@ -140,10 +139,11 @@ fun soknad(
     arbeidGjenopptatt: LocalDate? = null,
     egenmeldingsdager: List<LocalDate>? = null,
 ): Sykepengesoknad {
-    fun sporsmal(): List<Sporsmal> {
+    val soknad = opprettNySoknad()
+    val sporsmal =
         if (arbeidGjenopptatt != null) {
-            val sporsmalListe = listOf(tilbakeIFulltArbeidSporsmal(opprettNySoknad()))
-            return sporsmalListe
+            val sporsmalListe = listOf(tilbakeIFulltArbeidSporsmal(soknad.arbeidsgiverNavn, soknad.fom!!, soknad.tom!!))
+            sporsmalListe
                 .byttSvar(TILBAKE_I_ARBEID, listOf(Svar(null, "JA")))
                 .byttSvar(
                     TILBAKE_NAR,
@@ -154,16 +154,16 @@ fun soknad(
                         ),
                     ),
                 )
+        } else {
+            emptyList()
         }
-        return emptyList()
-    }
 
-    return opprettNySoknad().copy(
+    return soknad.copy(
         arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
         fom = fom,
         egenmeldingsdagerFraSykmelding = egenmeldingsdager?.serialisertTilString(),
         tom = tom,
-        sporsmal = sporsmal(),
+        sporsmal = sporsmal,
         status = Soknadstatus.SENDT,
     )
 }
