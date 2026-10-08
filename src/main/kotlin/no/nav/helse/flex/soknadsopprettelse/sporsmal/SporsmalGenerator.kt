@@ -167,7 +167,7 @@ class SporsmalGenerator(
             val inntektskomponentenArbeidsforhold =
                 arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                     fnr = soknad.fnr,
-                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
+                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
                     startSykeforlop = soknad.startSykeforlop!!,
                 )
 

@@ -14,14 +14,21 @@ import kotlin.math.roundToInt
 
 fun jobbetDu100ProsentArbeidstaker(
     periode: Soknadsperiode,
-    arbeidsgiver: String,
+    arbeidsgiver: String?,
     index: Int,
-): Sporsmal =
-    Sporsmal(
-        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
-        sporsmalstekst =
+): Sporsmal {
+    val sporsmalsTekst =
+        if (arbeidsgiver != null) {
             "I perioden ${formatterPeriode(periode.fom, periode.tom)} var du 100 % sykmeldt fra $arbeidsgiver. " +
-                "Jobbet du noe hos $arbeidsgiver i denne perioden?",
+                "Jobbet du noe hos $arbeidsgiver i denne perioden?"
+        } else {
+            "I perioden ${formatterPeriode(periode.fom, periode.tom)} var du 100% sykmeldt. " +
+                "Jobbet du noe i denne perioden?"
+        }
+
+    return Sporsmal(
+        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
+        sporsmalstekst = sporsmalsTekst,
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
@@ -32,21 +39,30 @@ fun jobbetDu100ProsentArbeidstaker(
                 arbeidsgiverNavn = arbeidsgiver,
             ),
     )
+}
 
 fun jobbetDuGradertArbeidstaker(
     periode: Soknadsperiode,
-    arbeidsgiver: String,
+    arbeidsgiver: String?,
     index: Int,
-): Sporsmal =
-    Sporsmal(
-        tag = JOBBET_DU_GRADERT + index,
-        sporsmalstekst =
+): Sporsmal {
+    val sporsmalsTekst =
+        if (arbeidsgiver != null) {
             "I perioden ${formatterPeriode(periode.fom, periode.tom)} sier sykmeldingen at du kunne jobbe " +
-                "${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?",
+                "${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?"
+        } else {
+            "I perioden ${formatterPeriode(periode.fom, periode.tom)} sier sykmeldingen at du kunne jobbe " +
+                "${100 - periode.grad} %. Jobbet du mer enn det?"
+        }
+
+    return Sporsmal(
+        tag = JOBBET_DU_GRADERT + index,
+        sporsmalstekst = sporsmalsTekst,
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
     )
+}
 
 fun jobbetDu100ProsentSelvstendigFrilanser(
     periode: Soknadsperiode,

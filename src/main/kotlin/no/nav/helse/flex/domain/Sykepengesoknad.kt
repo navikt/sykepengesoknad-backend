@@ -89,7 +89,7 @@ data class Sykepengesoknad(
         lottOgHyre: FiskerLottOgHyre?,
     ): Boolean =
         when (arbeidssituasjon) {
-            Arbeidssituasjon.FISKER -> {
+            FISKER -> {
                 // TODO: sjekke soknadstype og?
                 val likLottOgHyre = fiskerLottOgHyre != null && fiskerLottOgHyre == lottOgHyre
                 return likLottOgHyre && this.arbeidssituasjon == arbeidssituasjon
