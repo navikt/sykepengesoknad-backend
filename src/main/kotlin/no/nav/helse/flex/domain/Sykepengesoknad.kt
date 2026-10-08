@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
@@ -64,6 +65,24 @@ data class Sykepengesoknad(
             "Søknad $id av type $soknadstype må ha fom og tom"
         }
     }
+
+    fun erTilsvarendeSelvstendig(): Boolean =
+        when (arbeidssituasjon) {
+            FISKER -> {
+                fiskerLottOgHyre == null || fiskerLottOgHyre in listOf(FiskerLottOgHyre.LOTT, FiskerLottOgHyre.BEGGE)
+            }
+            NAERINGSDRIVENDE, JORDBRUKER, BARNEPASSER -> true
+            else -> false
+        }
+
+    fun erTilsvarendeArbeidstaker(): Boolean =
+        when (arbeidssituasjon) {
+            FISKER -> {
+                fiskerLottOgHyre == null || fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE)
+            }
+            ARBEIDSTAKER -> true
+            else -> false
+        }
 
     fun erLikDetaljertArbeidssituasjon(
         arbeidssituasjon: Arbeidssituasjon?,
