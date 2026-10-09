@@ -2,7 +2,6 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
@@ -14,7 +13,11 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendStartMelding
 import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
+import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT
+import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR
+import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_NEI
+import no.nav.helse.flex.soknadsopprettelse.FTA_REISE_TIL_UTLANDET
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.SLETTET
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.tilLocalDate
@@ -22,7 +25,6 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should start with`
 import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldHaveSize
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class StartMeldingTest : FakesTestOppsett() {
@@ -48,6 +51,12 @@ class StartMeldingTest : FakesTestOppsett() {
 
     val vedtakFom = LocalDate.now().minusDays(15)
     val vedtakTom = LocalDate.now().plusDays(35)
+
+    @BeforeEach
+    fun setup() {
+        sykepengesoknadRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
+    }
 
     @Test
     fun `Mottar start-melding og gjenoppretter søknader`() {
@@ -68,9 +77,10 @@ class StartMeldingTest : FakesTestOppsett() {
         `Gitt at et vedtak er mottatt og søknader opprettet`()
 
         // Act & Assert
-        val e = assertThrows<IllegalStateException> {
-            `Motta og prosesser en start-melding`()
-        }
+        val e =
+            assertThrows<IllegalStateException> {
+                `Motta og prosesser en start-melding`()
+            }
 
         // Assert
         e.message!! `should start with` "Kan ikke gjenopprette søknad når den aldri har blitt avsluttet"
@@ -83,12 +93,13 @@ class StartMeldingTest : FakesTestOppsett() {
         `Og avsluttetTidspunkt er satt til en verdi`()
 
         // Act & Assert
-        val e = assertThrows<IllegalStateException> {
-            `Motta og prosesser en start-melding`()
-        }
+        val e =
+            assertThrows<IllegalStateException> {
+                `Motta og prosesser en start-melding`()
+            }
 
         // Assert
-        //TODO LEGG INN NÅR FUNKER e.message!! `should start with` "Kan ikke gjenopprette søknad som ikke er behandlet"
+        e.message!! `should start with` "Kan ikke gjenopprette søknad som ikke er behandlet"
     }
 
     @Test
@@ -102,7 +113,7 @@ class StartMeldingTest : FakesTestOppsett() {
         `Motta og prosesser en start-melding`()
 
         // Assert
-        //TODO LEGG INN NÅR FUNKER `Så forblir søknaden uendret`()
+        `Så forblir søknaden uendret`()
     }
 
     private fun `Gitt at et vedtak er mottatt og søknader opprettet`() {
@@ -129,16 +140,31 @@ class StartMeldingTest : FakesTestOppsett() {
     }
 
     private fun `Og avsluttetTidspunkt er satt til en verdi`() {
-        // TODO Kanskje de to IllegalStatene egentlig bør være i samme exception. Blir litt rare tester med det her.
+        friskTilArbeidRepository
+            .findByFnrIn(listOf(fnr))
+            .single()
+            .copy(
+                avsluttetTidspunkt = tidspunkt,
+                behandletStatus = BehandletStatus.NY,
+            ).also { friskTilArbeidRepository.save(it) }
     }
 
     private fun `Og bruker ikke fortsatt er friskmeldt`() {
-        val soknader = hentSoknader(fnr)
-        val soknad = soknader.maxByOrNull { it.fom!! }
+        val soknad = hentSoknader(fnr).filter { it.status == RSSoknadstatus.NY }.first()
 
-        // TODO FÅr ikke helt dette til å funke
-        //SoknadBesvarer(rSSykepengesoknad = soknad!!, testOppsettInterfaces = this, fnr = fnr)
-        //    .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "JA", mutert = true)
+        SoknadBesvarer(rSSykepengesoknad = soknad!!, testOppsettInterfaces = this, fnr = fnr)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI", false)
+            .besvarSporsmal(
+                FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR,
+                soknad.fom!!.plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                true,
+                mutert = true,
+            ).besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI")
+            .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
+            .oppsummering()
+            .sendSoknad()
     }
 
     private fun `Motta og prosesser en start-melding`() {
@@ -175,7 +201,8 @@ class StartMeldingTest : FakesTestOppsett() {
     }
 
     fun `Så forblir søknaden uendret`() {
-        friskTilArbeidRepository.findAll()
+        friskTilArbeidRepository
+            .findAll()
             .first()
             .behandletStatus `should be equal to` BEHANDLET
 
@@ -184,10 +211,8 @@ class StartMeldingTest : FakesTestOppsett() {
             .single()
             .avsluttetTidspunkt `should be equal to` tidspunkt
 
-        val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 2
+        val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 1
         soknader[0].fom!! shouldBeLessThan tidspunkt.tilLocalDate()
         soknader[0].fom!! `should be equal to` vedtakFom
-        soknader[1].fom!! shouldBeLessThan tidspunkt.tilLocalDate()
-        soknader[1].fom!! `should be equal to` vedtakFom.plusDays(14)
     }
 }
