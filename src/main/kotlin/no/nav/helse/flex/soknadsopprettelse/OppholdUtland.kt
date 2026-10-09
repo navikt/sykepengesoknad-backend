@@ -76,8 +76,8 @@ fun avklaringIfbmReise(): Sporsmal =
                 @Suppress("ktlint:standard:max-line-length")
                 Sporsmal(
                     tag = AVKLART_MED_ARBEIDSGIVER_ELLER_NAV,
-                    sporsmalstekst = "Har du avklart utenlandsoppholdet med arbeidsgiveren/NAV?",
-                    undertekst = "Utenlandsoppholdet må avklares med arbeidsgiveren din, eller NAV om du ikke har en arbeidsgiver, før du reiser. Utenlandsoppholdet kan ikke hindre planlagt aktivitet pả arbeidsplassen eller NAV.",
+                    sporsmalstekst = "Har du avklart utenlandsoppholdet med arbeidsgiver/Nav?",
+                    undertekst = "Før du reiser må du avklare oppholdet med arbeidsgiveren din, eller med Nav hvis du ikke har en arbeidsgiver. Oppholdet kan ikke hindre planlagt aktivitet på arbeidsplassen eller hos Nav.",
                     svartype = JA_NEI,
                 ),
             ),
@@ -86,7 +86,7 @@ fun avklaringIfbmReise(): Sporsmal =
 private fun arbeidsgiverSporsmal(): Sporsmal =
     Sporsmal(
         tag = ARBEIDSGIVER,
-        sporsmalstekst = "Har du arbeidsgiver?",
+        sporsmalstekst = "Har du én eller flere arbeidsgivere?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
@@ -111,8 +111,8 @@ fun periodeSporsmal(): Sporsmal =
 fun landSporsmal(): Sporsmal =
     Sporsmal(
         tag = LAND,
-        sporsmalstekst = "Hvilke(t) land skal du reise til?",
-        undertekst = "Du kan velge flere.",
+        sporsmalstekst = "Hvor skal du reise?",
+        undertekst = "Du kan velge flere land.",
         svartype = Svartype.LAND,
         max = "50",
     )

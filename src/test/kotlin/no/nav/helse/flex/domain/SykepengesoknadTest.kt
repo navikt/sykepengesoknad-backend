@@ -45,7 +45,7 @@ class SykepengesoknadTest {
                             it.isEmpty()
                         }.toTypedArray()[0]
                 }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),Har,Har")
+        ).isEqualTo("Når,Hvor,Har,Har")
     }
 
     @Test
@@ -66,7 +66,7 @@ class SykepengesoknadTest {
                 .map { i ->
                     i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
                 }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),HEISANN,Har")
+        ).isEqualTo("Når,Hvor,HEISANN,Har")
     }
 
     @Test
@@ -83,7 +83,7 @@ class SykepengesoknadTest {
         val sporsmal = sykepengesoknad.sporsmal
         assertThat(sporsmal).hasSize(4)
         assertThat(sporsmal[0].sporsmalstekst).isEqualTo("Når skal du reise?")
-        assertThat(sporsmal[1].sporsmalstekst).isEqualTo("Hvilke(t) land skal du reise til?")
+        assertThat(sporsmal[1].sporsmalstekst).isEqualTo("Hvor skal du reise?")
         assertThat(sporsmal[2].sporsmalstekst).isEqualTo("9")
     }
 
