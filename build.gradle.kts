@@ -106,7 +106,7 @@ tasks {
             exceptionFormat = FULL
         }
         failFast = false
-        reports.html.required.set(true)
+        reports.html.required.set(false)
         reports.junitXml.required.set(false)
         maxParallelForks = 6
     }
@@ -117,4 +117,3 @@ tasks {
         archiveFileName = "app.jar"
     }
 }
-
