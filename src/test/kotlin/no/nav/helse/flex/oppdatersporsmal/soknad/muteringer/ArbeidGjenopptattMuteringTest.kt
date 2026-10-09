@@ -1,275 +1,86 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
+import no.nav.helse.flex.mock.opprettNyFiskerHyreSoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.formatterPeriode
-import no.nav.helse.flex.util.tilOsloInstant
-import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be null`
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Test
-import java.time.Instant
+import org.junit.jupiter.api.TestFactory
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
-import java.util.*
 
 class ArbeidGjenopptattMuteringTest {
-    @Test
-    fun `spørsmål i søknaden gjenoppstår hvis de av en eller annen grunn mangla`() {
-        val fom = LocalDate.now().minusDays(19)
-        val soknad =
-            Sykepengesoknad(
-                fnr = "1234",
-                startSykeforlop = LocalDate.now().minusDays(24),
-                fom = fom,
-                tom = LocalDate.now().minusDays(10),
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                arbeidsgiverOrgnummer = "123456789",
-                arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-                sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-                soknadstype = Soknadstype.ARBEIDSTAKERE,
-                sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
-                soknadPerioder =
-                    listOf(
-                        SykmeldingsperiodeAGDTO(
-                            fom = fom,
-                            tom = LocalDate.now().minusDays(15),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                            behandlingsdager = null,
-                            innspillTilArbeidsgiver = null,
-                            reisetilskudd = false,
-                        ),
-                    ).tilSoknadsperioder(),
-                egenmeldtSykmelding = null,
-                id = UUID.randomUUID().toString(),
-                status = Soknadstatus.NY,
-                opprettet = Instant.now(),
-                sporsmal = emptyList(),
-                utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = null,
-                forstegangssoknad = false,
-            )
+    private val testDato: LocalDate = LocalDate.of(2024, 6, 1)
 
-        val ghostInnteker =
-            listOf(
-                KjentInntektskilde(
-                    navn = "Flausefabrikken AS",
-                    kilde = Kilde.INNTEKTSKOMPONENTEN,
-                    orgnummer = "91839209109382101",
-                ),
-                KjentInntektskilde(
-                    navn = "Pausefabrikken AS",
-                    kilde = Kilde.INNTEKTSKOMPONENTEN,
-                    orgnummer = "8192819372819138191",
-                ),
-            )
+    private fun forHverSoknadstype(test: (soknad: Sykepengesoknad) -> Unit): List<DynamicTest> =
+        listOf(
+            "arbeidstaker" to opprettNyArbeidstakerSoknad(svarPaSoknad = false, basisDato = testDato),
+            "fisker hyre" to opprettNyFiskerHyreSoknad(svarPaSoknad = false, basisDato = testDato),
+        ).map { (navn, soknad) -> dynamicTest(navn) { test(soknad) } }
 
-        val standardSoknad =
-            soknad.copy(
-                sporsmal =
-                    settOppSoknadArbeidstaker(
-                        sykepengesoknad = soknad,
-                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = emptyList(),
-                        kjentOppholdstillatelse = null,
-                        medlemskapSporsmalTags = emptyList(),
-                        harTidligereUtenlandskSpm = false,
-                        erForsteSoknadISykeforlop = true,
-                        ghostInntekter = ghostInnteker,
-                    ),
-            )
+    @TestFactory
+    fun `spørsmål i søknaden gjenoppstår hvis de av en eller annen grunn mangla`() =
+        forHverSoknadstype { soknad ->
+            val soknadUtenOppholdUtenforEOS =
+                soknad
+                    .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
+                    .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
 
-        val soknadUtenUtdanning =
-            standardSoknad
-                .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-                .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
+            soknadUtenOppholdUtenforEOS.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
+            soknadUtenOppholdUtenforEOS.sporsmal.shouldHaveSize(8)
 
-        soknadUtenUtdanning.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
-        soknadUtenUtdanning.sporsmal.shouldHaveSize(7)
+            val mutertSoknad = soknadUtenOppholdUtenforEOS.arbeidGjenopptattMutering()
 
-        val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
+            mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+            mutertSoknad.sporsmal.shouldHaveSize(9)
+        }
 
-        mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
-        mutertSoknad.sporsmal.shouldHaveSize(8)
-    }
+    @TestFactory
+    fun `mutering av spørsmål om perioder som kommer etter svar på tilbake i arbeid`() =
+        forHverSoknadstype { soknad ->
+            soknad.sporsmal.shouldHaveSize(9)
+            soknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_0").`should not be null`()
 
-    @Test
-    fun `mutering av spørsmål om perioder som kommer etter svar på tilbake i arbeid`() {
-        val basisdato = LocalDate.now()
-        val soknad =
-            Sykepengesoknad(
-                fnr = "1234",
-                startSykeforlop = basisdato,
-                fom = basisdato,
-                tom = basisdato.plusDays(10),
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                arbeidsgiverOrgnummer = "123456789",
-                arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-                sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-                soknadstype = Soknadstype.ARBEIDSTAKERE,
-                sykmeldingSkrevet = basisdato.atStartOfDay().tilOsloInstant(),
-                soknadPerioder =
-                    listOf(
-                        SykmeldingsperiodeAGDTO(
-                            fom = basisdato,
-                            tom = basisdato.plusDays(4),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                            behandlingsdager = null,
-                            innspillTilArbeidsgiver = null,
-                            reisetilskudd = false,
-                        ),
-                        SykmeldingsperiodeAGDTO(
-                            fom = basisdato.plusDays(5),
-                            tom = basisdato.plusDays(10),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                            behandlingsdager = null,
-                            innspillTilArbeidsgiver = null,
-                            reisetilskudd = false,
-                        ),
-                    ).tilSoknadsperioder(),
-                egenmeldtSykmelding = null,
-                id = UUID.randomUUID().toString(),
-                status = Soknadstatus.NY,
-                opprettet = Instant.now(),
-                sporsmal = emptyList(),
-                utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = null,
-                forstegangssoknad = false,
-            )
+            val mutertSoknadUtenSpm =
+                soknad
+                    .besvarsporsmal(TILBAKE_I_ARBEID, svar = "JA")
+                    .besvarsporsmal(TILBAKE_NAR, svar = soknad.fom!!.plusDays(4).format(ISO_LOCAL_DATE))
+                    .arbeidGjenopptattMutering()
 
-        val ghostInnteker =
-            listOf(
-                KjentInntektskilde(
-                    navn = "Flausefabrikken AS",
-                    kilde = Kilde.INNTEKTSKOMPONENTEN,
-                    orgnummer = "91839209109382101",
-                ),
-                KjentInntektskilde(
-                    navn = "Pausefabrikken AS",
-                    kilde = Kilde.INNTEKTSKOMPONENTEN,
-                    orgnummer = "8192819372819138191",
-                ),
-            )
+            mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
+            mutertSoknadUtenSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should be null`()
 
-        val standardSoknad =
-            soknad.copy(
-                sporsmal =
-                    settOppSoknadArbeidstaker(
-                        sykepengesoknad = soknad,
-                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = emptyList(),
-                        kjentOppholdstillatelse = null,
-                        medlemskapSporsmalTags = emptyList(),
-                        harTidligereUtenlandskSpm = false,
-                        erForsteSoknadISykeforlop = true,
-                        ghostInntekter = ghostInnteker,
-                    ),
-            )
+            val mutertSoknadMedSpm =
+                mutertSoknadUtenSpm
+                    .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
+                    .arbeidGjenopptattMutering()
 
-        standardSoknad.sporsmal.shouldHaveSize(9)
-        standardSoknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_1").`should not be null`()
+            mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
+            mutertSoknadMedSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should not be null`()
+        }
 
-        val mutertSoknadUtenSpm =
-            standardSoknad
-                .besvarsporsmal(TILBAKE_I_ARBEID, svar = "JA")
-                .besvarsporsmal(TILBAKE_NAR, svar = basisdato.plusDays(4).format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering()
+    @TestFactory
+    fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() =
+        forHverSoknadstype { soknad ->
+            val soknadMedEgenPermisjonSpmTekst =
+                soknad.replaceSporsmal(
+                    soknad.getSporsmalMedTag(PERMISJON_V2).copy(sporsmalstekst = "Var De i permisjon?"),
+                )
 
-        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
-        mutertSoknadUtenSpm.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_1").`should be null`()
-
-        val mutertSoknadMedSpm =
-            mutertSoknadUtenSpm
-                .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-                .arbeidGjenopptattMutering()
-
-        mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
-        mutertSoknadMedSpm.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_1").`should not be null`()
-    }
-
-    @Test
-    fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() {
-        val fom = LocalDate.now().minusDays(19)
-
-        val soknad =
-            Sykepengesoknad(
-                fnr = "1234",
-                startSykeforlop = LocalDate.now().minusDays(24),
-                fom = fom,
-                tom = LocalDate.now().minusDays(10),
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                arbeidsgiverOrgnummer = "123456789",
-                arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-                sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-                soknadstype = Soknadstype.ARBEIDSTAKERE,
-                sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
-                soknadPerioder =
-                    listOf(
-                        SykmeldingsperiodeAGDTO(
-                            fom = fom,
-                            tom = LocalDate.now().minusDays(15),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                            behandlingsdager = null,
-                            innspillTilArbeidsgiver = null,
-                            reisetilskudd = false,
-                        ),
-                    ).tilSoknadsperioder(),
-                egenmeldtSykmelding = null,
-                id = UUID.randomUUID().toString(),
-                status = Soknadstatus.NY,
-                opprettet = Instant.now(),
-                sporsmal = emptyList(),
-                utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = null,
-                forstegangssoknad = false,
-            )
-        val standardSoknad =
-            soknad.copy(
-                sporsmal =
-                    settOppSoknadArbeidstaker(
-                        sykepengesoknad = soknad,
-                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = emptyList(),
-                        kjentOppholdstillatelse = null,
-                        medlemskapSporsmalTags = emptyList(),
-                        harTidligereUtenlandskSpm = false,
-                        erForsteSoknadISykeforlop = true,
-                        ghostInntekter = emptyList(),
-                    ),
-            )
-
-        val spm = standardSoknad.getSporsmalMedTag(PERMISJON_V2).copy(sporsmalstekst = "Var De i permisjon?")
-
-        val soknadMedEgenPermisjonSpmTekst =
-            standardSoknad
-                .replaceSporsmal(spm)
-
-        soknadMedEgenPermisjonSpmTekst `should be equal to` soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
-    }
+            val arbeidGjenopptattMutering = soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
+            soknadMedEgenPermisjonSpmTekst `should be equal to` arbeidGjenopptattMutering
+        }
 
     @Test
     fun `Tilbake i fullt arbeid skal oppdatere spørsmålet næringsdrivende opprettholdt inntekt gradert med ny tom dato`() {

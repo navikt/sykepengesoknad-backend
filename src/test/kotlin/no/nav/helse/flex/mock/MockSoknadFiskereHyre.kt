@@ -1,9 +1,6 @@
 package no.nav.helse.flex.mock
 
-import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -20,11 +17,12 @@ import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
-fun opprettNyArbeidstakerSoknad(
+fun opprettNyFiskerHyreSoknad(
     svarPaSoknad: Boolean = true,
     basisDato: LocalDate = now(),
 ): Sykepengesoknad {
     val basisTidspunkt = basisDato.minusDays(1).atStartOfDay()
+
     val soknadMetadata =
         Sykepengesoknad(
             id = UUID.randomUUID().toString(),
@@ -35,9 +33,9 @@ fun opprettNyArbeidstakerSoknad(
             startSykeforlop = basisDato.minusMonths(1),
             fom = basisDato.minusMonths(1),
             tom = basisDato.minusMonths(1).plusDays(8),
-            arbeidssituasjon = ARBEIDSTAKER,
-            arbeidsgiverOrgnummer = "123456789",
-            arbeidsgiverNavn = "ARBEIDSGIVER A/S",
+            arbeidssituasjon = Arbeidssituasjon.FISKER,
+            arbeidsgiverOrgnummer = null,
+            arbeidsgiverNavn = null,
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
             sykmeldingSkrevet = basisTidspunkt.minusMonths(1).tilOsloInstant(),
             soknadPerioder =
@@ -63,11 +61,13 @@ fun opprettNyArbeidstakerSoknad(
                         reisetilskudd = false,
                     ),
                 ).tilSoknadsperioder(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
+            soknadstype = Soknadstype.FISKERE,
             egenmeldtSykmelding = null,
             utenlandskSykmelding = false,
             egenmeldingsdagerFraSykmelding = null,
             forstegangssoknad = false,
+            fiskerBlad = FiskerBlad.B,
+            fiskerLottOgHyre = FiskerLottOgHyre.HYRE,
         )
 
     val soknadMedSporsmal =

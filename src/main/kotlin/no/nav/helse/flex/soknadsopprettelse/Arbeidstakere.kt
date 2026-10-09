@@ -44,7 +44,7 @@ fun settOppSoknadArbeidstaker(
             if (erGradertReisetilskudd) {
                 tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
             } else {
-                tilbakeIFulltArbeidSporsmal(sykepengesoknad)
+                tilbakeIFulltArbeidSporsmal(sykepengesoknad.arbeidsgiverNavn, sykepengesoknad.fom!!, sykepengesoknad.tom!!)
             },
         )
         add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
@@ -81,7 +81,7 @@ fun settOppSoknadArbeidstaker(
             add(andreInntektskilderArbeidstakerV2())
         }
 
-        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn!!))
+        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())

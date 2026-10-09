@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.splitt
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.FiskerLottOgHyre
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -32,6 +33,7 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
     klippSammenligningsDato: Instant,
     orgnummer: String?,
     klippMetrikk: KlippMetrikk,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
 ): List<Tidsenhet> {
     val sykmeldingTidsenheter =
         SykmeldingTidsenheter(
@@ -44,11 +46,11 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
             ),
         )
 
-    if (harBehandlingsdager(arbeidssituasjon)) {
+    if (harBehandlingsdager(arbeidssituasjon, fiskerLottOgHyre)) {
         sykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager()
     }
 
-    if (erArbeidstakerSoknad(arbeidssituasjon) || erNaeringsdrivendeSoknad(arbeidssituasjon)) {
+    if (erArbeidstakerSoknad(arbeidssituasjon, fiskerLottOgHyre) || erNaeringsdrivendeSoknad(arbeidssituasjon, fiskerLottOgHyre)) {
         sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             eksisterendeSoknader,
             sykmeldingId,
@@ -68,15 +70,22 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
     return sykmeldingTidsenheter.ferdigsplittet.sortedBy { it.fom }
 }
 
-private fun SykmeldingTilSoknadOpprettelse.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean =
-    bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
+private fun SykmeldingTilSoknadOpprettelse.harBehandlingsdager(
+    arbeidssituasjon: Arbeidssituasjon,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
+): Boolean = bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder, fiskerLottOgHyre) == Soknadstype.BEHANDLINGSDAGER
 
-private fun SykmeldingTilSoknadOpprettelse.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
-    bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
+private fun SykmeldingTilSoknadOpprettelse.erArbeidstakerSoknad(
+    arbeidssituasjon: Arbeidssituasjon,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
+): Boolean = bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder, fiskerLottOgHyre) == Soknadstype.ARBEIDSTAKERE
 
-private fun SykmeldingTilSoknadOpprettelse.erNaeringsdrivendeSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
+private fun SykmeldingTilSoknadOpprettelse.erNaeringsdrivendeSoknad(
+    arbeidssituasjon: Arbeidssituasjon,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
+): Boolean =
     arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE &&
-        bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+        bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder, fiskerLottOgHyre) == Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {
     while (splittbar.isNotEmpty()) {
