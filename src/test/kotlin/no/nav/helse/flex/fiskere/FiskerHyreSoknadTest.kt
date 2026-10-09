@@ -24,7 +24,7 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
                 ),
             ).single()
 
-        soknad.type `should be equal to` SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        soknad.type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
         soknad.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.FISKER
         soknad.sporsmal!!.map { it.tag } `should contain same`
             listOf(
