@@ -4,6 +4,8 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.FiskerLottOgHyreDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.syfo.sykmelding.kafka.model.LottOgHyre
@@ -24,7 +26,7 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
                 ),
             ).single()
 
-        soknad.type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
+        soknad.type `should be equal to` SoknadstypeDTO.FISKERE
         soknad.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.FISKER
         soknad.sporsmal!!.map { it.tag } `should contain same`
             listOf(
@@ -37,5 +39,7 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
                 "OPPHOLD_UTENFOR_EOS",
                 "TIL_SLUTT",
             )
+        soknad.fiskerLottOgHyre `should be equal to` FiskerLottOgHyreDTO.HYRE
+        soknad.fiskerBlad `should be equal to` FiskerBladDTO.A
     }
 }
