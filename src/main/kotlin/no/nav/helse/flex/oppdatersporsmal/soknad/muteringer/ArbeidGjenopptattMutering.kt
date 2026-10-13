@@ -14,8 +14,8 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD, FISKERE)) {
         return this
     }
-    if (soknadstype == GRADERT_REISETILSKUDD) { // TODO: fiskere? Bugs?
-        if (!listOf(ARBEIDSTAKER, NAERINGSDRIVENDE, FRILANSER).contains(arbeidssituasjon)) {
+    if (soknadstype == GRADERT_REISETILSKUDD) {
+        if (!listOf(ARBEIDSTAKER, NAERINGSDRIVENDE, FRILANSER, FISKER).contains(arbeidssituasjon)) {
             return this
         }
     }
@@ -113,7 +113,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             sporsmalSomSkalFjernes.add(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }
     }
-    if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) { // Jordbruker, fisker? BUG?
+    if (listOf(NAERINGSDRIVENDE, FRILANSER, FISKER).contains(this.arbeidssituasjon) && !this.erTilsvarendeArbeidstaker()) {
         oppdaterteSporsmal.add(utlandNaringsdrivende)
     }
 

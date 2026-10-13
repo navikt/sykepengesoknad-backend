@@ -1,5 +1,6 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.mock.opprettNyFiskerHyreSoknad
@@ -80,6 +81,31 @@ class ArbeidGjenopptattMuteringTest {
 
             val arbeidGjenopptattMutering = soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
             soknadMedEgenPermisjonSpmTekst `should be equal to` arbeidGjenopptattMutering
+        }
+
+    @TestFactory
+    fun `opphold utenfor EOS gjenoppstr for selvstendige nr tilbake i arbeid endres fra fom`() =
+        listOf(
+            Arbeidssituasjon.NAERINGSDRIVENDE,
+            Arbeidssituasjon.FISKER,
+        ).map { arbeidssituasjon ->
+            dynamicTest(arbeidssituasjon.name) {
+                val soknad = opprettNyNaeringsdrivendeSoknad100Prosent().copy(arbeidssituasjon = arbeidssituasjon)
+                soknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+
+                val tilbakeIArbeidFraFom =
+                    soknad
+                        .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+                        .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
+                        .arbeidGjenopptattMutering()
+                tilbakeIArbeidFraFom.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
+
+                val ikkeTilbakeIArbeid =
+                    tilbakeIArbeidFraFom
+                        .besvarsporsmal(TILBAKE_I_ARBEID, "NEI")
+                        .arbeidGjenopptattMutering()
+                ikkeTilbakeIArbeid.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+            }
         }
 
     @Test
