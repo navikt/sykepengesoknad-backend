@@ -90,8 +90,11 @@ data class Sykepengesoknad(
     ): Boolean =
         when (arbeidssituasjon) {
             FISKER -> {
-                val likLottOgHyre = fiskerLottOgHyre != null && fiskerLottOgHyre == lottOgHyre
-                return likLottOgHyre && this.arbeidssituasjon == arbeidssituasjon
+                this.arbeidssituasjon == arbeidssituasjon &&
+                    (
+                        (fiskerLottOgHyre == FiskerLottOgHyre.HYRE && lottOgHyre == FiskerLottOgHyre.HYRE) ||
+                            (fiskerLottOgHyre.erLegacyEllerLottBegge() && lottOgHyre.erLegacyEllerLottBegge())
+                    )
             }
             else -> {
                 this.arbeidssituasjon == arbeidssituasjon
@@ -174,6 +177,9 @@ data class Sykepengesoknad(
 
     fun fjernSporsmal(tag: String): Sykepengesoknad = copy(sporsmal = fjernSporsmalHjelper(tag))
 }
+
+private fun FiskerLottOgHyre?.erLegacyEllerLottBegge(): Boolean =
+    this == null || this == FiskerLottOgHyre.LOTT || this == FiskerLottOgHyre.BEGGE
 
 fun List<Sporsmal>.flatten(): List<Sporsmal> =
     flatMap {
