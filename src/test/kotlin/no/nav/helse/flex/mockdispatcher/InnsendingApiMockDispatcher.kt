@@ -1,14 +1,14 @@
 package no.nav.helse.flex.mockdispatcher
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import mockwebserver3.MockResponse
+import mockwebserver3.QueueDispatcher
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.innsendingapi.EttersendingRequest
 import no.nav.helse.flex.client.innsendingapi.EttersendingResponse
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.QueueDispatcher
-import okhttp3.mockwebserver.RecordedRequest
+import tools.jackson.module.kotlin.readValue
 import java.util.UUID
 
 object InnsendingApiMockDispatcher : QueueDispatcher() {
@@ -25,25 +25,16 @@ object InnsendingApiMockDispatcher : QueueDispatcher() {
             opprettEttersendRequests.add(request)
 
             withContentTypeApplicationJson {
-                MockResponse().setResponseCode(200).setBody(
-                    EttersendingResponse(
-                        innsendingsId = UUID.randomUUID().toString(),
-                    ).serialisertTilString(),
-                )
+                MockResponse(code = 200, body = EttersendingResponse(innsendingsId = UUID.randomUUID().toString()).serialisertTilString())
             }
         } else if (request.requestLine.startsWith("DELETE /ekstern/v1/ettersending/")) {
             slettEttersendingRequests.add(request)
             withContentTypeApplicationJson {
-                MockResponse().setResponseCode(200).setBody(
-                    """{
-                      "status": "null",
-                      "info": "null"
-                    }""",
-                )
+                MockResponse(code = 200, body = """{ "status": "null", "info": "null" }""")
             }
         } else {
             log.error("Ukjent api: " + request.requestLine)
-            MockResponse().setResponseCode(404)
+            MockResponse(code = 404)
         }
     }
 
@@ -51,5 +42,5 @@ object InnsendingApiMockDispatcher : QueueDispatcher() {
 
     fun getSlettEttersendingRequests(): List<RecordedRequest> = slettEttersendingRequests.toList()
 
-    fun getOpprettEttersendingLastRequest(): EttersendingRequest = objectMapper.readValue(opprettEttersendRequests.last().body.readUtf8())
+    fun getOpprettEttersendingLastRequest(): EttersendingRequest = objectMapper.readValue(opprettEttersendRequests.last().body!!.utf8())
 }

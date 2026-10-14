@@ -23,7 +23,9 @@ const val REST_CLIENT_READ_TIMEOUT = 10L
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
-class RestClientConfiguration {
+class RestClientConfiguration(
+    private val restClientBuilder: RestClient.Builder,
+) {
     @Bean
     fun brregRestClient(
         @Value("\${BRREG_API_URL}")
@@ -119,8 +121,11 @@ class RestClientConfiguration {
                 setReadTimeout(Duration.ofSeconds(readTimeout))
             }
 
-        return RestClient
-            .builder()
+        // Builderen brukes til å opprette alle RestClient-ene i konfigurasjonen.
+        // clone() gir hver klient sin egen builder, slik at baseUrl og interceptorer fra én klient ikke blir med i
+        // oppsettet av de andre.
+        return restClientBuilder
+            .clone()
             .requestFactory(requestFactory)
     }
 

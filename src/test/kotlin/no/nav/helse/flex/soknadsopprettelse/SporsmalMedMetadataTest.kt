@@ -37,6 +37,6 @@ class SporsmalMedMetadataTest : FellesTestOppsett() {
             .getSporsmalMedTag("TULLETAG")
             .metadata!!
             .get("land")
-            .asText() `should be equal to` "Sverige"
+            .asString() `should be equal to` "Sverige"
     }
 }

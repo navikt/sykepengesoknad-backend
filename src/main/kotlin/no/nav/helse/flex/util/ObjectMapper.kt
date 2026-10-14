@@ -1,19 +1,25 @@
 package no.nav.helse.flex.util
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.kotlinModule
+
+// Jackson 3 bruker enumens toString() som standard. Applikasjonen bruker konstantnavnet i stedet siden
+// flere konstanter har samme toString()-verdi. Se FISKER og JORDBRUKER i Arbeidssituasjon, som begge har verdien
+// "selvstendig næringsdrivende".
+fun JsonMapper.Builder.jacksonFeatureConfiguration(): JsonMapper.Builder =
+    this
+        .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
+        .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
 
 val objectMapper: ObjectMapper =
-    ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerKotlinModule()
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    JsonMapper
+        .builder()
+        .addModule(kotlinModule())
+        .jacksonFeatureConfiguration()
+        .build()
 
 fun Any.serialisertTilString(): String = objectMapper.writeValueAsString(this)
 

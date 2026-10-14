@@ -1,6 +1,5 @@
 package no.nav.helse.flex
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.SubsumsjonAssertions.assertSubsumsjonsmelding
@@ -9,6 +8,7 @@ import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.awaitility.Awaitility.await
+import tools.jackson.module.kotlin.readValue
 import java.time.Duration
 
 fun <K, V> Consumer<K, V>.subscribeHvisIkkeSubscribed(vararg topics: String) {

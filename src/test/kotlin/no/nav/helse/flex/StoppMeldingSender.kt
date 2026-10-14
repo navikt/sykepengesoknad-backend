@@ -11,16 +11,22 @@ import java.time.Instant
 fun TestOppsettInterfaces.sendStoppMelding(
     vedtaksperiodeId: String,
     fnr: String,
-    avsluttetTidspunkt: Instant,
+    tidspunkt: Instant,
 ) {
-    val stoppMelding = ArbeidssokerperiodeStartStoppMelding(STOPP, vedtaksperiodeId, fnr, avsluttetTidspunkt)
+    val startStoppMelding =
+        ArbeidssokerperiodeStartStoppMelding(
+            operation = STOPP,
+            vedtaksperiodeId = vedtaksperiodeId,
+            fnr = fnr,
+            tidspunkt = tidspunkt,
+        )
 
     kafkaProducer()
         .send(
             ProducerRecord(
                 ARBEIDSSOKERREGISTER_START_STOPP_TOPIC,
-                stoppMelding.fnr.asProducerRecordKey(),
-                stoppMelding.serialisertTilString(),
+                startStoppMelding.fnr.asProducerRecordKey(),
+                startStoppMelding.serialisertTilString(),
             ),
         ).get()
 }

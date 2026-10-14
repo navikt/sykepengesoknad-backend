@@ -1,13 +1,13 @@
 package no.nav.helse.flex.utvikling
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.flex.util.objectMapper
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import tools.jackson.databind.JsonNode
 
 @RestController
 @Profile("dev")
