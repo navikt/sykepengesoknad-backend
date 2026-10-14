@@ -284,6 +284,13 @@ class SporsmalGenerator(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
     ): MedlemskapSporsmalResultat {
+        if (soknad.soknadstype == Soknadstype.FISKERE) {
+            return MedlemskapSporsmalResultat(
+                medlemskapSporsmalTags = emptyList(),
+                kjentOppholdstillatelse = null,
+            )
+        }
+
         // Medlemskapspørsmål skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
         if (!skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad)) {
             return MedlemskapSporsmalResultat(medlemskapSporsmalTags = emptyList())
