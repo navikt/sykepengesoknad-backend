@@ -286,7 +286,7 @@ class SporsmalGenerator(
     ): MedlemskapSporsmalResultat {
         if (soknad.soknadstype == Soknadstype.FISKERE) {
             return MedlemskapSporsmalResultat(
-                medlemskapSporsmalTags = emptyList(),
+                medlemskapSporsmalTags = listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE),
                 kjentOppholdstillatelse = null,
             )
         }
