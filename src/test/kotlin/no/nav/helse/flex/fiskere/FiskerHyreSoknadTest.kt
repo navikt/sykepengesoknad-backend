@@ -10,7 +10,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.syfo.sykmelding.kafka.model.LottOgHyre
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
 import org.junit.jupiter.api.Test
 
 class FiskerHyreSoknadTest : FellesTestOppsett() {
@@ -28,13 +27,14 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
 
         soknad.type `should be equal to` SoknadstypeDTO.FISKERE
         soknad.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.FISKER
-        soknad.sporsmal!!.map { it.tag } `should contain same`
+        soknad.sporsmal!!.map { it.tag } `should be equal to`
             listOf(
                 "ANSVARSERKLARING",
                 "TILBAKE_I_ARBEID",
                 "FERIE_V2",
                 "PERMISJON_V2",
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
+                "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "OPPHOLD_UTENFOR_EOS",
                 "TIL_SLUTT",
