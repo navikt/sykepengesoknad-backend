@@ -69,6 +69,7 @@ fun konverterTilSykepengesoknadDTO(
         forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false,
         tidligereArbeidsgiverOrgnummer = sykepengesoknad.tidligereArbeidsgiverOrgnummer,
         fiskerBlad = EnumUtil.konverter(FiskerBladDTO::class.java, sykepengesoknad.fiskerBlad),
+        fiskerLottOgHyre = EnumUtil.konverter(FiskerLottOgHyreDTO::class.java, sykepengesoknad.fiskerLottOgHyre),
         inntektFraNyttArbeidsforhold = sykepengesoknad.hentInntektFraNyttArbeidsforhold(),
         friskTilArbeidVedtakId = sykepengesoknad.friskTilArbeidVedtakId,
         fortsattArbeidssoker = sykepengesoknad.fortsattFriskmeldtTilArbeidsformidling(),

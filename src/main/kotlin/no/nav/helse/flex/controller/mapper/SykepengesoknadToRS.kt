@@ -117,6 +117,8 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         selvstendigNaringsdrivendeInfo = this.selvstendigNaringsdrivende,
         ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
         ghostInntekter = this.ghostInntekter?.map { it.tilRSKjentInntektskilde() },
+        fiskerBlad = this.fiskerBlad?.let { RSFiskerBlad.valueOf(it.name) },
+        fiskerLottOgHyre = this.fiskerLottOgHyre?.let { RSFiskerLottOgHyre.valueOf(it.name) },
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =

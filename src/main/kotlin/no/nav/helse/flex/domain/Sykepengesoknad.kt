@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
@@ -64,6 +65,41 @@ data class Sykepengesoknad(
             "Søknad $id av type $soknadstype må ha fom og tom"
         }
     }
+
+    fun erTilsvarendeSelvstendig(): Boolean =
+        when (arbeidssituasjon) {
+            FISKER -> {
+                fiskerLottOgHyre == null || fiskerLottOgHyre in listOf(FiskerLottOgHyre.LOTT, FiskerLottOgHyre.BEGGE)
+            }
+            NAERINGSDRIVENDE, JORDBRUKER, BARNEPASSER -> true
+            else -> false
+        }
+
+    fun erTilsvarendeArbeidstaker(): Boolean =
+        when (arbeidssituasjon) {
+            FISKER -> {
+                fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE)
+            }
+            ARBEIDSTAKER -> true
+            else -> false
+        }
+
+    fun erLikDetaljertArbeidssituasjon(
+        arbeidssituasjon: Arbeidssituasjon?,
+        lottOgHyre: FiskerLottOgHyre?,
+    ): Boolean =
+        when (arbeidssituasjon) {
+            FISKER -> {
+                this.arbeidssituasjon == arbeidssituasjon &&
+                    (
+                        (fiskerLottOgHyre == FiskerLottOgHyre.HYRE && lottOgHyre == FiskerLottOgHyre.HYRE) ||
+                            (fiskerLottOgHyre.erLegacyEllerLottBegge() && lottOgHyre.erLegacyEllerLottBegge())
+                    )
+            }
+            else -> {
+                this.arbeidssituasjon == arbeidssituasjon
+            }
+        }
 
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
 
@@ -141,6 +177,9 @@ data class Sykepengesoknad(
 
     fun fjernSporsmal(tag: String): Sykepengesoknad = copy(sporsmal = fjernSporsmalHjelper(tag))
 }
+
+private fun FiskerLottOgHyre?.erLegacyEllerLottBegge(): Boolean =
+    this == null || this == FiskerLottOgHyre.LOTT || this == FiskerLottOgHyre.BEGGE
 
 fun List<Sporsmal>.flatten(): List<Sporsmal> =
     flatMap {

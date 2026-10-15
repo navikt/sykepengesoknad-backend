@@ -8,8 +8,8 @@ enum class Arbeidssituasjon(
     ARBEIDSTAKER("arbeidstaker"),
     BARNEPASSER("barnepasser"),
     ARBEIDSLEDIG("arbeidsledig"),
-    FISKER("selvstendig næringsdrivende"),
-    JORDBRUKER("selvstendig næringsdrivende"),
+    FISKER("fisker"),
+    JORDBRUKER("jordbruker"),
     ANNET("annet"),
     ;
 

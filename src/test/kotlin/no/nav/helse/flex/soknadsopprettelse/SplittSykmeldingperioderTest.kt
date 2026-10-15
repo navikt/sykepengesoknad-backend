@@ -37,6 +37,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter[0].fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -62,6 +63,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(1)
@@ -100,6 +102,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(3)
@@ -144,6 +147,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(4)
@@ -176,6 +180,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -210,6 +215,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -244,6 +250,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(1)
@@ -285,6 +292,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
         val andrePeriode =
             splittetPaType.last().splittSykmeldingiSoknadsPerioder(
@@ -294,6 +302,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
@@ -347,6 +356,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
         val andrePeriode =
             splittetPaType.last().splittSykmeldingiSoknadsPerioder(
@@ -356,6 +366,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
@@ -405,6 +416,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -443,6 +455,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.behandletTidspunkt,
                 "12345678",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -501,6 +514,7 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 sykmeldingDokument.signaturDato!!,
                 "org-1",
                 klippMetrikk,
+                null,
             )
 
         assertThat(tidsenheter.size).isEqualTo(4)
