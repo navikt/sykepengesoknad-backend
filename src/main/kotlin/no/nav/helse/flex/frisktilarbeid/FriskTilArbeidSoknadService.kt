@@ -61,7 +61,7 @@ class FriskTilArbeidSoknadService(
                 return emptyList()
             }
 
-        if (vedtakDbRecord.sjekkArbeidssokerregisteret()) {
+        if (vedtakDbRecord.skalSjekkeArbeidssokerregisteret()) {
             val sisteArbeidssokerperiode =
                 arbeidssokerregisterClient
                     .hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(vedtakDbRecord.fnr))
