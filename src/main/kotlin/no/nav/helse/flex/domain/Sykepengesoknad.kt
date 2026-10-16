@@ -66,23 +66,9 @@ data class Sykepengesoknad(
         }
     }
 
-    fun erTilsvarendeSelvstendig(): Boolean =
-        when (arbeidssituasjon) {
-            FISKER -> {
-                fiskerLottOgHyre == null || fiskerLottOgHyre in listOf(FiskerLottOgHyre.LOTT, FiskerLottOgHyre.BEGGE)
-            }
-            NAERINGSDRIVENDE, JORDBRUKER, BARNEPASSER -> true
-            else -> false
-        }
+    fun erTilsvarendeSelvstendig(): Boolean = erTilsvarendeSelvstendig(arbeidssituasjon, fiskerLottOgHyre)
 
-    fun erTilsvarendeArbeidstaker(): Boolean =
-        when (arbeidssituasjon) {
-            FISKER -> {
-                fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE)
-            }
-            ARBEIDSTAKER -> true
-            else -> false
-        }
+    fun erTilsvarendeArbeidstaker(): Boolean = erTilsvarendeArbeidstaker(arbeidssituasjon, fiskerLottOgHyre)
 
     fun erLikDetaljertArbeidssituasjon(
         arbeidssituasjon: Arbeidssituasjon?,
@@ -177,6 +163,31 @@ data class Sykepengesoknad(
 
     fun fjernSporsmal(tag: String): Sykepengesoknad = copy(sporsmal = fjernSporsmalHjelper(tag))
 }
+
+fun erTilsvarendeSelvstendig(
+    arbeidssituasjon: Arbeidssituasjon?,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
+): Boolean =
+    when (arbeidssituasjon) {
+        FISKER -> {
+            fiskerLottOgHyre == null || fiskerLottOgHyre in listOf(FiskerLottOgHyre.LOTT, FiskerLottOgHyre.BEGGE)
+        }
+
+        NAERINGSDRIVENDE, JORDBRUKER, BARNEPASSER -> true
+        else -> false
+    }
+
+fun erTilsvarendeArbeidstaker(
+    arbeidssituasjon: Arbeidssituasjon?,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
+): Boolean =
+    when (arbeidssituasjon) {
+        FISKER -> {
+            fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE)
+        }
+        ARBEIDSTAKER -> true
+        else -> false
+    }
 
 private fun FiskerLottOgHyre?.erLegacyEllerLottBegge(): Boolean =
     this == null || this == FiskerLottOgHyre.LOTT || this == FiskerLottOgHyre.BEGGE
