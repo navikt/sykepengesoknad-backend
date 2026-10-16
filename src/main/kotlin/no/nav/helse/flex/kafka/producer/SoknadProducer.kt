@@ -4,6 +4,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstype.ARBEIDSTAKERE
+import no.nav.helse.flex.domain.Soknadstype.FISKERE
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -43,13 +44,14 @@ class SoknadProducer(
 
     private fun Sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(): Boolean =
         when (soknadstype) {
-            ARBEIDSTAKERE, SELVSTENDIGE_OG_FRILANSERE -> {
+            ARBEIDSTAKERE, SELVSTENDIGE_OG_FRILANSERE, FISKERE -> {
                 true
             }
 
             GRADERT_REISETILSKUDD -> {
                 when (arbeidssituasjon) {
                     Arbeidssituasjon.ARBEIDSTAKER, Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> true
+                    // TODO: hvorfor ikke jordbruker og fisker?
                     else -> false
                 }
             }
