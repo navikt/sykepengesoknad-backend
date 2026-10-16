@@ -161,16 +161,99 @@ class SporsmalGenerator(
         }
 
         if (soknad.erTilsvarendeArbeidstaker()) {
-            val nyeAaregArbeidsforhold =
-                tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
-                    .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
-            val inntektskomponentenArbeidsforhold =
-                arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
-                    fnr = soknad.fnr,
-                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
-                    startSykeforlop = soknad.startSykeforlop!!,
-                )
+            val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
+            val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
 
+            val arbeidstakerSporsmal =
+                settOppSoknadArbeidstaker(
+                    sykepengesoknad = soknad,
+                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
+                    nyeArbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                    kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
+                    medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
+                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                )
+            if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
+                log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
+            }
+            return SporsmalOgAndreKjenteArbeidsforhold(
+                sporsmal = arbeidstakerSporsmal,
+                andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                ghostInntekter = inntektsgrunnlag.ghostInntekter,
+            )
+        }
+
+        return when (soknad.arbeidssituasjon) {
+            FISKER,
+            JORDBRUKER,
+            BARNEPASSER,
+            NAERINGSDRIVENDE,
+            FRILANSER,
+            -> {
+                val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+                val sporsmal =
+                    settOppSoknadSelvstendigOgFrilanser(
+                        sykepengesoknad = soknad,
+                        sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                        harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                        erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                        ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                    )
+                SporsmalOgAndreKjenteArbeidsforhold(
+                    sporsmal = sporsmal,
+                    andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                    arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                )
+            }
+
+            ARBEIDSLEDIG ->
+                settOppSoknadArbeidsledig(
+                    sykepengesoknad = soknad,
+                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
+                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+
+            ANNET ->
+                settOppSoknadAnnetArbeidsforhold(
+                    sykepengesoknad = soknad,
+                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
+                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+
+            else -> {
+                throw RuntimeException(
+                    "Arbeidssituasjon ${soknad.arbeidssituasjon?.name} for sykepengesøknad ${soknad.id} er ukjent. " +
+                        "Kan ikke generere spørsmål.",
+                )
+            }
+        }
+    }
+
+    private data class Inntektsgrunnlag(
+        val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
+        val arbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>,
+        val ghostInntekter: List<KjentInntektskilde>,
+    )
+
+    private fun hentInntekter(
+        soknad: Sykepengesoknad,
+        eksisterendeSoknader: List<Sykepengesoknad>,
+    ): Inntektsgrunnlag {
+        val nyeAaregArbeidsforhold =
+            tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
+        val inntektskomponentenArbeidsforhold =
+            arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
+                fnr = soknad.fnr,
+                arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer,
+                startSykeforlop = soknad.startSykeforlop!!,
+            )
         val ghostInntekter =
             if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
                 sjekkForGhostInntekter(
@@ -181,69 +264,11 @@ class SporsmalGenerator(
             } else {
                 emptyList()
             }
-
-            val arbeidstakerSporsmal =
-                settOppSoknadArbeidstaker(
-                    sykepengesoknad = soknad,
-                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                    nyeArbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
-                    kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
-                    medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                    ghostInntekter = ghostInntekter,
-                )
-            if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
-                log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
-            }
-            return SporsmalOgAndreKjenteArbeidsforhold(
-                sporsmal = arbeidstakerSporsmal,
-                andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
-                arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
-                ghostInntekter = ghostInntekter,
-            )
-        }
-
-        return
-                when (soknad.arbeidssituasjon) {
-                    FISKER,
-                    JORDBRUKER,
-                    BARNEPASSER,
-                    NAERINGSDRIVENDE,
-                    FRILANSER,
-                    -> {
-                        settOppSoknadSelvstendigOgFrilanser(
-                            sykepengesoknad = soknad,
-                            sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
-                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                            ghostInntekter = ghostInntekter,
-                        )
-                    }
-
-            ARBEIDSLEDIG ->
-                settOppSoknadArbeidsledig(
-                    sykepengesoknad = soknad,
-                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                )
-
-            ANNET ->
-                settOppSoknadAnnetArbeidsforhold(
-                    sykepengesoknad = soknad,
-                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                )
-
-            else -> {
-                throw RuntimeException(
-                    "Arbeidssituasjon ${soknad.arbeidssituasjon?.name} for sykepengesøknad ${soknad.id} er ukjent. " +
-                        "Kan ikke generere spørsmål.",
-                )
-            }
-        }.tilSporsmalOgAndreKjenteArbeidsforhold()
+        return Inntektsgrunnlag(
+            andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
+            arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
+            ghostInntekter = ghostInntekter,
+        )
     }
 
     private fun hentYrkesskadeSporsmalGrunnlag(
