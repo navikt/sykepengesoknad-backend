@@ -84,9 +84,14 @@ class OpprettSoknadService(
                         ).map {
                             val selvstendigNaringsdrivendeInfo =
                                 hentSelvstendigNaringsdrivendeInfo(
-                                    arbeidssituasjon,
-                                    identer,
-                                    sykmeldingTilSoknadOpprettelse,
+                                    arbeidssituasjon = arbeidssituasjon,
+                                    identer = identer,
+                                    sykmeldingTilSoknadOpprettelse = sykmeldingTilSoknadOpprettelse,
+                                    skalHenteNaringsdrivendeInfo =
+                                        erTilsvarendeSelvstendig(
+                                            arbeidssituasjon,
+                                            sykmeldingTilSoknadOpprettelse.fiskerLottOgHyre,
+                                        ),
                                 )
                             val perioderFraSykmeldingen = it.delOppISoknadsperioder(sykmelding)
                             val soknadsId =
@@ -178,8 +183,9 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykmeldingTilSoknadOpprettelse: SykmeldingTilSoknadOpprettelse,
+        skalHenteNaringsdrivendeInfo: Boolean,
     ): SelvstendigNaringsdrivendeInfo? =
-        if (listOf(FISKER, JORDBRUKER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
+        if (skalHenteNaringsdrivendeInfo) {
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 identer = identer,
                 sykmeldingId = sykmeldingTilSoknadOpprettelse.sykmeldingId,

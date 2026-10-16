@@ -5,7 +5,6 @@ import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.client.brreg.BrregClient
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.Rolletype
-import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.BrregRolle
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service
 @Service
 class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
-    private val flexSyketilfelleClient: FlexSyketilfelleClient,
     private val enhetsregisterClient: EnhetsregisterClient,
 ) {
     private val log = logger()
