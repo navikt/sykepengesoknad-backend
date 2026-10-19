@@ -2,6 +2,7 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG
 import no.nav.helse.flex.domain.Soknadstatus.NY
+import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstatus.SLETTET
 import no.nav.helse.flex.domain.Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -31,60 +32,63 @@ class ArbeidssokerregisterStartStoppService(
 
     @Transactional
     fun prosseserStartStoppMelding(startStoppMelding: ArbeidssokerperiodeStartStoppMelding) {
+        val vedtak =
+            checkNotNull(friskTilArbeidRepository.findById(startStoppMelding.vedtaksperiodeId).getOrNull()) {
+                "Fant ikke vedtak for ${startStoppMelding.operation}-melding med " +
+                    "vedtaksperiode: ${startStoppMelding.vedtaksperiodeId}."
+            }
+
+        check(vedtak.skalSjekkeArbeidssokerregisteret()) {
+            "Kan ikke behandle ${startStoppMelding.operation}-melding for vedtaksperiode: ${vedtak.id} " +
+                "siden vedtaket er satt til å ignorere arbeidssøkerregisteret."
+        }
+
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(startStoppMelding.fnr)
 
         val alleFtaSoknaderSammeVedtaksid =
             hentSoknadService
                 .hentSoknader(identer)
                 .filter { it.soknadstype == FRISKMELDT_TIL_ARBEIDSFORMIDLING }
-                .filter { it.friskTilArbeidVedtakId == startStoppMelding.vedtaksperiodeId }
+                .filter { it.friskTilArbeidVedtakId == vedtak.id }
 
         when (startStoppMelding.operation) {
-            STOPP -> stopp(alleFtaSoknaderSammeVedtaksid, startStoppMelding)
-            START -> start(alleFtaSoknaderSammeVedtaksid, startStoppMelding)
+            STOPP -> avsluttVedtaksperiode(vedtak, alleFtaSoknaderSammeVedtaksid, startStoppMelding)
+            START -> gjenopprettVedtaksperiode(vedtak, alleFtaSoknaderSammeVedtaksid)
         }
     }
 
-    private fun start(
+    private fun gjenopprettVedtaksperiode(
+        vedtak: FriskTilArbeidVedtakDbRecord,
         alleFtaSoknaderSammeVedtaksid: List<Sykepengesoknad>,
-        startStoppMelding: ArbeidssokerperiodeStartStoppMelding,
     ) {
-        friskTilArbeidRepository.findById(startStoppMelding.vedtaksperiodeId).getOrNull()?.let {
-            if (it.avsluttetTidspunkt == null) {
-                throw IllegalStateException(
-                    "Kan ikke gjenopprette søknad når den aldri har blitt avsluttet, " +
-                        "avsluttetTidspunkt=${it.avsluttetTidspunkt}, vedtaksperiodeId=$it.vedtaksperiodeId",
-                )
-            }
-
-            if (it.behandletStatus != BEHANDLET) {
-                throw IllegalStateException(
-                    "Kan ikke gjenopprette søknad som ikke er behandlet, " +
-                        "behandletStatus=${it.behandletStatus}, vedtaksperiodeId=$it.vedtaksperiodeId",
-                )
-            }
-
-            val nyesteSoknad =
-                alleFtaSoknaderSammeVedtaksid
-                    .maxByOrNull { soknad -> soknad.fom!! }
-
-            if (nyesteSoknad?.fortsattFriskmeldtTilArbeidsformidling() == false) {
-                log.info(
-                    "Bruker har svart at de ikke fortsatt er friskmeldt til arbeidsformidling, " +
-                        "vedtaksperiodeId=$it.vedtaksperiodeId",
-                )
-                return
-            }
-
-            friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = null, behandletStatus = BehandletStatus.NY))
-            log.info(
-                "Satt BehandletStatus til NY siden vi fikk melding om at det er opprettet en ny arbeidssøkerperiode " +
-                    "for søknad: ${it.id}",
-            )
+        checkNotNull(vedtak.avsluttetTidspunkt) {
+            "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} når den aldri har blitt avsluttet."
         }
+        check(vedtak.behandletStatus == BEHANDLET) {
+            "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} som har status ${vedtak.behandletStatus}."
+        }
+
+        val harSvartIkkeFortsattFriskmeldt =
+            alleFtaSoknaderSammeVedtaksid.any { soknad ->
+                soknad.status == SENDT && soknad.fortsattFriskmeldtTilArbeidsformidling() == false
+            }
+
+        if (harSvartIkkeFortsattFriskmeldt) {
+            log.info(
+                "Bruker har svart at de ikke vil være registert som arbeidssøker. Gjenoppretter ikke vedtaksperiode: ${vedtak.id}.",
+            )
+            return
+        }
+
+        friskTilArbeidRepository.save(vedtak.copy(avsluttetTidspunkt = null, behandletStatus = BehandletStatus.NY))
+        log.info(
+            "Satt BehandletStatus til NY siden vi fikk melding om at det er opprettet en ny arbeidssøkerperiode " +
+                "for vedtaksperiode: ${vedtak.id}",
+        )
     }
 
-    private fun stopp(
+    private fun avsluttVedtaksperiode(
+        vedtak: FriskTilArbeidVedtakDbRecord,
         alleFtaSoknaderSammeVedtaksid: List<Sykepengesoknad>,
         startStoppMelding: ArbeidssokerperiodeStartStoppMelding,
     ) {
@@ -95,10 +99,8 @@ class ArbeidssokerregisterStartStoppService(
                     it.fom!!.isAfter(startStoppMelding.tidspunkt.tilLocalDate())
                 }
 
-        friskTilArbeidRepository.findById(startStoppMelding.vedtaksperiodeId).getOrNull()?.let {
-            if (it.avsluttetTidspunkt == null) {
-                friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = startStoppMelding.tidspunkt))
-            }
+        if (vedtak.avsluttetTidspunkt == null) {
+            friskTilArbeidRepository.save(vedtak.copy(avsluttetTidspunkt = startStoppMelding.tidspunkt))
         }
 
         soknaderSomSkalSlettes.forEach {
