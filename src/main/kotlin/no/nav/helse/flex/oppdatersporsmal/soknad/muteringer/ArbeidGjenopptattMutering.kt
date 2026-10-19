@@ -85,7 +85,8 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
 
     val sporsmalSomSkalFjernes = mutableListOf<String>()
 
-    if (this.erTilsvarendeSelvstendig()) {
+    // TODO nytt opprettholdt inntekt spørsmål for fisker lott og hyre
+    if (this.erTilsvarendeSelvstendig() && !this.erFiskerLottOgHyreMedNySoknad()) {
         if (this.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis()) {
             oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntektGradert(this.fom, oppdatertTom))
             sporsmalSomSkalFjernes.add(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
@@ -112,8 +113,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         } else {
             sporsmalSomSkalFjernes.add(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }
-    }
-    if (listOf(NAERINGSDRIVENDE, FRILANSER, FISKER).contains(this.arbeidssituasjon) && !this.erTilsvarendeArbeidstaker()) {
+    } else if (this.erTilsvarendeSelvstendig() || arbeidssituasjon == FRILANSER) {
         oppdaterteSporsmal.add(utlandNaringsdrivende)
     }
 

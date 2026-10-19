@@ -63,7 +63,7 @@ class SporsmalGenerator(
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
-        val sykepengegrunnlag =
+        val sykepengegrunnlagNaeringsdrivende =
             if (soknad.erTilsvarendeSelvstendig()) {
                 sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
             } else {
@@ -75,14 +75,14 @@ class SporsmalGenerator(
                 soknad = soknad,
                 eksisterendeSoknader = eksisterendeSoknader,
                 identer = identer,
-                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
             sykepengesoknadRepository.save(
                 it
-                    .leggTilSykepengegrunnlagNaringsdrivende(sykepengegrunnlag)
+                    .leggTilSykepengegrunnlagNaringsdrivende(sykepengegrunnlagNaeringsdrivende)
                     .copy(
                         inntektskilderDataFraInntektskomponenten =
                             sporsmalOgAndreKjenteArbeidsforhold

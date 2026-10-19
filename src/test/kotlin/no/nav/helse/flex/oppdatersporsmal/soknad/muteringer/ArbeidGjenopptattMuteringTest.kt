@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.mock.opprettNyFiskerHyreSoknad
+import no.nav.helse.flex.mock.opprettNyFiskerLottOgHyreSoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
@@ -227,5 +228,47 @@ class ArbeidGjenopptattMuteringTest {
 
         soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should not be equal to` null
+    }
+
+    @Test
+    fun `Muter vekk og gjenopprett spørsmål for fisker med lott og hyre`() {
+        val soknad = opprettNyFiskerLottOgHyreSoknad(svarPaSoknad = false)
+
+        sammenlignFiskerLottOgHyreSporsmal(soknad)
+
+        val mutertSoknad =
+            soknad
+                .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+                .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
+                .arbeidGjenopptattMutering()
+
+        mutertSoknad.sporsmal.shouldHaveSize(9)
+
+        val mutertGjenopprettSoknad =
+            soknad
+                .besvarsporsmal(TILBAKE_I_ARBEID, "NEI")
+                .arbeidGjenopptattMutering()
+
+        sammenlignFiskerLottOgHyreSporsmal(mutertGjenopprettSoknad)
+    }
+
+    private fun sammenlignFiskerLottOgHyreSporsmal(soknad: Sykepengesoknad) {
+        soknad.sporsmal.map { it.tag } `should be equal to`
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                "ARBEID_UNDERVEIS_100_PROSENT_0",
+                "JOBBET_DU_GRADERT_1",
+                ARBEID_UTENFOR_NORGE,
+                ANDRE_INNTEKTSKILDER_V2,
+                OPPHOLD_UTENFOR_EOS,
+                NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
+                NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
+                NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+                NARINGSDRIVENDE_VARIG_ENDRING,
+                TIL_SLUTT,
+            )
     }
 }

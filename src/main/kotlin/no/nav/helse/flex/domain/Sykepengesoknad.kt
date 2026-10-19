@@ -68,9 +68,15 @@ data class Sykepengesoknad(
 
     fun erTilsvarendeSelvstendig(): Boolean = erTilsvarendeSelvstendig(arbeidssituasjon, fiskerLottOgHyre)
 
-    fun erTilsvarendeArbeidstaker(): Boolean = erTilsvarendeArbeidstaker(arbeidssituasjon, fiskerLottOgHyre)
+    fun erTilsvarendeArbeidstaker(): Boolean =
+        erTilsvarendeArbeidstaker(arbeidssituasjon, fiskerLottOgHyre) || erFiskerLottOgHyreMedNySoknad()
 
-    fun erBadeSelvstendigOgArbeidstaker(): Boolean = erBadeSelvstendigOgArbeidstaker(arbeidssituasjon, fiskerLottOgHyre, soknadstype)
+    // For å skille gamle søknader fra nye så må vi sjekke søknadstype for FiskerLottOgHyre.BEGGE
+    // TODO: november 2027: Kan fjernes og legge BEGGE inn i erTilsvarendeArbeidstaker uten å ta hensyn til soknadsType
+    fun erFiskerLottOgHyreMedNySoknad(): Boolean =
+        arbeidssituasjon == FISKER &&
+            fiskerLottOgHyre == FiskerLottOgHyre.BEGGE &&
+            soknadstype in listOf(Soknadstype.FISKERE, Soknadstype.GRADERT_REISETILSKUDD)
 
     fun erLikDetaljertArbeidssituasjon(
         arbeidssituasjon: Arbeidssituasjon?,
@@ -78,11 +84,7 @@ data class Sykepengesoknad(
     ): Boolean =
         when (arbeidssituasjon) {
             FISKER -> {
-                this.arbeidssituasjon == arbeidssituasjon &&
-                    (
-                        (fiskerLottOgHyre == FiskerLottOgHyre.HYRE && lottOgHyre == FiskerLottOgHyre.HYRE) ||
-                            (fiskerLottOgHyre.erLegacyEllerLottBegge() && lottOgHyre.erLegacyEllerLottBegge())
-                    )
+                this.arbeidssituasjon == arbeidssituasjon && fiskerLottOgHyre == lottOgHyre
             }
             else -> {
                 this.arbeidssituasjon == arbeidssituasjon
@@ -179,7 +181,7 @@ fun erTilsvarendeSelvstendig(
         else -> false
     }
 
-fun erTilsvarendeArbeidstaker(
+private fun erTilsvarendeArbeidstaker(
     arbeidssituasjon: Arbeidssituasjon?,
     fiskerLottOgHyre: FiskerLottOgHyre?,
 ): Boolean =
@@ -190,25 +192,6 @@ fun erTilsvarendeArbeidstaker(
         ARBEIDSTAKER -> true
         else -> false
     }
-
-// For å skille gamle søknader fra nye så må vi sjekke søknadstype for FiskerLottOgHyre.BEGGE
-// TODO: november 2027: Fjern sjekk på søknadstype når vi ikke lenger har gamle FiskerLottOgHyre.BEGGE søknader i produksjon
-fun erBadeSelvstendigOgArbeidstaker(
-    arbeidssituasjon: Arbeidssituasjon?,
-    fiskerLottOgHyre: FiskerLottOgHyre?,
-    soknadstype: Soknadstype,
-): Boolean =
-    when (arbeidssituasjon) {
-        FISKER -> {
-            when (fiskerLottOgHyre) {
-                FiskerLottOgHyre.BEGGE -> soknadstype in listOf(Soknadstype.FISKERE, Soknadstype.GRADERT_REISETILSKUDD)
-                else -> false
-            }
-        } else -> false
-    }
-
-private fun FiskerLottOgHyre?.erLegacyEllerLottBegge(): Boolean =
-    this == null || this == FiskerLottOgHyre.LOTT || this == FiskerLottOgHyre.BEGGE
 
 fun List<Sporsmal>.flatten(): List<Sporsmal> =
     flatMap {
