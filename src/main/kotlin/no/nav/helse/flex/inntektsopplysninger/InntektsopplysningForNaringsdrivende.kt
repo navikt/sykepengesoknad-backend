@@ -3,7 +3,6 @@ package no.nav.helse.flex.inntektsopplysninger
 import no.nav.helse.flex.client.innsendingapi.EttersendingRequest
 import no.nav.helse.flex.client.innsendingapi.InnsendingApiClient
 import no.nav.helse.flex.client.innsendingapi.Vedlegg
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
@@ -20,10 +19,7 @@ class InntektsopplysningForNaringsdrivende(
     private val innsendingApiClient: InnsendingApiClient,
 ) {
     fun lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(soknad: Sykepengesoknad) {
-        if (!listOf(Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FISKER, Arbeidssituasjon.JORDBRUKER).contains(
-                soknad.arbeidssituasjon,
-            )
-        ) {
+        if (!soknad.erTilsvarendeSelvstendig()) {
             return
         }
 

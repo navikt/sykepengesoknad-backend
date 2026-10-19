@@ -261,7 +261,10 @@ class SporsmalGenerator(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
     ): List<ArbeidsforholdFraAAreg>? =
-        if (environmentToggles.isProduction()) {
+        if (soknad.arbeidssituasjon == FISKER) {
+            log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er fisker")
+            null
+        } else if (environmentToggles.isProduction()) {
             if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
                 log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
                 aaregDataHenting.hentNyeArbeidsforhold(
@@ -284,7 +287,7 @@ class SporsmalGenerator(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
     ): MedlemskapSporsmalResultat {
-        if (soknad.soknadstype == Soknadstype.FISKERE) {
+        if (soknad.arbeidssituasjon == FISKER) {
             return MedlemskapSporsmalResultat(
                 medlemskapSporsmalTags = listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE),
                 kjentOppholdstillatelse = null,
