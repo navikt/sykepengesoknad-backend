@@ -165,4 +165,58 @@ class FiskerLottOgHyreSoknadTest : FellesTestOppsett() {
             hentJuridiskeVurderinger(antall = 1).single().paragraf `should be equal to` "8-13"
         }
     }
+
+    @Test
+    fun `Søknad nummer to i samme sykeforlop får ikke førstegangsspørsmål for næringsdrivende`() {
+        val fnr = "12345678915"
+        val oppfolgingsdato = LocalDate.of(2020, 2, 1)
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingId = "1",
+                arbeidssituasjon = Arbeidssituasjon.FISKER,
+                lottOgHyre = LottOgHyre.BEGGE,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2020, 2, 1),
+                        tom = LocalDate.of(2020, 2, 15),
+                    ),
+            ),
+            oppfolgingsdato = oppfolgingsdato,
+        ).single()
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingId = "2",
+                arbeidssituasjon = Arbeidssituasjon.FISKER,
+                lottOgHyre = LottOgHyre.BEGGE,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2020, 2, 16),
+                        tom = LocalDate.of(2020, 2, 29),
+                    ),
+            ),
+            oppfolgingsdato = oppfolgingsdato,
+            sykmeldingIderMedSammeVentetid = setOf("1"),
+        ).single()
+
+        val soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        val forsteSoknad = hentSoknad(soknadId = soknader.first().id, fnr = fnr)
+        val andreSoknad = hentSoknad(soknadId = soknader.last().id, fnr = fnr)
+
+        val forsteTags = forsteSoknad.sporsmal!!.map { it.tag }
+        val andreTags = andreSoknad.sporsmal!!.map { it.tag }
+
+        listOf(
+            NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
+            NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
+            NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+            NARINGSDRIVENDE_VARIG_ENDRING,
+        ).forEach { tag ->
+            forsteTags.contains(tag) `should be equal to` true
+            andreTags.contains(tag) `should be equal to` false
+        }
+    }
 }

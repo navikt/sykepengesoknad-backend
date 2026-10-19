@@ -197,7 +197,7 @@ class SporsmalGenerator(
                 )
 
             val naringsdrivendeSporsmal =
-                if (soknad.fiskerLottOgHyre == FiskerLottOgHyre.BEGGE) {
+                if (erForsteSoknadISykeforlop && soknad.fiskerLottOgHyre == FiskerLottOgHyre.BEGGE) {
                     forstegangsSporsmalForSelvstendig(
                         fom = soknad.fom,
                         startSykeforlop = soknad.startSykeforlop,
