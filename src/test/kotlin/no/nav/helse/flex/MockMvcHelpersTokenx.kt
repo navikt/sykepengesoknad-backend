@@ -12,6 +12,7 @@ import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
+import no.nav.syfo.kafka.NAV_CALLID
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should not be null`
 import org.springframework.http.MediaType
@@ -69,11 +70,10 @@ fun FellesTestOppsett.hentSomArbeidsgiver(req: HentSoknaderRequest): List<HentSo
         mockMvc
             .perform(
                 MockMvcRequestBuilders
-                    .post("/api/v1/arbeidsgiver/soknader")
-                    .header(
-                        "Authorization",
-                        "Bearer ${server.tokenxToken(fnr = "whatever", clientId = "spinntekstmelding-frontend-client-id")}",
-                    ).contentType(MediaType.APPLICATION_JSON)
+                    .post("/api/v2/arbeidsgiver/soknader")
+                    .header("Authorization", "Bearer ${skapAzureJwt(subject = "im-soeknad-client-id")}")
+                    .header(NAV_CALLID, UUID.randomUUID().toString())
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(req.serialisertTilString()),
             ).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()

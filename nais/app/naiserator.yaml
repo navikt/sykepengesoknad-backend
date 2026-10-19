@@ -114,8 +114,6 @@ spec:
           namespace: teamsykefravr
         - application: sparkel-dokumenter
           namespace: tbd
-        - application: spinntektsmelding-frontend
-          namespace: helsearbeidsgiver
         - application: bakrommet
           namespace: speilvendt
         - application: im-soeknad
