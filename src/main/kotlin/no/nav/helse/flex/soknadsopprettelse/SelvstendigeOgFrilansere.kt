@@ -49,22 +49,11 @@ fun settOppSoknadSelvstendigOgFrilanser(
 
             if (erForsteSoknadISykeforlop) {
                 if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
-                    add(naringsdrivendeOppholdIUtlandet(sykepengesoknad.fom))
-                    add(fravaerForSykmeldingSporsmal(sykepengesoknad))
-                    add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(sykepengesoknad.fom))
-                    if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
-                        add(
-                            lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
-                                fom = sykepengesoknad.fom,
-                                startSykeforlop = sykepengesoknad.startSykeforlop,
-                                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
-                            ),
-                        )
-                    }
-                    add(
-                        lagSporsmalOmNaringsdrivendeVarigEndring(
+                    add(fravaerForSykmeldingSporsmal(sykepengesoknad)) // TODO fjerne
+                    addAll(
+                        forstegangsSporsmalForSelvstendig(
                             fom = sykepengesoknad.fom,
-                            startSykeforlop = sykepengesoknad.startSykeforlop,
+                            startSykeforlop = sykepengesoknad.startSykeforlop!!,
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                         ),
                     )
@@ -81,6 +70,32 @@ fun settOppSoknadSelvstendigOgFrilanser(
             }
         }.toList()
 }
+
+fun forstegangsSporsmalForSelvstendig(
+    fom: LocalDate,
+    startSykeforlop: LocalDate,
+    sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
+): List<Sporsmal> =
+    mutableListOf<Sporsmal>().apply {
+        add(naringsdrivendeOppholdIUtlandet(fom))
+        add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(fom))
+        if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
+            add(
+                lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
+                    fom = fom,
+                    startSykeforlop = startSykeforlop,
+                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                ),
+            )
+        }
+        add(
+            lagSporsmalOmNaringsdrivendeVarigEndring(
+                fom = fom,
+                startSykeforlop = startSykeforlop,
+                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+            ),
+        )
+    }
 
 fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
     soknadsperioder: List<Soknadsperiode>,
