@@ -130,8 +130,10 @@ class FriskTilArbeidSoknadService(
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
         soknadsperiode: Periode,
     ): Sykepengesoknad {
+        // Søknader som opprettes når et vedtak blir resatt til NY får ny id siden vedtakets behandletTidspunkt tas med.
         val grunnlagForId =
-            "${vedtakDbRecord.id}${soknadsperiode.fom}${soknadsperiode.tom}${vedtakDbRecord.opprettet}"
+            "${vedtakDbRecord.id}${soknadsperiode.fom}${soknadsperiode.tom}${vedtakDbRecord.opprettet}" +
+                vedtakDbRecord.behandletTidspunkt?.toString().orEmpty()
         val soknadId = UUID.nameUUIDFromBytes(grunnlagForId.toByteArray()).toString()
 
         val sykepengesoknad =

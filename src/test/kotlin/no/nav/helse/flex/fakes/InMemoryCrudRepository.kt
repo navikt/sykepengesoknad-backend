@@ -16,10 +16,7 @@ open class InMemoryCrudRepository<T : Any, ID : Any>(
 ) : CrudRepository<T, ID> {
     val store = ConcurrentHashMap<ID, T>()
 
-    override fun findById(id: ID): Optional<T> {
-        val t = store[id]!!
-        return Optional.ofNullable(t)
-    }
+    override fun findById(id: ID): Optional<T> = Optional.ofNullable(store[id])
 
     override fun <S : T> save(entity: S): S {
         val currentId = getId(entity)

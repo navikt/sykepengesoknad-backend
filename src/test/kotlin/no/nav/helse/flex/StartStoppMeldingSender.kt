@@ -1,6 +1,7 @@
 package no.nav.helse.flex
 
 import no.nav.helse.flex.frisktilarbeid.ArbeidssokerperiodeStartStoppMelding
+import no.nav.helse.flex.frisktilarbeid.StartStopp
 import no.nav.helse.flex.frisktilarbeid.StartStopp.START
 import no.nav.helse.flex.frisktilarbeid.StartStopp.STOPP
 import no.nav.helse.flex.frisktilarbeid.asProducerRecordKey
@@ -13,25 +14,27 @@ fun TestOppsettInterfaces.sendStoppMelding(
     vedtaksperiodeId: String,
     fnr: String,
     tidspunkt: Instant,
-) {
-    val startStoppMelding = ArbeidssokerperiodeStartStoppMelding(STOPP, vedtaksperiodeId, fnr, tidspunkt)
-
-    kafkaProducer()
-        .send(
-            ProducerRecord(
-                ARBEIDSSOKERREGISTER_START_STOPP_TOPIC,
-                startStoppMelding.fnr.asProducerRecordKey(),
-                startStoppMelding.serialisertTilString(),
-            ),
-        ).get()
-}
+) = sendStartStoppMelding(STOPP, vedtaksperiodeId, fnr, tidspunkt)
 
 fun TestOppsettInterfaces.sendStartMelding(
     vedtaksperiodeId: String,
     fnr: String,
     tidspunkt: Instant,
+) = sendStartStoppMelding(START, vedtaksperiodeId, fnr, tidspunkt)
+
+private fun TestOppsettInterfaces.sendStartStoppMelding(
+    operation: StartStopp,
+    vedtaksperiodeId: String,
+    fnr: String,
+    tidspunkt: Instant,
 ) {
-    val startStoppMelding = ArbeidssokerperiodeStartStoppMelding(START, vedtaksperiodeId, fnr, tidspunkt)
+    val startStoppMelding =
+        ArbeidssokerperiodeStartStoppMelding(
+            operation = operation,
+            vedtaksperiodeId = vedtaksperiodeId,
+            fnr = fnr,
+            tidspunkt = tidspunkt,
+        )
 
     kafkaProducer()
         .send(

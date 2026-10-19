@@ -2,13 +2,15 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG
 import no.nav.helse.flex.domain.Soknadstatus.NY
+import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.BehandletStatus.BEHANDLET
 import no.nav.helse.flex.frisktilarbeid.sporsmal.sendFriskTilArbeidVedtak
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendStartMelding
 import no.nav.helse.flex.sendStoppMelding
@@ -18,39 +20,48 @@ import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRI
 import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR
 import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_NEI
 import no.nav.helse.flex.soknadsopprettelse.FTA_REISE_TIL_UTLANDET
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.SLETTET
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.util.tilLocalDate
+import no.nav.helse.flex.util.osloZone
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should start with`
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class StartMeldingTest : FakesTestOppsett() {
     @Autowired
-    lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
+    private lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
     @Autowired
-    lateinit var sykepengesoknadRepository: SykepengesoknadRepository
-
-    @Autowired
-    lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     private val fnr = "11111111122"
-    private val tidspunkt = Instant.now()
 
-    val vedtakFom = LocalDate.now().minusDays(15)
-    val vedtakTom = LocalDate.now().plusDays(35)
+    // Vedtaket fører til fire søknadsperioder på 14 dager: én som er passert (NY), én som pågår og to fremtidige (FREMTIDIG).
+    private val tidspunkt = LocalDate.now()
+    private val vedtakFom = tidspunkt.minusDays(15)
+    private val vedtakTom = tidspunkt.plusDays(35)
+
+    private val forsteSoknadFom = vedtakFom
+    private val andreSoknadFom = vedtakFom.plusDays(14)
+    private val tredjeSoknadFom = vedtakFom.plusDays(28)
+    private val fjerdeSoknadFom = vedtakFom.plusDays(42)
+
+    // STOPP sletter søknader med fom etter stopp-datoen, dvs. tredje og fjerde søknadsperioden.
+    private val stoppTidspunkt = tidspunkt.tilOsloInstant()
+    private val startTidspunkt = tidspunkt.plusDays(1).tilOsloInstant()
 
     @BeforeEach
     fun setup() {
@@ -59,99 +70,232 @@ class StartMeldingTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Mottar start-melding og gjenoppretter søknader`() {
+    fun `Start-melding gjenoppretter slettede søknader i en vedtaksperiode`() {
         // Arrange
         `Gitt at et vedtak er mottatt og søknader opprettet`()
-        `Og en stopp-melding har blitt prosessert`()
+        `Og en stopp-melding har slettet søknader`(stoppTidspunkt)
 
         // Act
         `Motta og prosesser en start-melding`()
 
         // Assert
-        `Så blir søknaden gjennopprettet med status NY`()
+        hentVedtak().also {
+            it.behandletStatus `should be equal to` BEHANDLET
+            it.avsluttetTidspunkt `should be equal to` null
+        }
+
+        val soknader = hentSoknader()
+        soknader.map { it.fom to it.status } `should be equal to`
+            listOf(
+                forsteSoknadFom to NY,
+                andreSoknadFom to FREMTIDIG,
+                tredjeSoknadFom to FREMTIDIG,
+                fjerdeSoknadFom to FREMTIDIG,
+            )
+
+        val gjenopprettedeSoknadIder = soknader.filter { it.fom!! > tidspunkt }.map { it.sykepengesoknadUuid }
+        `Så er det publisert FREMTIDIG-event for`(gjenopprettedeSoknadIder)
     }
 
     @Test
-    fun `Får IllegalStateException dersom avsluttetTidspunkt er null`() {
+    fun `Start-melding gjenoppretter alle søknader når stopp-melding har slettet alle`() {
         // Arrange
         `Gitt at et vedtak er mottatt og søknader opprettet`()
-
-        // Act & Assert
-        val e =
-            assertThrows<IllegalStateException> {
-                `Motta og prosesser en start-melding`()
-            }
-
-        // Assert
-        e.message!! `should start with` "Kan ikke gjenopprette søknad når den aldri har blitt avsluttet"
-    }
-
-    @Test
-    fun `Får IllegalStateException dersom behandletStatus ikke er BEHANDLET`() {
-        // Arrange
-        `Gitt at et vedtak er mottatt og søknader opprettet`()
-        `Og avsluttetTidspunkt er satt til en verdi`()
-
-        // Act & Assert
-        val e =
-            assertThrows<IllegalStateException> {
-                `Motta og prosesser en start-melding`()
-            }
-
-        // Assert
-        e.message!! `should start with` "Kan ikke gjenopprette søknad som ikke er behandlet"
-    }
-
-    @Test
-    fun `Stopp-melding skal ikke ha noen effekt dersom bruker har svart at de ikke fortsatt er friskmeldt`() {
-        // Arrange
-        `Gitt at et vedtak er mottatt og søknader opprettet`()
-        `Og en stopp-melding har blitt prosessert`()
-        `Og bruker ikke fortsatt er friskmeldt`()
+        val slettedeSoknadIder = `Og en stopp-melding har slettet søknader`(vedtakFom.minusDays(1).tilOsloInstant())
+        hentSoknader().shouldBeEmpty()
 
         // Act
         `Motta og prosesser en start-melding`()
 
         // Assert
-        `Så forblir søknaden uendret`()
+        `Og søknader med passert tom er aktivert`()
+
+        hentVedtak().avsluttetTidspunkt `should be equal to` null
+
+        val soknader = hentSoknader()
+        soknader.map { it.fom to it.status } `should be equal to`
+            listOf(
+                forsteSoknadFom to NY,
+                andreSoknadFom to FREMTIDIG,
+                tredjeSoknadFom to FREMTIDIG,
+                fjerdeSoknadFom to FREMTIDIG,
+            )
+        soknader.map { it.sykepengesoknadUuid }.intersect(slettedeSoknadIder.toSet()).shouldBeEmpty()
     }
 
-    private fun `Gitt at et vedtak er mottatt og søknader opprettet`() {
-        sendFriskTilArbeidVedtak(fnr, vedtakFom, vedtakTom)
+    @Test
+    fun `Søknader i en gjenopprettet vedtaksperiode får ny id`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+
+        val forsteSlettedeIder = `Og en stopp-melding har slettet søknader`(stoppTidspunkt)
+
+        // Act
+        `Motta og prosesser en start-melding`()
+
+        val andreSlettedeIder = `Og en stopp-melding har slettet søknader`(stoppTidspunkt)
+        `Motta og prosesser en start-melding`()
+
+        // Assert
+        val gjenopprettedeSoknadIder =
+            hentSoknader().filter { it.fom!! > tidspunkt }.map { it.sykepengesoknadUuid }
+
+        gjenopprettedeSoknadIder.size `should be equal to` 2
+        andreSlettedeIder `should not be equal to` forsteSlettedeIder
+        gjenopprettedeSoknadIder.intersect((forsteSlettedeIder + andreSlettedeIder).toSet()).shouldBeEmpty()
+    }
+
+    @Test
+    fun `Det kastes IllegalStateException hvis avsluttetTidspunkt er null`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+
+        // Act
+        val e = assertThrows<IllegalStateException> { `Motta og prosesser en start-melding`() }
+
+        val vedtak = hentVedtak()
+        e.message!! `should start with` "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} når den aldri har blitt avsluttet."
+    }
+
+    @Test
+    fun `Det kastes IllegalStateException hvis behandletStatus ikke er BEHANDLET`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+        `Og vedtaket er avsluttet men ikke behandlet`()
+
+        // Act
+        val e = assertThrows<IllegalStateException> { `Motta og prosesser en start-melding`() }
+
+        // Assert
+        val vedtak = hentVedtak()
+        e.message!! `should start with` "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} som har status ${vedtak.behandletStatus}."
+    }
+
+    @Test
+    fun `Start-melding har ingen effekt dersom bruker har svart at de ikke fortsatt er friskmeldt`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+        `Og en stopp-melding har slettet søknader`(stoppTidspunkt)
+        `Og bruker svarer at de ikke fortsatt er friskmeldt`(hentNySoknad())
+
+        // Act
+        `Motta og prosesser en start-melding`()
+
+        // Assert
+        hentVedtak().also {
+            it.behandletStatus `should be equal to` BEHANDLET
+            it.avsluttetTidspunkt `should be equal to` stoppTidspunkt
+        }
+        hentSoknader().map { it.fom to it.status } `should be equal to` listOf(forsteSoknadFom to SENDT)
+    }
+
+    @Test
+    fun `Start-melding har ingen effekt dersom bruker har svart nei i en eldre søknad enn den nyeste`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+        `Og bruker svarer at de ikke fortsatt er friskmeldt`(hentNySoknad())
+        `Og vedtaket blir manuelt rebehandlet`()
+
+        val soknader = hentSoknader()
+        check(soknader.last().status == FREMTIDIG)
+
+        // Act
+        `Motta og prosesser en start-melding`()
+
+        // Assert
+        val avsluttetTidspunkt = hentVedtak().avsluttetTidspunkt.shouldNotBeNull()
+        hentVedtak().also {
+            it.behandletStatus `should be equal to` BEHANDLET
+            it.avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+        }
+        hentSoknader() shouldContainSame soknader
+    }
+
+    @Test
+    fun `Det kastes IllegalStateException hvis melding gjelder ukjent vedtak`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+        val vedtak = hentVedtak()
+        val soknader = hentSoknader()
+        val ukjentVedtaksperiodeId = UUID.randomUUID().toString()
+
+        // Act
+        val e =
+            assertThrows<IllegalStateException> {
+                sendStartMelding(ukjentVedtaksperiodeId, fnr, startTidspunkt)
+            }
+
+        // Assert
+        e.message `should be equal to` "Fant ikke vedtak for START-melding med vedtaksperiode: $ukjentVedtaksperiodeId."
+        hentVedtak() `should be equal to` vedtak
+        hentSoknader() shouldContainSame soknader
+    }
+
+    @Test
+    fun `Det kastes IllegalStateException når melding gjelder vedtak som ignorerer arbeidssøkerregisteret`() {
+        // Arrange
+        `Gitt at et vedtak er mottatt og søknader opprettet`()
+        `Og vedtaket ignorerer arbeidssøkerregisteret`()
+        val vedtakFor = hentVedtak()
+        val soknaderFor = hentSoknader()
+
+        // Act
+        val e =
+            assertThrows<IllegalStateException> {
+                sendStoppMelding(vedtakFor.id!!, fnr, stoppTidspunkt)
+            }
+
+        // Assert
+        e.message `should be equal to`
+            "Kan ikke behandle STOPP-melding for vedtaksperiode: ${vedtakFor.id} " +
+            "siden vedtaket er satt til å ignorere arbeidssøkerregisteret."
+        hentVedtak() `should be equal to` vedtakFor
+        hentSoknader() shouldContainSame soknaderFor
+    }
+
+    private fun `Gitt at et vedtak er mottatt og søknader opprettet`(
+        fom: LocalDate = vedtakFom,
+        tom: LocalDate = vedtakTom,
+    ) {
+        sendFriskTilArbeidVedtak(fnr, fom, tom)
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+        `Og søknader med passert tom er aktivert`()
 
-        val friskTilArbeidDbRecord = friskTilArbeidRepository.findAll().first()
-        check(friskTilArbeidDbRecord.behandletStatus == BEHANDLET)
-
-        val vedtakRecords = sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!)
-        check(vedtakRecords.size == 4)
+        check(hentVedtak().behandletStatus == BEHANDLET)
+        check(hentSoknader().size == 4)
     }
 
-    private fun `Og en stopp-melding har blitt prosessert`() {
-        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
-        sendStoppMelding(soknad.friskTilArbeidVedtakId!!, fnr, tidspunkt)
-
-        val friskTilArbeidDbRecord = friskTilArbeidRepository.findAll().first()
-        val kafkaRecords =
-            SoknadKafkaProducerFake.records
-                .filter { it.value().status == SLETTET }
-                .filter { it.value().friskTilArbeidVedtakId == friskTilArbeidDbRecord.id }
-        check(kafkaRecords.size == 2)
+    private fun `Og søknader med passert tom er aktivert`() {
+        await().until { hentSoknader().filter { it.tom!! < tidspunkt }.all { it.status == NY } }
     }
 
-    private fun `Og avsluttetTidspunkt er satt til en verdi`() {
-        friskTilArbeidRepository
-            .findByFnrIn(listOf(fnr))
-            .single()
-            .copy(
-                avsluttetTidspunkt = tidspunkt,
-                behandletStatus = BehandletStatus.NY,
-            ).also { friskTilArbeidRepository.save(it) }
+    private fun `Og en stopp-melding har slettet søknader`(tidspunkt: Instant): List<String> {
+        val soknaderFor = hentSoknader().map { it.sykepengesoknadUuid }
+
+        sendStoppMelding(hentVedtak().id!!, fnr, tidspunkt)
+
+        val slettedeSoknadIder = soknaderFor - hentSoknader().map { it.sykepengesoknadUuid }.toSet()
+        check(slettedeSoknadIder.isNotEmpty())
+        return slettedeSoknadIder
     }
 
-    private fun `Og bruker ikke fortsatt er friskmeldt`() {
-        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+    private fun `Og vedtaket er avsluttet men ikke behandlet`() {
+        friskTilArbeidRepository.save(
+            hentVedtak().copy(avsluttetTidspunkt = stoppTidspunkt, behandletStatus = BehandletStatus.NY),
+        )
+    }
 
+    private fun `Og vedtaket blir manuelt rebehandlet`() {
+        friskTilArbeidRepository.save(hentVedtak().copy(behandletStatus = BehandletStatus.NY))
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+        check(hentSoknader().size == 4)
+    }
+
+    private fun `Og vedtaket ignorerer arbeidssøkerregisteret`() {
+        friskTilArbeidRepository.save(hentVedtak().copy(ignorerArbeidssokerregister = true))
+    }
+
+    private fun `Og bruker svarer at de ikke fortsatt er friskmeldt`(soknad: RSSykepengesoknad) {
         SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI", false)
@@ -168,51 +312,24 @@ class StartMeldingTest : FakesTestOppsett() {
     }
 
     private fun `Motta og prosesser en start-melding`() {
-        val soknader = hentSoknader(fnr)
-        val soknad = soknader.maxByOrNull { it.fom!! }
-        sendStartMelding(soknad?.friskTilArbeidVedtakId!!, fnr, tidspunkt)
+        sendStartMelding(hentVedtak().id!!, fnr, startTidspunkt)
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
     }
 
-    private fun `Så blir søknaden gjennopprettet med status NY`() {
-        val friskTilArbeidDbRecord =
-            friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus `should be equal to` BEHANDLET
-            }
-
-        sykepengesoknadRepository
-            .findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!)
-            .sortedBy { record -> record.fom }
-            .also { record ->
-                record.size `should be equal to` 4
-                record.map { it.status } `should be equal to`
-                    listOf(
-                        NY,
-                        FREMTIDIG,
-                        FREMTIDIG,
-                        FREMTIDIG,
-                    )
-            }
-
-        friskTilArbeidRepository
-            .findByFnrIn(listOf(fnr))
-            .single()
-            .avsluttetTidspunkt `should be equal to` null
+    private fun `Så er det publisert FREMTIDIG-event for`(soknadIder: List<String>) {
+        SoknadKafkaProducerFake.records
+            .map { it.value() }
+            .filter { it.status == SoknadsstatusDTO.FREMTIDIG }
+            .map { it.id }
+            .shouldContainAll(soknadIder)
     }
 
-    fun `Så forblir søknaden uendret`() {
-        friskTilArbeidRepository
-            .findAll()
-            .first()
-            .behandletStatus `should be equal to` BEHANDLET
+    private fun hentVedtak(): FriskTilArbeidVedtakDbRecord = friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single()
 
-        friskTilArbeidRepository
-            .findByFnrIn(listOf(fnr))
-            .single()
-            .avsluttetTidspunkt `should be equal to` tidspunkt
+    private fun hentNySoknad(): RSSykepengesoknad = hentSoknader(fnr).single { it.status == RSSoknadstatus.NY }
 
-        val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 1
-        soknader[0].fom!! shouldBeLessThan tidspunkt.tilLocalDate()
-        soknader[0].fom!! `should be equal to` vedtakFom
-    }
+    private fun hentSoknader(): List<SykepengesoknadDbRecord> =
+        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(hentVedtak().id!!).sortedBy { it.fom }
+
+    private fun LocalDate.tilOsloInstant(): Instant = atStartOfDay(osloZone).toInstant()
 }
