@@ -50,8 +50,14 @@ class SoknadProducer(
 
             GRADERT_REISETILSKUDD -> {
                 when (arbeidssituasjon) {
-                    Arbeidssituasjon.ARBEIDSTAKER, Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> true
-                    // TODO: hvorfor ikke jordbruker og fisker?
+                    Arbeidssituasjon.ARBEIDSTAKER,
+                    Arbeidssituasjon.NAERINGSDRIVENDE,
+                    Arbeidssituasjon.FRILANSER,
+                    Arbeidssituasjon.FISKER,
+                    Arbeidssituasjon.JORDBRUKER,
+                    Arbeidssituasjon.BARNEPASSER,
+                    -> true
+
                     else -> false
                 }
             }
