@@ -56,7 +56,7 @@ fun bestemSoknadsTypeNy(
         return Soknadstype.GRADERT_REISETILSKUDD
     }
 
-    if (arbeidssituasjon == Arbeidssituasjon.FISKER && fiskerLottOgHyre == FiskerLottOgHyre.HYRE) {
+    if (arbeidssituasjon == Arbeidssituasjon.FISKER && fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE, FiskerLottOgHyre.BEGGE)) {
         return Soknadstype.FISKERE
     }
 

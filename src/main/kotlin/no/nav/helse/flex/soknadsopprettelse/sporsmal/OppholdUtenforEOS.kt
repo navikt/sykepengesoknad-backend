@@ -64,6 +64,7 @@ fun gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(
             ),
     )
 
+// TODO fjerne nå? Sjekk db
 fun gammeltUtenlandsoppholdSelvstendigSporsmal(
     fom: LocalDate,
     tom: LocalDate,

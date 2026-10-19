@@ -70,6 +70,8 @@ data class Sykepengesoknad(
 
     fun erTilsvarendeArbeidstaker(): Boolean = erTilsvarendeArbeidstaker(arbeidssituasjon, fiskerLottOgHyre)
 
+    fun erBadeSelvstendigOgArbeidstaker(): Boolean = erBadeSelvstendigOgArbeidstaker(arbeidssituasjon, fiskerLottOgHyre, soknadstype)
+
     fun erLikDetaljertArbeidssituasjon(
         arbeidssituasjon: Arbeidssituasjon?,
         lottOgHyre: FiskerLottOgHyre?,
@@ -187,6 +189,22 @@ fun erTilsvarendeArbeidstaker(
         }
         ARBEIDSTAKER -> true
         else -> false
+    }
+
+// For å skille gamle søknader fra nye så må vi sjekke søknadstype for FiskerLottOgHyre.BEGGE
+// TODO: november 2027: Fjern sjekk på søknadstype når vi ikke lenger har gamle FiskerLottOgHyre.BEGGE søknader i produksjon
+fun erBadeSelvstendigOgArbeidstaker(
+    arbeidssituasjon: Arbeidssituasjon?,
+    fiskerLottOgHyre: FiskerLottOgHyre?,
+    soknadstype: Soknadstype,
+): Boolean =
+    when (arbeidssituasjon) {
+        FISKER -> {
+            when (fiskerLottOgHyre) {
+                FiskerLottOgHyre.BEGGE -> soknadstype in listOf(Soknadstype.FISKERE, Soknadstype.GRADERT_REISETILSKUDD)
+                else -> false
+            }
+        } else -> false
     }
 
 private fun FiskerLottOgHyre?.erLegacyEllerLottBegge(): Boolean =

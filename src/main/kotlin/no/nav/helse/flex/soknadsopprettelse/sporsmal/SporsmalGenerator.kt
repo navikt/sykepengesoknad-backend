@@ -75,7 +75,7 @@ class SporsmalGenerator(
                 soknad = soknad,
                 eksisterendeSoknader = eksisterendeSoknader,
                 identer = identer,
-                sykepengegrunnlag = sykepengegrunnlag,
+                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
@@ -124,7 +124,7 @@ class SporsmalGenerator(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
         identer: FolkeregisterIdenter,
-        sykepengegrunnlag: SykepengegrunnlagNaeringsdrivende? = null,
+        sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
 
@@ -195,11 +195,23 @@ class SporsmalGenerator(
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                     ghostInntekter = ghostInntekter,
                 )
+
+            val naringsdrivendeSporsmal =
+                if (soknad.fiskerLottOgHyre == FiskerLottOgHyre.BEGGE) {
+                    forstegangsSporsmalForSelvstendig(
+                        fom = soknad.fom,
+                        startSykeforlop = soknad.startSykeforlop,
+                        sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                    )
+                } else {
+                    emptyList()
+                }
+
             if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                 log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
             }
             return SporsmalOgAndreKjenteArbeidsforhold(
-                sporsmal = arbeidstakerSporsmal,
+                sporsmal = arbeidstakerSporsmal + naringsdrivendeSporsmal,
                 andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
                 arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
                 ghostInntekter = ghostInntekter,
@@ -215,7 +227,7 @@ class SporsmalGenerator(
             -> {
                 settOppSoknadSelvstendigOgFrilanser(
                     sykepengesoknad = soknad,
-                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                     harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 )
