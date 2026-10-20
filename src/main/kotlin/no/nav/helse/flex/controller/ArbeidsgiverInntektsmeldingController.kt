@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Hidden
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
-import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -16,8 +15,6 @@ import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.svarvalidering.INGEN_BEHANDLING
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingRepository
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -26,27 +23,11 @@ import java.time.LocalDate
 
 @RestController
 class ArbeidsgiverInntektsmeldingController(
-    private val contextHolder: TokenValidationContextHolder,
     private val clientIdValidation: ClientIdValidation,
     private val identService: IdentService,
     private val hentSoknadService: HentSoknadService,
     private val vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository,
-    @param:Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
-    val spinntektsmeldingFrontendClientId: String,
 ) {
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-    @PostMapping(
-        value = ["/api/v1/arbeidsgiver/soknader"],
-        produces = [APPLICATION_JSON_VALUE],
-        consumes = [APPLICATION_JSON_VALUE],
-    )
-    fun hentSoknaderMedTokenX(
-        @RequestBody request: HentSoknaderRequest,
-    ): List<HentSoknaderResponse> {
-        contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
-        return hentSoknader(request)
-    }
-
     @ProtectedWithClaims(issuer = AZUREATOR)
     @PostMapping(
         value = ["/api/v2/arbeidsgiver/soknader"],

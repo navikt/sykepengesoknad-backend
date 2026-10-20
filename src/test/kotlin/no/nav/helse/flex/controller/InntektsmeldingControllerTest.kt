@@ -6,7 +6,6 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.repository.SoknadLagrerImpl
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.testutil.lagSoknad
-import no.nav.helse.flex.tokenxToken
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.kafka.NAV_CALLID
@@ -28,66 +27,6 @@ class InntektsmeldingControllerTest : FellesTestOppsett() {
     @BeforeEach
     fun setupEach() {
         databaseReset.resetDatabase()
-    }
-
-    @Test
-    fun `Skal kunne hente soknader fra inntektsmelding-API med Tokenx`() {
-        val sykepengesoknadUuid = UUID.randomUUID().toString()
-        lagreSoknad(sykepengesoknadUuid)
-
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .post("/api/v1/arbeidsgiver/soknader")
-                    .content(
-                        HentSoknaderRequest(
-                            fnr = "11111111111",
-                            eldsteFom = LocalDate.parse("2026-01-01"),
-                            orgnummer = "org-1",
-                        ).serialisertTilString(),
-                    ).header(
-                        "Authorization",
-                        "Bearer ${
-                            server.tokenxToken(
-                                fnr = "22222222222",
-                                clientId = "spinntekstmelding-frontend-client-id",
-                            )
-                        }",
-                    ).contentType(MediaType.APPLICATION_JSON),
-            ).andExpect(status().isOk)
-            .andReturn()
-            .let { objectMapper.readValue<List<HentSoknaderResponse>>(it.response.contentAsString) }
-            .also {
-                it.size shouldBeEqualTo 1
-                it.single().sykepengesoknadUuid shouldBeEqualTo sykepengesoknadUuid
-            }
-    }
-
-    @Test
-    fun `Feiler med ved henting av soknader fra inntektsmelding-API med TokenX hvis client-id er feil`() {
-        val sykepengesoknadUuid = UUID.randomUUID().toString()
-        lagreSoknad(sykepengesoknadUuid)
-
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .post("/api/v1/arbeidsgiver/soknader")
-                    .content(
-                        HentSoknaderRequest(
-                            fnr = "11111111111",
-                            eldsteFom = LocalDate.parse("2026-01-01"),
-                            orgnummer = "org-1",
-                        ).serialisertTilString(),
-                    ).header(
-                        "Authorization",
-                        "Bearer ${
-                            server.tokenxToken(
-                                fnr = "22222222222",
-                                clientId = "ukjent-client-id",
-                            )
-                        }",
-                    ).contentType(MediaType.APPLICATION_JSON),
-            ).andExpect(status().isForbidden)
     }
 
     @Test
