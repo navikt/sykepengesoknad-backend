@@ -26,6 +26,7 @@ class InntektsopplysningForNaringsdrivende(
         if (!listOf(
                 Soknadstype.GRADERT_REISETILSKUDD,
                 Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
+                Soknadstype.FISKERE,
             ).contains(soknad.soknadstype)
         ) {
             return
