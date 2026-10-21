@@ -90,6 +90,7 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     PERMISJON_V2,
                     "JOBBET_DU_GRADERT_0",
                     ARBEID_UTENFOR_NORGE,
+                    FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -131,6 +132,7 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     PERMISJON_V2,
                     "JOBBET_DU_GRADERT_0",
                     ARBEID_UTENFOR_NORGE,
+                    FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -165,6 +167,7 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     .besvarSporsmal(PERMISJON_V2, "NEI")
                     .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
                     .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
+                    .besvarSporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT, "NEI")
                     .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                     .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                     .besvarSporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")

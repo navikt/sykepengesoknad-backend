@@ -197,11 +197,16 @@ class SporsmalGenerator(
                 )
 
             val naringsdrivendeSporsmal =
-                if (erForsteSoknadISykeforlop && soknad.fiskerLottOgHyre == FiskerLottOgHyre.BEGGE) {
-                    forstegangsSporsmalForSelvstendig(
+                if (soknad.fiskerLottOgHyre == FiskerLottOgHyre.BEGGE) {
+                    fellesLottOgSelvstendigSporsmal(
                         fom = soknad.fom,
+                        tom = soknad.tom,
                         startSykeforlop = soknad.startSykeforlop,
+                        erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                        gradert = soknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                        erFiskerLottOgHyre = soknad.erFiskerLottOgHyreMedNySoknad(),
+                        erTilsvarendeSelvstendig = soknad.erTilsvarendeSelvstendig(),
                     )
                 } else {
                     emptyList()

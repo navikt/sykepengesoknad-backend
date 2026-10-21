@@ -10,6 +10,14 @@ import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSva
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
+private val OPPRETTHOLDT_INNTEKT_TAGS =
+    listOf(
+        NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
+        NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT,
+        FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
+        FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT,
+    )
+
 fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD, FISKERE)) {
         return this
@@ -38,8 +46,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag == UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
-                        .filterNot { (_, tag) -> tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }
-                        .filterNot { (_, tag) -> tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT }
+                        .filterNot { (_, tag) -> tag in OPPRETTHOLDT_INNTEKT_TAGS }
                         .toMutableList(),
             )
         }
@@ -85,15 +92,15 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
 
     val sporsmalSomSkalFjernes = mutableListOf<String>()
 
-    // TODO nytt opprettholdt inntekt spørsmål for fisker lott og hyre
-    if (this.erTilsvarendeSelvstendig() && !this.erFiskerLottOgHyreMedNySoknad()) {
-        if (this.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis()) {
-            oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntektGradert(this.fom, oppdatertTom))
-            sporsmalSomSkalFjernes.add(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
-        } else {
-            oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntekt100Prosent(this.fom, oppdatertTom))
-            sporsmalSomSkalFjernes.add(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT)
-        }
+    opprettholdtInntektSporsmal(
+        fom = this.fom,
+        tom = oppdatertTom,
+        gradert = this.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+        erFiskerLottOgHyre = this.erFiskerLottOgHyreMedNySoknad(),
+        erTilsvarendeSelvstendig = this.erTilsvarendeSelvstendig(),
+    )?.let { nyttSporsmal ->
+        oppdaterteSporsmal.add(nyttSporsmal)
+        sporsmalSomSkalFjernes.addAll(OPPRETTHOLDT_INNTEKT_TAGS - nyttSporsmal.tag)
     }
 
     if (this.erTilsvarendeArbeidstaker()) {

@@ -92,6 +92,7 @@ class FiskerLottOgHyreSoknadTest : FellesTestOppsett() {
                     PERMISJON_V2,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
                     ARBEID_UTENFOR_NORGE,
+                    FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -139,6 +140,7 @@ class FiskerLottOgHyreSoknadTest : FellesTestOppsett() {
                     .besvarSporsmal(PERMISJON_V2, "NEI")
                     .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
                     .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
+                    .besvarSporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT, "NEI")
                     .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                     .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                     .besvarSporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")

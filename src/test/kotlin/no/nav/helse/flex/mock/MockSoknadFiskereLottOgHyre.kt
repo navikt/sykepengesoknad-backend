@@ -67,9 +67,27 @@ fun opprettNyFiskerLottOgHyreSoknad(
             egenmeldtSykmelding = null,
             utenlandskSykmelding = false,
             egenmeldingsdagerFraSykmelding = null,
-            forstegangssoknad = false,
+            forstegangssoknad = true,
             fiskerBlad = FiskerBlad.B,
             fiskerLottOgHyre = FiskerLottOgHyre.BEGGE,
+            selvstendigNaringsdrivende =
+                SelvstendigNaringsdrivendeInfo(
+                    sykepengegrunnlagNaeringsdrivende =
+                        SykepengegrunnlagNaeringsdrivende(
+                            inntekter =
+                                listOf(
+                                    HentPensjonsgivendeInntektResponse(
+                                        norskPersonidentifikator = "123456789",
+                                        inntektsaar = "2022",
+                                        pensjonsgivendeInntekt = emptyList(),
+                                    ),
+                                ),
+                            harFunnetInntektFoerSykepengegrunnlaget = false,
+                        ),
+                    roller = emptyList(),
+                    erBarnepasser = false,
+                    brukerHarOppgittForsikring = false,
+                ),
         )
 
     val soknadMedSporsmal =
@@ -82,24 +100,18 @@ fun opprettNyFiskerLottOgHyreSoknad(
                     kjentOppholdstillatelse = null,
                     medlemskapSporsmalTags = listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE),
                     harTidligereUtenlandskSpm = false,
-                    erForsteSoknadISykeforlop = true,
+                    erForsteSoknadISykeforlop = soknadMetadata.forstegangssoknad!!,
                     ghostInntekter = emptyList(),
                 ) +
-                    forstegangsSporsmalForSelvstendig(
+                    fellesLottOgSelvstendigSporsmal(
                         fom = soknadMetadata.fom!!,
+                        tom = soknadMetadata.tom!!,
                         startSykeforlop = soknadMetadata.startSykeforlop!!,
-                        sykepengegrunnlagNaeringsdrivende =
-                            SykepengegrunnlagNaeringsdrivende(
-                                inntekter =
-                                    listOf(
-                                        HentPensjonsgivendeInntektResponse(
-                                            norskPersonidentifikator = "123456789",
-                                            inntektsaar = "2022",
-                                            pensjonsgivendeInntekt = emptyList(),
-                                        ),
-                                    ),
-                                harFunnetInntektFoerSykepengegrunnlaget = false,
-                            ),
+                        erForsteSoknadISykeforlop = soknadMetadata.forstegangssoknad,
+                        sykepengegrunnlagNaeringsdrivende = soknadMetadata.selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
+                        gradert = soknadMetadata.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                        erFiskerLottOgHyre = soknadMetadata.erFiskerLottOgHyreMedNySoknad(),
+                        erTilsvarendeSelvstendig = soknadMetadata.erTilsvarendeSelvstendig(),
                     ),
         )
     if (!svarPaSoknad) {
@@ -173,7 +185,8 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad =
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
 
 private fun Sykepengesoknad.naeringsdrivendeSporsmal(): Sykepengesoknad =
-    besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
+    besvarsporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT, "NEI")
+        .besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "NEI")

@@ -39,27 +39,24 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     sykepengesoknad.arbeidssituasjon,
                 ),
             )
-            if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
-                if (sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis()) {
-                    add(naringsdrivendeOpprettholdtInntektGradert(sykepengesoknad.fom, sykepengesoknad.tom))
-                } else {
-                    add(naringsdrivendeOpprettholdtInntekt100Prosent(sykepengesoknad.fom, sykepengesoknad.tom))
-                }
-            }
-
-            if (erForsteSoknadISykeforlop) {
-                if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
+            if (sykepengesoknad.erTilsvarendeSelvstendig()) {
+                addAll(
+                    fellesLottOgSelvstendigSporsmal(
+                        fom = sykepengesoknad.fom,
+                        tom = sykepengesoknad.tom,
+                        startSykeforlop = sykepengesoknad.startSykeforlop!!,
+                        erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                        sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                        gradert = sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                        erFiskerLottOgHyre = sykepengesoknad.erFiskerLottOgHyreMedNySoknad(),
+                        erTilsvarendeSelvstendig = sykepengesoknad.erTilsvarendeSelvstendig(),
+                    ),
+                )
+                if (erForsteSoknadISykeforlop) {
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad)) // TODO fjerne
-                    addAll(
-                        forstegangsSporsmalForSelvstendig(
-                            fom = sykepengesoknad.fom,
-                            startSykeforlop = sykepengesoknad.startSykeforlop!!,
-                            sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
-                        ),
-                    )
-                } else {
-                    add(arbeidUtenforNorge())
                 }
+            } else if (erForsteSoknadISykeforlop) {
+                add(arbeidUtenforNorge())
             }
 
             if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
@@ -71,30 +68,45 @@ fun settOppSoknadSelvstendigOgFrilanser(
         }.toList()
 }
 
-fun forstegangsSporsmalForSelvstendig(
+fun fellesLottOgSelvstendigSporsmal(
     fom: LocalDate,
+    tom: LocalDate,
     startSykeforlop: LocalDate,
+    erForsteSoknadISykeforlop: Boolean,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
+    gradert: Boolean,
+    erFiskerLottOgHyre: Boolean,
+    erTilsvarendeSelvstendig: Boolean,
 ): List<Sporsmal> =
     mutableListOf<Sporsmal>().apply {
-        add(naringsdrivendeOppholdIUtlandet(fom))
-        add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(fom))
-        if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
+        opprettholdtInntektSporsmal(
+            fom = fom,
+            tom = tom,
+            gradert = gradert,
+            erFiskerLottOgHyre = erFiskerLottOgHyre,
+            erTilsvarendeSelvstendig = erTilsvarendeSelvstendig,
+        )?.let { add(it) }
+
+        if (erForsteSoknadISykeforlop) {
+            add(naringsdrivendeOppholdIUtlandet(fom))
+            add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(fom))
+            if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
+                add(
+                    lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
+                        fom = fom,
+                        startSykeforlop = startSykeforlop,
+                        sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                    ),
+                )
+            }
             add(
-                lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
+                lagSporsmalOmNaringsdrivendeVarigEndring(
                     fom = fom,
                     startSykeforlop = startSykeforlop,
                     sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                 ),
             )
         }
-        add(
-            lagSporsmalOmNaringsdrivendeVarigEndring(
-                fom = fom,
-                startSykeforlop = startSykeforlop,
-                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
-            ),
-        )
     }
 
 fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
@@ -192,6 +204,31 @@ fun naringsdrivendeOpprettholdtInntektGradert(
 
 fun Sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis() =
     this.harGradertPeriode() || this.harOppgittArbeidUnderveisVed100Prosent()
+
+fun opprettholdtInntektSporsmal(
+    fom: LocalDate,
+    tom: LocalDate,
+    gradert: Boolean,
+    erFiskerLottOgHyre: Boolean,
+    erTilsvarendeSelvstendig: Boolean,
+): Sporsmal? =
+    when {
+        erFiskerLottOgHyre ->
+            if (gradert) {
+                fiskerLottOpprettholdtInntektGradert(fom, tom)
+            } else {
+                fiskerLottOpprettholdtInntekt100Prosent(fom, tom)
+            }
+
+        erTilsvarendeSelvstendig ->
+            if (gradert) {
+                naringsdrivendeOpprettholdtInntektGradert(fom, tom)
+            } else {
+                naringsdrivendeOpprettholdtInntekt100Prosent(fom, tom)
+            }
+
+        else -> null
+    }
 
 private fun Sykepengesoknad.harGradertPeriode(): Boolean = this.soknadPerioder!!.any { it.grad != 100 }
 
