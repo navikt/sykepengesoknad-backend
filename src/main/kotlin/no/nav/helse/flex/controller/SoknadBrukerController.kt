@@ -14,7 +14,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.*
-import no.nav.helse.flex.frisktilarbeid.FjernFremtidigeFtaSoknaderService
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidFortsattFriskmeldtService
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
@@ -49,7 +49,7 @@ class SoknadBrukerController(
     private val environmentToggles: EnvironmentToggles,
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
     private val oppholdUtenforEOSService: OppholdUtenforEOSService,
-    private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
+    private val friskTilArbeidFortsattFriskmeldtService: FriskTilArbeidFortsattFriskmeldtService,
     private val optInService: OptInService,
     @param:Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
@@ -135,7 +135,7 @@ class SoknadBrukerController(
                 throw e
             }
         oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
-        fjernFremtidigeFtaSoknaderService.fjernFremtidigeFriskmeldtSoknaderHvisFerdig(sendtSoknad)
+        friskTilArbeidFortsattFriskmeldtService.behandleSvarPaFortsattFriskmeldt(sendtSoknad)
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)

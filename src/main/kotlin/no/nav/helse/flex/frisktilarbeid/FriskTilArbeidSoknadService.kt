@@ -30,7 +30,38 @@ class FriskTilArbeidSoknadService(
     private val log = logger()
 
     @Transactional
-    fun opprettSoknader(
+    fun skalOppretteSoknader(
+        vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
+    ): Boolean {
+        if (vedtakDbRecord.skalSjekkeArbeidssokerregisteret()) {
+            val sisteArbeidssokerperiode =
+                arbeidssokerregisterClient
+                    .hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(vedtakDbRecord.fnr))
+                    .singleOrNull()
+
+            val status =
+                when {
+                    sisteArbeidssokerperiode == null -> BehandletStatus.INGEN_ARBEIDSSOKERPERIODE
+                    sisteArbeidssokerperiode.avsluttet != null -> BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET
+                    else -> null
+                }
+
+            if (status != null) {
+                friskTilArbeidRepository.save(
+                    vedtakDbRecord.copy(
+                        behandletStatus = status,
+                        behandletTidspunkt = Instant.now(),
+                    ),
+                )
+                return false
+            }
+        }
+
+        return true
+    }
+
+    @Transactional
+    fun opprettSoknader( // GJENBRUK
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
         periodeGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>> = ::defaultPeriodeGenerator,
     ): List<Sykepengesoknad> {
@@ -60,30 +91,6 @@ class FriskTilArbeidSoknadService(
                 )
                 return emptyList()
             }
-
-        if (vedtakDbRecord.skalSjekkeArbeidssokerregisteret()) {
-            val sisteArbeidssokerperiode =
-                arbeidssokerregisterClient
-                    .hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(vedtakDbRecord.fnr))
-                    .singleOrNull()
-
-            val status =
-                when {
-                    sisteArbeidssokerperiode == null -> BehandletStatus.INGEN_ARBEIDSSOKERPERIODE
-                    sisteArbeidssokerperiode.avsluttet != null -> BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET
-                    else -> null
-                }
-
-            if (status != null) {
-                friskTilArbeidRepository.save(
-                    vedtakDbRecord.copy(
-                        behandletStatus = status,
-                        behandletTidspunkt = Instant.now(),
-                    ),
-                )
-                return emptyList()
-            }
-        }
 
         val eksisterendeSoknader =
             sykepengesoknadDAO.finnSykepengesoknader(

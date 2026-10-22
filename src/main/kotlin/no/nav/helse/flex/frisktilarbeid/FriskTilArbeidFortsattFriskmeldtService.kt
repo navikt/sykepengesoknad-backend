@@ -1,7 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.fortsattFriskmeldtTilArbeidsformidling
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -15,34 +15,45 @@ import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
 
 @Component
-class FjernFremtidigeFtaSoknaderService(
+class FriskTilArbeidFortsattFriskmeldtService(
     private val identService: IdentService,
     private val hentSoknadService: HentSoknadService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
+    private val friskTilArbeidSoknadService: FriskTilArbeidSoknadService
 ) {
     private val log = logger()
 
     @Transactional
-    fun fjernFremtidigeFriskmeldtSoknaderHvisFerdig(soknad: Sykepengesoknad) {
-        if (soknad.soknadstype != Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
+    fun behandleSvarPaFortsattFriskmeldt(soknad: Sykepengesoknad) {
+        if (soknad.soknadstype != FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
             return
         }
         if (soknad.status != Soknadstatus.SENDT) {
             return
         }
 
-        val svartNeiFortsattFriskmeldt = soknad.fortsattFriskmeldtTilArbeidsformidling() == false
+        val erFortsattFriskmeldt = soknad.fortsattFriskmeldtTilArbeidsformidling() ?: return // TODO Håndter null?
 
-        if (svartNeiFortsattFriskmeldt) {
-            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
+        val friskTilArbeidVedtakId = soknad.friskTilArbeidVedtakId ?: return
 
-            val friskTilArbeidVedtakId = soknad.friskTilArbeidVedtakId ?: return
+        if (erFortsattFriskmeldt) {
+            friskTilArbeidRepository.findById(friskTilArbeidVedtakId).getOrNull()?.let {
+                // TODO Throw error on null?
+                friskTilArbeidSoknadService.opprettSoknader(it)
+                log.info(
+                    "Opprettet nye fremtidige søknader på grunn av svar ja på fortsatt friskmeldt i søknad " +
+                        " ${soknad.id} for friskTilArbeidVedtakId: $friskTilArbeidVedtakId.",
+                )
+            }
+
+        } else {
             val soknaderSomSkalSlettes =
                 hentSoknadService
                     .hentSoknader(identer)
-                    .filter { it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING }
+                    .filter { it.soknadstype == FRISKMELDT_TIL_ARBEIDSFORMIDLING }
                     .filter { it.friskTilArbeidVedtakId == friskTilArbeidVedtakId }
                     .filter { it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY }
                     .filter { it.fom!!.isAfter(soknad.fom!!) }

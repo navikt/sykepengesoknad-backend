@@ -12,6 +12,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.collections.emptyList
 
 @Service
 class FriskTilArbeidService(
@@ -60,10 +61,11 @@ class FriskTilArbeidService(
 
         log.info("Hentet ${dbRecords.size} FriskTilArbeidVedtakStatus for med status NY.")
 
-        return dbRecords
-            .map {
+        return dbRecords.flatMap {
+            if (friskTilArbeidSoknadService.skalOppretteSoknader(it))
                 friskTilArbeidSoknadService.opprettSoknader(it)
-            }.flatten()
+            else emptyList()
+        }
     }
 }
 
