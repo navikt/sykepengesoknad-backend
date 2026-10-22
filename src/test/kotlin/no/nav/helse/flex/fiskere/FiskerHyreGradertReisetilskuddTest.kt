@@ -79,7 +79,7 @@ class FiskerHyreGradertReisetilskuddTest : FellesTestOppsett() {
 
         @Test
         @Order(2)
-        fun `Søknaden har arbeidstakerspørsmål med arbeid utenfor Norge`() {
+        fun `Søknaden har arbeidstakerspørsmål`() {
             val soknad = hentSoknad(soknadId = hentSoknaderMetadata(fnr).single().id, fnr = fnr)
 
             soknad.sporsmal!!.map { it.tag } `should be equal to`
@@ -89,7 +89,6 @@ class FiskerHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     FERIE_V2,
                     PERMISJON_V2,
                     "JOBBET_DU_GRADERT_0",
-                    ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
                     BRUKTE_REISETILSKUDDET,
@@ -126,7 +125,6 @@ class FiskerHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     FERIE_V2,
                     PERMISJON_V2,
                     "JOBBET_DU_GRADERT_0",
-                    ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
                     BRUKTE_REISETILSKUDDET,
@@ -156,7 +154,6 @@ class FiskerHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     .besvarSporsmal(FERIE_V2, "NEI")
                     .besvarSporsmal(PERMISJON_V2, "NEI")
                     .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
-                    .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
                     .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                     .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                     .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")

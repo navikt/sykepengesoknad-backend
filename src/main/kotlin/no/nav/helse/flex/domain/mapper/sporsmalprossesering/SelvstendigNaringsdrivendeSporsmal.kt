@@ -30,7 +30,13 @@ private fun Sykepengesoknad.finnHovedJaNeiSvar(): MutableMap<String, Boolean> =
     sporsmal
         .filter { it.svartype == Svartype.JA_NEI && it.forsteSvar != null }
         .associate {
-            if (it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) {
+            if (it.tag in
+                listOf(
+                    NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT,
+                    FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
+                    FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT,
+                )
+            ) {
                 NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT to (it.forsteSvar == "JA")
             } else {
                 it.tag to (it.forsteSvar == "JA")

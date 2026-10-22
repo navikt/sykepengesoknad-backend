@@ -63,7 +63,7 @@ class SporsmalGenerator(
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
-        val sykepengegrunnlag =
+        val sykepengegrunnlagNaeringsdrivende =
             if (soknad.erTilsvarendeSelvstendig()) {
                 sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
             } else {
@@ -75,14 +75,14 @@ class SporsmalGenerator(
                 soknad = soknad,
                 eksisterendeSoknader = eksisterendeSoknader,
                 identer = identer,
-                sykepengegrunnlag = sykepengegrunnlag,
+                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
             sykepengesoknadRepository.save(
                 it
-                    .leggTilSykepengegrunnlagNaringsdrivende(sykepengegrunnlag)
+                    .leggTilSykepengegrunnlagNaringsdrivende(sykepengegrunnlagNaeringsdrivende)
                     .copy(
                         inntektskilderDataFraInntektskomponenten =
                             sporsmalOgAndreKjenteArbeidsforhold
@@ -124,7 +124,7 @@ class SporsmalGenerator(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
         identer: FolkeregisterIdenter,
-        sykepengegrunnlag: SykepengegrunnlagNaeringsdrivende? = null,
+        sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
 
@@ -195,11 +195,28 @@ class SporsmalGenerator(
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                     ghostInntekter = ghostInntekter,
                 )
+
+            val naringsdrivendeSporsmal =
+                if (soknad.fiskerLottOgHyre == FiskerLottOgHyre.BEGGE) {
+                    fellesLottOgSelvstendigSporsmal(
+                        fom = soknad.fom,
+                        tom = soknad.tom,
+                        startSykeforlop = soknad.startSykeforlop,
+                        erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                        sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                        gradert = soknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                        erFiskerLottOgHyre = soknad.erFiskerLottOgHyreMedNySoknad(),
+                        erTilsvarendeSelvstendig = soknad.erTilsvarendeSelvstendig(),
+                    )
+                } else {
+                    emptyList()
+                }
+
             if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                 log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
             }
             return SporsmalOgAndreKjenteArbeidsforhold(
-                sporsmal = arbeidstakerSporsmal,
+                sporsmal = arbeidstakerSporsmal + naringsdrivendeSporsmal,
                 andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
                 arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
                 ghostInntekter = ghostInntekter,
@@ -215,7 +232,7 @@ class SporsmalGenerator(
             -> {
                 settOppSoknadSelvstendigOgFrilanser(
                     sykepengesoknad = soknad,
-                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                     harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 )
@@ -289,7 +306,7 @@ class SporsmalGenerator(
     ): MedlemskapSporsmalResultat {
         if (soknad.arbeidssituasjon == FISKER) {
             return MedlemskapSporsmalResultat(
-                medlemskapSporsmalTags = listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE),
+                medlemskapSporsmalTags = emptyList(),
                 kjentOppholdstillatelse = null,
             )
         }
