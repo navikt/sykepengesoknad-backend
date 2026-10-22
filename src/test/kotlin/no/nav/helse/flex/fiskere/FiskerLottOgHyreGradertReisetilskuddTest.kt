@@ -79,7 +79,7 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
 
         @Test
         @Order(2)
-        fun `Søknaden har arbeidstakerspørsmål med arbeid utenfor Norge`() {
+        fun `Søknaden har arbeidstakerspørsmål`() {
             val soknad = hentSoknad(soknadId = hentSoknaderMetadata(fnr).single().id, fnr = fnr)
 
             soknad.sporsmal!!.map { it.tag } `should be equal to`
@@ -89,7 +89,6 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     FERIE_V2,
                     PERMISJON_V2,
                     "JOBBET_DU_GRADERT_0",
-                    ARBEID_UTENFOR_NORGE,
                     FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
@@ -131,7 +130,6 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     FERIE_V2,
                     PERMISJON_V2,
                     "JOBBET_DU_GRADERT_0",
-                    ARBEID_UTENFOR_NORGE,
                     FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
@@ -166,7 +164,6 @@ class FiskerLottOgHyreGradertReisetilskuddTest : FellesTestOppsett() {
                     .besvarSporsmal(FERIE_V2, "NEI")
                     .besvarSporsmal(PERMISJON_V2, "NEI")
                     .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
-                    .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
                     .besvarSporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT, "NEI")
                     .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                     .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")

@@ -306,7 +306,7 @@ class SporsmalGenerator(
     ): MedlemskapSporsmalResultat {
         if (soknad.arbeidssituasjon == FISKER) {
             return MedlemskapSporsmalResultat(
-                medlemskapSporsmalTags = listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE),
+                medlemskapSporsmalTags = emptyList(),
                 kjentOppholdstillatelse = null,
             )
         }

@@ -81,7 +81,7 @@ class FiskerLottOgHyreSoknadTest : FellesTestOppsett() {
 
         @Test
         @Order(2)
-        fun `Søknaden har arbeidstakerspørsmål med arbeid utenfor Norge`() {
+        fun `Søknaden har arbeidstakerspørsmål`() {
             val soknad = hentSoknad(soknadId = hentSoknaderMetadata(fnr).single().id, fnr = fnr)
 
             soknad.sporsmal!!.map { it.tag } `should be equal to`
@@ -91,7 +91,6 @@ class FiskerLottOgHyreSoknadTest : FellesTestOppsett() {
                     FERIE_V2,
                     PERMISJON_V2,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
-                    ARBEID_UTENFOR_NORGE,
                     FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
                     ANDRE_INNTEKTSKILDER_V2,
                     OPPHOLD_UTENFOR_EOS,
@@ -139,7 +138,6 @@ class FiskerLottOgHyreSoknadTest : FellesTestOppsett() {
                     .besvarSporsmal(FERIE_V2, "NEI")
                     .besvarSporsmal(PERMISJON_V2, "NEI")
                     .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
-                    .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
                     .besvarSporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT, "NEI")
                     .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                     .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
