@@ -25,24 +25,31 @@ fun jobbetDuIPeriodenSporsmal(
             }
         }
 
-fun sjekkForGhostInntekter(
+fun finnGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
-    arbeidforholdOversiktAareg: List<ArbeidsforholdFraAAreg>,
+    tilkomneArbeidsforholdAareg: List<ArbeidsforholdFraAAreg>,
     arbeidsgiverOrgnummerSoknad: String?,
+    erArbeidstaker: Boolean,
 ): List<KjentInntektskilde> {
-    val andreInntekter =
-        arbeidsforholdFraInntektskomponenten.map { inntekt ->
-            KjentInntektskilde(
-                navn = inntekt.navn,
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-                orgnummer = inntekt.orgnummer,
-            )
-        }
+    val tilkomneOrgnumre = tilkomneArbeidsforholdAareg.map { it.arbeidsstedOrgnummer }
 
-    val tilkomneInntekterOrgNummer = arbeidforholdOversiktAareg.map { it.arbeidsstedOrgnummer }
+    val fraInntektskomponenten =
+        arbeidsforholdFraInntektskomponenten
+            .map { KjentInntektskilde(navn = it.navn, kilde = Kilde.INNTEKTSKOMPONENTEN, orgnummer = it.orgnummer) }
+            .distinct()
+            .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
 
-    return andreInntekter
-        .toSet()
-        .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
-        .filterNot { it.orgnummer in tilkomneInntekterOrgNummer }
+    // Arbeidstakere får eget spørsmål om nye arbeidsforhold (NYTT_ARBEIDSFORHOLD_UNDERVEIS), så tilkomne holdes utenfor
+    if (erArbeidstaker) {
+        return fraInntektskomponenten.filterNot { it.orgnummer in tilkomneOrgnumre }
+    }
+
+    val kjenteOrgnumre = fraInntektskomponenten.map { it.orgnummer }.toSet() + arbeidsgiverOrgnummerSoknad
+    val fraAareg =
+        tilkomneArbeidsforholdAareg
+            .filterNot { it.arbeidsstedOrgnummer in kjenteOrgnumre }
+            .distinctBy { it.arbeidsstedOrgnummer }
+            .map { KjentInntektskilde(navn = it.arbeidsstedNavn, kilde = Kilde.AAAREG, orgnummer = it.arbeidsstedOrgnummer) }
+
+    return fraInntektskomponenten + fraAareg
 }
