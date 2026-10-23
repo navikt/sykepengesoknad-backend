@@ -276,15 +276,11 @@ class SporsmalGenerator(
             )
 
         val ghostInntekter =
-            if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
-                sjekkForGhostInntekter(
-                    arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
-                    arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
-                    arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
-                )
-            } else {
-                emptyList()
-            }
+            finnGhostInntekter(
+                arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
+                tilkomneArbeidsforholdAareg = nyeAaregArbeidsforhold,
+                arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+            )
 
         return Inntektsgrunnlag(
             andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
