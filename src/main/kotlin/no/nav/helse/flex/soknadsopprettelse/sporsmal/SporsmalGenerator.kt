@@ -205,7 +205,7 @@ class SporsmalGenerator(
                         erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                         gradert = soknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
-                        erFiskerLottOgHyre = soknad.erFiskerLottOgHyreMedNySoknad(),
+                        erFiskerMedLott = true,
                         erTilsvarendeSelvstendig = soknad.erTilsvarendeSelvstendig(),
                     )
                 } else {

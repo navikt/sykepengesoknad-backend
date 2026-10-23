@@ -48,7 +48,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
                         erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                         gradert = sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
-                        erFiskerLottOgHyre = sykepengesoknad.erFiskerLottOgHyreMedNySoknad(),
+                        erFiskerMedLott = sykepengesoknad.erFiskerMedLott(),
                         erTilsvarendeSelvstendig = sykepengesoknad.erTilsvarendeSelvstendig(),
                     ),
                 )
@@ -75,7 +75,7 @@ fun fellesLottOgSelvstendigSporsmal(
     erForsteSoknadISykeforlop: Boolean,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
     gradert: Boolean,
-    erFiskerLottOgHyre: Boolean,
+    erFiskerMedLott: Boolean,
     erTilsvarendeSelvstendig: Boolean,
 ): List<Sporsmal> =
     mutableListOf<Sporsmal>().apply {
@@ -83,7 +83,7 @@ fun fellesLottOgSelvstendigSporsmal(
             fom = fom,
             tom = tom,
             gradert = gradert,
-            erFiskerLottOgHyre = erFiskerLottOgHyre,
+            erFiskerMedLott = erFiskerMedLott,
             erTilsvarendeSelvstendig = erTilsvarendeSelvstendig,
         )?.let { add(it) }
 
@@ -209,11 +209,11 @@ fun opprettholdtInntektSporsmal(
     fom: LocalDate,
     tom: LocalDate,
     gradert: Boolean,
-    erFiskerLottOgHyre: Boolean,
+    erFiskerMedLott: Boolean,
     erTilsvarendeSelvstendig: Boolean,
 ): Sporsmal? =
     when {
-        erFiskerLottOgHyre ->
+        erFiskerMedLott ->
             if (gradert) {
                 fiskerLottOpprettholdtInntektGradert(fom, tom)
             } else {
@@ -234,9 +234,3 @@ private fun Sykepengesoknad.harGradertPeriode(): Boolean = this.soknadPerioder!!
 
 private fun Sykepengesoknad.harOppgittArbeidUnderveisVed100Prosent(): Boolean =
     this.sporsmal.any { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && it.forsteSvar == "JA" }
-
-fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =
-    when (this.tag) {
-        FRAVAR_FOR_SYKMELDINGEN_V2 -> -9
-        else -> fellesPlasseringSporsmal()
-    }
