@@ -25,24 +25,16 @@ fun jobbetDuIPeriodenSporsmal(
             }
         }
 
-fun sjekkForGhostInntekter(
+fun finnGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
-    arbeidforholdOversiktAareg: List<ArbeidsforholdFraAAreg>,
+    tilkomneArbeidsforholdAareg: List<ArbeidsforholdFraAAreg>,
     arbeidsgiverOrgnummerSoknad: String?,
 ): List<KjentInntektskilde> {
-    val andreInntekter =
-        arbeidsforholdFraInntektskomponenten.map { inntekt ->
-            KjentInntektskilde(
-                navn = inntekt.navn,
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-                orgnummer = inntekt.orgnummer,
-            )
-        }
+    val tilkomneOrgnumre = tilkomneArbeidsforholdAareg.map { it.arbeidsstedOrgnummer }
 
-    val tilkomneInntekterOrgNummer = arbeidforholdOversiktAareg.map { it.arbeidsstedOrgnummer }
-
-    return andreInntekter
-        .toSet()
+    return arbeidsforholdFraInntektskomponenten
+        .map { KjentInntektskilde(navn = it.navn, kilde = Kilde.INNTEKTSKOMPONENTEN, orgnummer = it.orgnummer) }
+        .distinct()
         .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
-        .filterNot { it.orgnummer in tilkomneInntekterOrgNummer }
+        .filterNot { it.orgnummer in tilkomneOrgnumre }
 }
