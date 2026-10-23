@@ -96,7 +96,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         fom = this.fom,
         tom = oppdatertTom,
         gradert = this.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
-        erFiskerLottOgHyre = this.erFiskerLottOgHyreMedNySoknad(),
+        erFiskerMedLott = this.erFiskerMedLott(),
         erTilsvarendeSelvstendig = this.erTilsvarendeSelvstendig(),
     )?.let { nyttSporsmal ->
         oppdaterteSporsmal.add(nyttSporsmal)
