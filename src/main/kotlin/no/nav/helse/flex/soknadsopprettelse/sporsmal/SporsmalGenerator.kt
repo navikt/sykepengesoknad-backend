@@ -280,6 +280,7 @@ class SporsmalGenerator(
                 arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
                 tilkomneArbeidsforholdAareg = nyeAaregArbeidsforhold,
                 arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+                erArbeidstaker = soknad.erTilsvarendeArbeidstaker(),
             )
 
         return Inntektsgrunnlag(

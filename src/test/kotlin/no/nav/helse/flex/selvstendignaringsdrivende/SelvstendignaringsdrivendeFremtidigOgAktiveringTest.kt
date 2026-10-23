@@ -7,10 +7,13 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
+import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
@@ -238,6 +241,68 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 .single()
                 .arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
             soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Frilanseransetter AS"
+        }
+
+        @Test
+        fun `Arbeidsforhold fra Aareg som starter i perioden vises i ghost-spørsmålet`() {
+            val ghostFnr = "1234567657"
+            AaregMockDispatcher.enqueue(
+                listOf(
+                    skapArbeidsforholdOversikt(
+                        fnr = ghostFnr,
+                        startdato = basisdato.plusDays(2),
+                        arbeidssted = "999333666",
+                        opplysningspliktigOrganisasjonsnummer = "123456789",
+                    ),
+                ),
+            )
+            val soknad =
+                opprettSoknadMedGhostSporsmal(
+                    fnr = ghostFnr,
+                    inntekter = skapHentInntekterResponse(fnr = ghostFnr, loennsinntektOrgnumre = listOf("999333666")),
+                    forventetGhostOrgnummer = "999333666",
+                )
+
+            soknad.sporsmal!!
+                .map { it.tag }
+                .none { it.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }
+                .`should be true`()
+            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+            sykepengesoknadDAO
+                .finnSykepengesoknad(soknad.id)
+                .arbeidsforholdFraAareg
+                .`should not be null`()
+                .map { it.arbeidsstedOrgnummer } `should be equal to` listOf("999333666")
+        }
+
+        @Test
+        fun `Arbeidsforhold som bare finnes i Aareg vises i ghost-spørsmålet`() {
+            val ghostFnr = "1234567660"
+            AaregMockDispatcher.enqueue(
+                listOf(
+                    skapArbeidsforholdOversikt(
+                        fnr = ghostFnr,
+                        startdato = basisdato.plusDays(2),
+                        arbeidssted = "999333666",
+                        opplysningspliktigOrganisasjonsnummer = "123456789",
+                    ),
+                ),
+            )
+            val soknad =
+                opprettSoknadMedGhostSporsmal(
+                    fnr = ghostFnr,
+                    inntekter = skapHentInntekterResponse(fnr = ghostFnr),
+                    forventetGhostOrgnummer = "999333666",
+                )
+
+            soknad.inntektskilderDataFraInntektskomponenten.`should not be null`().shouldBeEmpty()
+            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+            sykepengesoknadDAO
+                .finnSykepengesoknad(soknad.id)
+                .ghostInntekter
+                .`should not be null`()
+                .single()
+                .kilde `should be equal to` Kilde.AAAREG
         }
 
         @Test
