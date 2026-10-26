@@ -1,0 +1,1 @@
+ALTER TABLE sykepengesoknad DROP COLUMN inntektsopplysninger_ny_kvittering;
