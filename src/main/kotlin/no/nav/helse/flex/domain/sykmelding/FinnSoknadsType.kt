@@ -56,16 +56,11 @@ fun bestemSoknadsTypeNy(
         return Soknadstype.GRADERT_REISETILSKUDD
     }
 
-    if (arbeidssituasjon == Arbeidssituasjon.FISKER && fiskerLottOgHyre in listOf(FiskerLottOgHyre.HYRE, FiskerLottOgHyre.BEGGE)) {
-        return Soknadstype.FISKERE
-    }
-
     return when (arbeidssituasjon) {
         Arbeidssituasjon.ARBEIDSTAKER -> Soknadstype.ARBEIDSTAKERE
 
         Arbeidssituasjon.NAERINGSDRIVENDE,
         Arbeidssituasjon.FRILANSER,
-        Arbeidssituasjon.FISKER,
         Arbeidssituasjon.JORDBRUKER,
         Arbeidssituasjon.BARNEPASSER,
         -> Soknadstype.SELVSTENDIGE_OG_FRILANSERE
@@ -73,5 +68,10 @@ fun bestemSoknadsTypeNy(
         Arbeidssituasjon.ARBEIDSLEDIG -> Soknadstype.ARBEIDSLEDIG
 
         Arbeidssituasjon.ANNET -> Soknadstype.ANNET_ARBEIDSFORHOLD
+
+        Arbeidssituasjon.FISKER -> {
+            requireNotNull(fiskerLottOgHyre) { "Mangler fiskerLottOgHyre for arbeidssituasjon FISKER" }
+            Soknadstype.FISKERE
+        }
     }
 }

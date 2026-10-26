@@ -73,10 +73,14 @@ data class Sykepengesoknad(
 
     // For å skille gamle søknader fra nye så må vi sjekke søknadstype for FiskerLottOgHyre.BEGGE
     // TODO: november 2027: Kan fjernes og legge BEGGE inn i erTilsvarendeArbeidstaker uten å ta hensyn til soknadsType
-    fun erFiskerLottOgHyreMedNySoknad(): Boolean =
+    private fun erFiskerLottOgHyreMedNySoknad(): Boolean =
         arbeidssituasjon == FISKER &&
             fiskerLottOgHyre == FiskerLottOgHyre.BEGGE &&
             soknadstype in listOf(Soknadstype.FISKERE, Soknadstype.GRADERT_REISETILSKUDD)
+
+    fun erFiskerMedLott(): Boolean =
+        arbeidssituasjon == FISKER &&
+            fiskerLottOgHyre in listOf(FiskerLottOgHyre.LOTT, FiskerLottOgHyre.BEGGE, null)
 
     fun erLikDetaljertArbeidssituasjon(
         arbeidssituasjon: Arbeidssituasjon?,

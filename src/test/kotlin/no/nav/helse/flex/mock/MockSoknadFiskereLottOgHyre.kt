@@ -110,7 +110,7 @@ fun opprettNyFiskerLottOgHyreSoknad(
                         erForsteSoknadISykeforlop = soknadMetadata.forstegangssoknad,
                         sykepengegrunnlagNaeringsdrivende = soknadMetadata.selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                         gradert = soknadMetadata.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
-                        erFiskerLottOgHyre = soknadMetadata.erFiskerLottOgHyreMedNySoknad(),
+                        erFiskerMedLott = soknadMetadata.erFiskerMedLott(),
                         erTilsvarendeSelvstendig = soknadMetadata.erTilsvarendeSelvstendig(),
                     ),
         )

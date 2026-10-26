@@ -288,6 +288,8 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 arbeidssituasjon = Arbeidssituasjon.FISKER,
                 forventetArbeidssituasjonDTO = ArbeidssituasjonDTO.FISKER,
                 forventetArbeidssituasjonRS = RSArbeidssituasjon.FISKER,
+                forventetSoknadstypeDTO = SoknadstypeDTO.FISKERE,
+                forventetSoknadstypeRS = RSSoknadstype.FISKERE,
             )
             verifiserFisker()
         }
@@ -607,6 +609,8 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         arbeidssituasjon: Arbeidssituasjon,
         forventetArbeidssituasjonDTO: ArbeidssituasjonDTO,
         forventetArbeidssituasjonRS: RSArbeidssituasjon,
+        forventetSoknadstypeDTO: SoknadstypeDTO = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE,
+        forventetSoknadstypeRS: RSSoknadstype = RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
     ) {
         val testdata = opprettTestdata(arbeidssituasjon)
 
@@ -621,10 +625,22 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
             sykepengesoknadDTO = kafkaSoknad,
             forventetArbeidssituasjon = forventetArbeidssituasjonDTO,
+            forventetSoknadstype = forventetSoknadstypeDTO,
         )
+
+        val forventedeSporsmalTags =
+            if (forventetArbeidssituasjonDTO == ArbeidssituasjonDTO.FISKER) {
+                forventedeSporsmalTagsForNaringsdrivendeForsteSoknad
+                    .minus(listOf(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT))
+                    .plus(listOf(FISKER_LOTT_OPPRETTHOLDT_INNTEKT))
+            } else {
+                forventedeSporsmalTagsForNaringsdrivendeForsteSoknad
+            }
 
         verifiserLagretNaringsdrivendeSoknad(
             forventetArbeidssituasjon = forventetArbeidssituasjonRS,
+            forventetSoknadstype = forventetSoknadstypeRS,
+            forventedeSporsmalTags = forventedeSporsmalTags,
         )
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
@@ -681,9 +697,10 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     private fun verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
         sykepengesoknadDTO: SykepengesoknadDTO,
         forventetArbeidssituasjon: ArbeidssituasjonDTO,
+        forventetSoknadstype: SoknadstypeDTO = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE,
     ) {
         sykepengesoknadDTO.arbeidssituasjon `should be equal to` forventetArbeidssituasjon
-        sykepengesoknadDTO.type `should be equal to` SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        sykepengesoknadDTO.type `should be equal to` forventetSoknadstype
 
         sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
             selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
@@ -699,6 +716,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
     private fun verifiserLagretNaringsdrivendeSoknad(
         forventetArbeidssituasjon: RSArbeidssituasjon,
+        forventetSoknadstype: RSSoknadstype = RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
         forsikring: Boolean = false,
         forventedeSporsmalTags: List<String> = forventedeSporsmalTagsForNaringsdrivendeForsteSoknad,
         harFunnetInntektFoerSykepengegrunnlaget: Boolean = true,
@@ -709,7 +727,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             soknader.size `should be equal to` antallSoknader
 
             soknader.forEach {
-                it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+                it.soknadstype `should be equal to` forventetSoknadstype
                 it.arbeidssituasjon `should be equal to` forventetArbeidssituasjon
             }
 
