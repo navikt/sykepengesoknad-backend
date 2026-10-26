@@ -47,7 +47,6 @@ data class Sykepengesoknad(
     val korrigeringsfristUtlopt: Boolean? = null,
     val forstegangssoknad: Boolean? = null,
     val tidligereArbeidsgiverOrgnummer: String? = null,
-    val inntektsopplysningerNyKvittering: Boolean? = null,
     val inntektsopplysningerInnsendingId: String? = null,
     val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val fiskerBlad: FiskerBlad? = null,

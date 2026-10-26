@@ -651,7 +651,6 @@ class SykepengesoknadDAOPostgres(
                     forstegangssoknad = resultSet.getNullableBoolean("forstegangssoknad"),
                     tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("tidligere_arbeidsgiver_orgnummer"),
                     aktivertDato = resultSet.getObject("aktivert_dato", LocalDate::class.java),
-                    inntektsopplysningerNyKvittering = resultSet.getNullableBoolean("inntektsopplysninger_ny_kvittering"),
                     inntektsopplysningerInnsendingId = resultSet.getNullableString("inntektsopplysninger_innsending_id"),
                     inntektsopplysningerInnsendingDokumenter =
                         resultSet

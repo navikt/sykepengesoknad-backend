@@ -31,7 +31,6 @@ data class RSSykepengesoknad(
     val utenlandskSykmelding: Boolean,
     val klippet: Boolean,
     val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?,
-    val inntektsopplysningerNyKvittering: Boolean? = null,
     val inntektsopplysningerInnsendingId: String? = null,
     val inntektsopplysningerInnsendingDokumenter: List<String>? = null,
     val korrigeringsfristUtlopt: Boolean?,

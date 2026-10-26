@@ -7,9 +7,6 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
-import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -36,11 +33,6 @@ class InntektsopplysningForNaringsdrivende(
             return
         }
 
-        val visNyKvittering =
-            soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null ||
-                soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET) != null ||
-                soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) != null
-
         val sykepengesoknadDbRecord =
             sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)
                 ?: throw IllegalStateException("Fant ikke søknad")
@@ -52,7 +44,6 @@ class InntektsopplysningForNaringsdrivende(
                         sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.korrigerer)
                     if (korrigertSoknad?.inntektsopplysningerInnsendingId != null) {
                         return sykepengesoknadDbRecord.copy(
-                            inntektsopplysningerNyKvittering = korrigertSoknad.inntektsopplysningerNyKvittering,
                             inntektsopplysningerInnsendingId = korrigertSoknad.inntektsopplysningerInnsendingId,
                             inntektsopplysningerInnsendingDokumenter = korrigertSoknad.inntektsopplysningerInnsendingDokumenter,
                         )
@@ -77,7 +68,6 @@ class InntektsopplysningForNaringsdrivende(
                     )
 
                 return sykepengesoknadDbRecord.copy(
-                    inntektsopplysningerNyKvittering = visNyKvittering,
                     inntektsopplysningerInnsendingId = innsendingResponse.innsendingsId,
                     inntektsopplysningerInnsendingDokumenter = dokumenter.joinToString(","),
                 )
@@ -89,9 +79,7 @@ class InntektsopplysningForNaringsdrivende(
                         innsendingApiClient.slett(korrigertSoknad.inntektsopplysningerInnsendingId)
                     }
                 }
-                return sykepengesoknadDbRecord.copy(
-                    inntektsopplysningerNyKvittering = visNyKvittering,
-                )
+                return sykepengesoknadDbRecord
             }
         }
 
