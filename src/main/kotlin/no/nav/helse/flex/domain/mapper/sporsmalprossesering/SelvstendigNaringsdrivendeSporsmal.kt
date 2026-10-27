@@ -23,7 +23,7 @@ fun Sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(): Map<St
         hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VARIG_ENDRING] = it == "JA"
     }
 
-    // Ligger nestet i FLERE_INNTEKTSKILDER_GRUPPE når søknaden har ghost-inntekter.//TODO ?
+    // Ligger nestet i FLERE_INNTEKTSKILDER_GRUPPE når søknaden har ghost-inntekter.
     listOf(FLERE_INNTEKTSKILDER_GHOST, ANDRE_INNTEKTSKILDER_V2).forEach { tag ->
         getSporsmalMedTagOrNull(tag)?.forsteSvar?.let { hovedSporsmalSvar[tag] = it == "JA" }
     }
