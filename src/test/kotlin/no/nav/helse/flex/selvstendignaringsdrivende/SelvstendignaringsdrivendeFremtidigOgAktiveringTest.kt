@@ -208,7 +208,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
             val soknad = opprettSoknadMedGhostSporsmal(ghostFnr)
 
             soknad.sporsmal!!.map { it.tag } shouldContain FLERE_INNTEKTSKILDER_GRUPPE
-            soknad.sporsmal!!.map { it.tag } shouldNotContain ANDRE_INNTEKTSKILDER_V2
+            soknad.sporsmal.map { it.tag } shouldNotContain ANDRE_INNTEKTSKILDER_V2
             soknad.getSporsmalMedTag(FLERE_INNTEKTSKILDER_GHOST).sporsmalstekst `should be equal to`
                 "Har du jobbet noe mer i disse enn du vanligvis gjør, mens du var sykmeldt i perioden 1. - 21. januar 3025?"
             soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Matbutikken AS"
