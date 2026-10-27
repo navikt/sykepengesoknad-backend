@@ -22,14 +22,14 @@ fun oppholdUtenforEOSSporsmal(
 ): Sporsmal =
     Sporsmal(
         tag = OPPHOLD_UTENFOR_EOS,
-        sporsmalstekst = "Var du på reise utenfor EU/EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
+        sporsmalstekst = "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
             listOf(
                 Sporsmal(
                     tag = OPPHOLD_UTENFOR_EOS_NAR,
-                    sporsmalstekst = "Når var du utenfor EU/EØS?",
+                    sporsmalstekst = "Når var du på reise?",
                     svartype = Svartype.PERIODER,
                     min = fom.format(ISO_LOCAL_DATE),
                     max = tom.format(ISO_LOCAL_DATE),
@@ -37,6 +37,7 @@ fun oppholdUtenforEOSSporsmal(
             ),
     )
 
+// TODO: Sjekk om denne kan fjernes. Sjekk Database for når søkander med dette spørsmålet sist ble opprettet.
 fun gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(
     fom: LocalDate,
     tom: LocalDate,
@@ -64,7 +65,7 @@ fun gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(
             ),
     )
 
-// TODO fjerne nå? Sjekk db
+// TODO: Sjekk om denne kan fjernes. Sjekk Database for når søkander med dette spørsmålet sist ble opprettet.
 fun gammeltUtenlandsoppholdSelvstendigSporsmal(
     fom: LocalDate,
     tom: LocalDate,
@@ -92,6 +93,7 @@ fun gammeltUtenlandsoppholdSelvstendigSporsmal(
             ),
     )
 
+// TODO: Sjekk om denne kan fjernes. Sjekk Database for når søkander med dette spørsmålet sist ble opprettet.
 fun gammeltUtenlandsoppholdArbeidstakerSporsmal(
     fom: LocalDate,
     tom: LocalDate,

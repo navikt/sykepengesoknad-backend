@@ -185,7 +185,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         .getSporsmalMedTag(OPPHOLD_UTENFOR_EOS)
                         .sporsmalstekst,
                 ).isEqualTo(
-                    "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 3. februar 2020?",
+                    "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 3. februar 2020?",
                 )
             }
     }
