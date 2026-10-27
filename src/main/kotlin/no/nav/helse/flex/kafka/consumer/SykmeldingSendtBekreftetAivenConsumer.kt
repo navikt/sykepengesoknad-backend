@@ -40,6 +40,9 @@ class SykmeldingSendtBekreftetAivenConsumer(
         MDC.put(NAV_CALLID, getSafeNavCallIdHeaderAsString(cr.headers()))
         val melding = cr.value()?.tilSykmeldingKafkaMessage()
 
+        if (cr.key() == "e0525a87-7e04-44d5-84d1-99448c62a04a") {
+            acknowledgment.acknowledge()
+        }
         try {
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), melding, cr.topic())
             val msBehandling = Instant.now().toEpochMilli() - cr.timestamp()
