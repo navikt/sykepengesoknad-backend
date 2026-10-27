@@ -86,7 +86,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst `should be equal to`
             "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?"
         soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
-            "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 15. februar 2020?"
+            "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 15. februar 2020?"
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(FRISKMELDT, "NEI", false)
@@ -101,7 +101,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                     "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?"
 
                 soknadBesvarer.rSSykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
-                    "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. februar 2020?"
+                    "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 4. februar 2020?"
             }
     }
 

@@ -75,7 +75,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
 
         assertThat(soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst)
             .isEqualTo(
-                "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 10. januar 2018?",
+                "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 10. januar 2018?",
             )
         assertThat(soknaden.getSporsmalMedTag(PERMISJON_V2).sporsmalstekst)
             .isEqualTo(
@@ -97,7 +97,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
 
                 assertThat(oppdatertSoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst)
                     .isEqualTo(
-                        "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. januar 2018?",
+                        "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 4. januar 2018?",
                     )
                 assertThat(oppdatertSoknad.getSporsmalMedTag(PERMISJON_V2).sporsmalstekst)
                     .isEqualTo(
