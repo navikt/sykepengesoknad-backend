@@ -308,7 +308,7 @@ class SporsmalGenerator(
         if (soknad.arbeidssituasjon == FISKER) {
             log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er fisker")
             null
-        } else if (environmentToggles.isProduction()) {
+        } else {
             if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
                 log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
                 aaregDataHenting.hentNyeArbeidsforhold(
@@ -323,8 +323,6 @@ class SporsmalGenerator(
                 )
                 null
             }
-        } else {
-            null
         }
 
     private fun lagMedlemsskapSporsmalResultat(
