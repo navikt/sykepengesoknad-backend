@@ -45,7 +45,7 @@ fun flereInntektskilderGhost(
                             ),
                         ),
                 ),
-                andreInntektskilderArbeidstakerV2(gruppe = true),
+                andreInntektskilderV2(gruppe = true),
             ),
     )
 }

@@ -56,7 +56,7 @@ data class KjentInntektskilde(
     val orgnummer: String,
 )
 
-fun andreInntektskilderArbeidstakerV2(gruppe: Boolean = false): Sporsmal {
+fun andreInntektskilderV2(gruppe: Boolean = false): Sporsmal {
     val tekst = if (gruppe) "Har du annen inntekt eller oppdrag i tillegg til dette?" else "Har du annen inntekt eller oppdrag?"
     return Sporsmal(
         tag = ANDRE_INNTEKTSKILDER_V2,

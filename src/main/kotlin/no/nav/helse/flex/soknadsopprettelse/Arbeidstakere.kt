@@ -78,7 +78,7 @@ fun settOppSoknadArbeidstaker(
                 ),
             )
         } else {
-            add(andreInntektskilderArbeidstakerV2())
+            add(andreInntektskilderV2())
         }
 
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))

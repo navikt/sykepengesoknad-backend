@@ -45,7 +45,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     ),
                 )
             } else {
-                add(andreInntektskilderArbeidstakerV2())
+                add(andreInntektskilderV2())
             }
             add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             add(tilSlutt())
