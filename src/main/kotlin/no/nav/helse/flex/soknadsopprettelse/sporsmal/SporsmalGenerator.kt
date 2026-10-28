@@ -166,7 +166,7 @@ class SporsmalGenerator(
 
         if (soknad.erTilsvarendeArbeidstaker()) {
             val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
-            val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+            val inntektsgrunnlag = hentArbeidsforhold(soknad, eksisterendeSoknader)
 
             val arbeidstakerSporsmal =
                 settOppSoknadArbeidstaker(
@@ -213,7 +213,7 @@ class SporsmalGenerator(
             NAERINGSDRIVENDE,
             FRILANSER,
             -> {
-                val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+                val inntektsgrunnlag = hentArbeidsforhold(soknad, eksisterendeSoknader)
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadSelvstendigOgFrilanser(
@@ -260,11 +260,11 @@ class SporsmalGenerator(
         val ghostInntekter: List<KjentInntektskilde>,
     )
 
-    private fun hentInntekter(
+    private fun hentArbeidsforhold(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
     ): Inntektsgrunnlag {
-        val nyeAaregArbeidsforhold =
+        val arbeidsforholdFraAareg =
             tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
                 .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
 
@@ -278,14 +278,14 @@ class SporsmalGenerator(
         val ghostInntekter =
             finnGhostInntekter(
                 arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
-                tilkomneArbeidsforholdAareg = nyeAaregArbeidsforhold,
+                arbeidsforholdFraAareg = arbeidsforholdFraAareg,
                 arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
                 erArbeidstaker = soknad.erTilsvarendeArbeidstaker(),
             )
 
         return Inntektsgrunnlag(
             andreKjenteArbeidsforhold = inntektskomponentenArbeidsforhold,
-            arbeidsforholdFraAAreg = nyeAaregArbeidsforhold,
+            arbeidsforholdFraAAreg = arbeidsforholdFraAareg,
             ghostInntekter = ghostInntekter,
         )
     }

@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -68,13 +67,8 @@ fun settOppSoknadArbeidstaker(
             add(
                 flereInntektskilderGhost(
                     andreKjenteInntektskilder = ghostInntekter,
-                    soknadsperiode =
-                        Soknadsperiode(
-                            fom = sykepengesoknad.fom,
-                            tom = sykepengesoknad.tom,
-                            grad = 0,
-                            sykmeldingstype = null,
-                        ),
+                    fom = sykepengesoknad.fom,
+                    tom = sykepengesoknad.tom,
                 ),
             )
         } else {

@@ -2,20 +2,24 @@
 
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.formatterPeriode
+import java.time.LocalDate
 
 fun flereInntektskilderGhost(
     andreKjenteInntektskilder: List<KjentInntektskilde>,
-    soknadsperiode: Soknadsperiode,
+    fom: LocalDate,
+    tom: LocalDate,
 ): Sporsmal {
-    fun skapSporsmal(periode: Soknadsperiode): String =
+    fun skapSporsmal(
+        fom: LocalDate,
+        tom: LocalDate,
+    ): String =
         "Har du jobbet noe mer i disse enn du vanligvis gjør, mens du var sykmeldt i perioden " +
-            "${formatterPeriode(periode.fom, periode.tom)}?"
+            "${formatterPeriode(fom, tom)}?"
 
     return Sporsmal(
         tag = FLERE_INNTEKTSKILDER_GRUPPE,
@@ -24,7 +28,7 @@ fun flereInntektskilderGhost(
             listOf(
                 Sporsmal(
                     tag = FLERE_INNTEKTSKILDER_GHOST,
-                    sporsmalstekst = skapSporsmal(soknadsperiode),
+                    sporsmalstekst = skapSporsmal(fom, tom),
                     svartype = Svartype.JA_NEI,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                     undersporsmal =

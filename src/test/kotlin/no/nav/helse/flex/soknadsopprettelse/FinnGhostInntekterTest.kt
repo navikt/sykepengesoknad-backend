@@ -49,7 +49,7 @@ class FinnGhostInntekterTest {
             soknadsOrgnummer: String? = this@FinnGhostInntekterTest.soknadsOrgnummer,
         ) = finnGhostInntekter(
             arbeidsforholdFraInntektskomponenten = inntektskomponenten,
-            tilkomneArbeidsforholdAareg = aareg,
+            arbeidsforholdFraAareg = aareg,
             arbeidsgiverOrgnummerSoknad = soknadsOrgnummer,
             erArbeidstaker = true,
         )
@@ -115,7 +115,7 @@ class FinnGhostInntekterTest {
             soknadsOrgnummer: String? = null,
         ) = finnGhostInntekter(
             arbeidsforholdFraInntektskomponenten = inntektskomponenten,
-            tilkomneArbeidsforholdAareg = aareg,
+            arbeidsforholdFraAareg = aareg,
             arbeidsgiverOrgnummerSoknad = soknadsOrgnummer,
             erArbeidstaker = false,
         )
@@ -142,18 +142,18 @@ class FinnGhostInntekterTest {
             finn(
                 inntektskomponenten = listOf(inntektskomponenten(aaregOrgnummer)),
                 aareg = listOf(aareg(aaregOrgnummer)),
-            ) `should be equal to` listOf(kjentFraInntektskomponenten(aaregOrgnummer))
+            ) `should be equal to` listOf(kjentFraAareg(aaregOrgnummer))
         }
 
         @Test
-        fun `inntektskomponenten kommer før Aareg i resultatet`() {
+        fun `Aareg kommer før inntektskomponenten i resultatet`() {
             finn(
                 inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer)),
                 aareg = listOf(aareg(aaregOrgnummer)),
             ) `should be equal to`
                 listOf(
-                    kjentFraInntektskomponenten(inntektskomponentenOrgnummer),
                     kjentFraAareg(aaregOrgnummer),
+                    kjentFraInntektskomponenten(inntektskomponentenOrgnummer),
                 )
         }
 
@@ -178,7 +178,7 @@ class FinnGhostInntekterTest {
                 inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer)),
                 aareg = listOf(aareg(aaregOrgnummer)),
                 soknadsOrgnummer = null,
-            ).map { it.orgnummer } `should be equal to` listOf(inntektskomponentenOrgnummer, aaregOrgnummer)
+            ).map { it.orgnummer } `should be equal to` listOf(aaregOrgnummer, inntektskomponentenOrgnummer)
         }
     }
 }

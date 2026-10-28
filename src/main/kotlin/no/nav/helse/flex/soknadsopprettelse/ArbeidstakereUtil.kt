@@ -27,29 +27,27 @@ fun jobbetDuIPeriodenSporsmal(
 
 fun finnGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
-    tilkomneArbeidsforholdAareg: List<ArbeidsforholdFraAAreg>,
+    arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>,
     arbeidsgiverOrgnummerSoknad: String?,
     erArbeidstaker: Boolean,
 ): List<KjentInntektskilde> {
-    val tilkomneOrgnumre = tilkomneArbeidsforholdAareg.map { it.arbeidsstedOrgnummer }
 
-    val fraInntektskomponenten =
-        arbeidsforholdFraInntektskomponenten
-            .map { KjentInntektskilde(navn = it.navn, kilde = Kilde.INNTEKTSKOMPONENTEN, orgnummer = it.orgnummer) }
-            .distinct()
-            .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
+    val arbeidsforholdAareg = arbeidsforholdFraAareg
+        .map { KjentInntektskilde(navn = it.arbeidsstedNavn, kilde = Kilde.AAAREG, orgnummer = it.arbeidsstedOrgnummer) }
+        .distinct()
+
+    val arbeidsforholdInntekskomponenten = arbeidsforholdFraInntektskomponenten
+        .map { KjentInntektskilde(navn = it.navn, kilde = Kilde.INNTEKTSKOMPONENTEN, orgnummer = it.orgnummer) }
+        .distinct()
+        .filterNot { arbeidsforhold -> arbeidsforhold.orgnummer in arbeidsforholdAareg.map{ it.orgnummer} }
 
     // Arbeidstakere får eget spørsmål om nye arbeidsforhold (NYTT_ARBEIDSFORHOLD_UNDERVEIS), så tilkomne holdes utenfor
-    if (erArbeidstaker) {
-        return fraInntektskomponenten.filterNot { it.orgnummer in tilkomneOrgnumre }
+    return if (erArbeidstaker) {
+        arbeidsforholdInntekskomponenten
+            .filterNot {it.orgnummer == arbeidsgiverOrgnummerSoknad }
+
+    } else {
+        (arbeidsforholdAareg + arbeidsforholdInntekskomponenten)
+            .filterNot {it.orgnummer == arbeidsgiverOrgnummerSoknad }
     }
-
-    val kjenteOrgnumre = fraInntektskomponenten.map { it.orgnummer }.toSet() + arbeidsgiverOrgnummerSoknad
-    val fraAareg =
-        tilkomneArbeidsforholdAareg
-            .filterNot { it.arbeidsstedOrgnummer in kjenteOrgnumre }
-            .distinctBy { it.arbeidsstedOrgnummer }
-            .map { KjentInntektskilde(navn = it.arbeidsstedNavn, kilde = Kilde.AAAREG, orgnummer = it.arbeidsstedOrgnummer) }
-
-    return fraInntektskomponenten + fraAareg
 }

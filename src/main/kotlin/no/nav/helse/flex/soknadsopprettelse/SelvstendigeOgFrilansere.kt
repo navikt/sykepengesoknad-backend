@@ -35,13 +35,8 @@ fun settOppSoknadSelvstendigOgFrilanser(
                 add(
                     flereInntektskilderGhost(
                         andreKjenteInntektskilder = ghostInntekter,
-                        soknadsperiode =
-                            Soknadsperiode(
-                                fom = sykepengesoknad.fom!!,
-                                tom = sykepengesoknad.tom!!,
-                                grad = 0,
-                                sykmeldingstype = null,
-                            ),
+                        fom = sykepengesoknad.fom!!,
+                        tom = sykepengesoknad.tom!!,
                     ),
                 )
             } else {
