@@ -89,7 +89,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
             .oppsummering()
             .sendSoknad()

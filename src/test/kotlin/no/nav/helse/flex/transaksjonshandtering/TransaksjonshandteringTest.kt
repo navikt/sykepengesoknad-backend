@@ -47,7 +47,7 @@ class TransaksjonshandteringTest : FellesTestOppsett() {
             .oppsummering()
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
-            .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
+            .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
     }
 

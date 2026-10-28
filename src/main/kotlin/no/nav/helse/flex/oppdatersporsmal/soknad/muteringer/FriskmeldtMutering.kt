@@ -55,10 +55,17 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
 
     return this
         .leggTilSporsmaal(skalStilleNyEOSSporsmal)
-        .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
         .run {
             if (this.arbeidssituasjon == ANNET) {
-                return@run this.leggTilSporsmaal(permisjonSporsmal(this.fom!!, oppdatertTom))
+                return@run this
+                    .leggTilSporsmaal(
+                        andreInntektskilderArbeidsledig(this.fom!!, oppdatertTom),
+                    ).leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
+            }
+            if (this.arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {
+                return@run this.leggTilSporsmaal(andreInntektskilderArbeidstakerV2())
+            } else {
+                return@run this.leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom!!, oppdatertTom))
             }
             return@run this
         }

@@ -229,13 +229,22 @@ class SporsmalGenerator(
                 )
             }
 
-            ARBEIDSLEDIG ->
-                settOppSoknadArbeidsledig(
-                    sykepengesoknad = soknad,
-                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+            ARBEIDSLEDIG -> {
+                val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+                SporsmalOgAndreKjenteArbeidsforhold(
+                    sporsmal =
+                        settOppSoknadArbeidsledig(
+                            sykepengesoknad = soknad,
+                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                        ),
+                    andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                    arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                )
+            }
 
             ANNET ->
                 settOppSoknadAnnetArbeidsforhold(

@@ -11,6 +11,7 @@ import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+// TODO: MÅ oppdateres!!
 fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal =
     Sporsmal(
         tag = ANDRE_INNTEKTSKILDER,
@@ -120,6 +121,7 @@ fun andreInntektskilderV2(gruppe: Boolean = false): Sporsmal {
     )
 }
 
+// TODO: Fjern denne!!
 fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal =
     Sporsmal(
         tag = ANDRE_INNTEKTSKILDER,

@@ -198,7 +198,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 .also {
                     lagreSvar(it, "ANSVARSERKLARING", "JA")
                     lagreSvar(it, "FRISKMELDT", "JA")
-                    lagreSvar(it, "ANDRE_INNTEKTSKILDER", "NEI")
+                    lagreSvar(it, "ANDRE_INNTEKTSKILDER_V2", "NEI")
                     lagreSvar(it, "OPPHOLD_UTENFOR_EOS", "JA")
                     lagreSvar(
                         it,
