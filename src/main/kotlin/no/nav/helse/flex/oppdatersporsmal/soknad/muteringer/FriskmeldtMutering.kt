@@ -16,7 +16,7 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
         return this
     }
     if (soknadstype == GRADERT_REISETILSKUDD) {
-        if (!listOf(ANNET, Arbeidssituasjon.ARBEIDSLEDIG).contains(arbeidssituasjon)) {
+        if (arbeidssituasjon !in listOf(ANNET, Arbeidssituasjon.ARBEIDSLEDIG)) {
             return this
         }
     }
@@ -53,20 +53,17 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
         }
 
-    return this
-        .leggTilSporsmaal(skalStilleNyEOSSporsmal)
-        .run {
-            if (this.arbeidssituasjon == ANNET) {
-                return@run this
-                    .leggTilSporsmaal(
-                        andreInntektskilderArbeidsledig(this.fom!!, oppdatertTom),
-                    ).leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
-            }
-            if (this.arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {
-                return@run this.leggTilSporsmaal(andreInntektskilderArbeidstakerV2())
-            } else {
-                return@run this.leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom!!, oppdatertTom))
-            }
-            return@run this
+    return when (this.arbeidssituasjon) {
+        Arbeidssituasjon.ARBEIDSLEDIG -> {
+            this
         }
+        ANNET -> {
+            this
+                .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
+                .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
+        }
+        else -> {
+            this.leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
+        }
+    }.leggTilSporsmaal(skalStilleNyEOSSporsmal)
 }
