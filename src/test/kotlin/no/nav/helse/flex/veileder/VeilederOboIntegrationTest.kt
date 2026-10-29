@@ -48,7 +48,7 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),

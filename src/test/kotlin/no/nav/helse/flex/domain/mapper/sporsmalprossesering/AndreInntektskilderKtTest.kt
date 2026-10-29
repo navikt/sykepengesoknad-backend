@@ -21,7 +21,7 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
     fun `Arbeidsledig har ikke svart på andre inntektskilder`() {
         val soknad =
             opprettSendtSoknadForArbeidsledige()
-                .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
+                .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
 
         val andreInntektskilder =
             konverterTilSykepengesoknadDTO(
@@ -38,12 +38,10 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
     fun `Arbeidsledig henter andre inntektskilder`() {
         val soknad =
             opprettSendtSoknadForArbeidsledige()
-                .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "JA")
+                .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA")
                 .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
-                .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, svar = "JA")
                 .besvarsporsmal(tag = INNTEKTSKILDE_FRILANSER, svar = "CHECKED")
-                .besvarsporsmal(tag = INNTEKTSKILDE_FRILANSER + ER_DU_SYKMELDT, svar = "NEI")
-                .besvarsporsmal(tag = INNTEKTSKILDE_ANNET, svar = "CHECKED")
+                .besvarsporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
 
         val andreInntektskilder =
             konverterTilSykepengesoknadDTO(
@@ -56,13 +54,10 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
         andreInntektskilder.shouldHaveSize(3)
 
         andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
-        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(true)
 
         andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.FRILANSER)
-        andreInntektskilder[1].sykmeldt.shouldBeEqualTo(false)
 
-        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.ANNET)
-        andreInntektskilder[2].sykmeldt.shouldBeEqualTo(null)
+        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.STYREVERV)
     }
 
     @Test

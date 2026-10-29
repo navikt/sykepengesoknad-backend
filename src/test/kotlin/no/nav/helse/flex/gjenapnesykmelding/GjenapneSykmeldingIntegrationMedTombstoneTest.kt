@@ -73,10 +73,9 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
             .oppsummering()
             .sendSoknad()
 

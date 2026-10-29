@@ -54,7 +54,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             )
@@ -69,7 +69,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
-            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED", mutert = false)
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
             }
@@ -83,8 +83,8 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst `should be equal to`
-            "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?"
+        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).sporsmalstekst `should be equal to`
+            "Har du annen inntekt eller oppdrag?"
         soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
             "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 15. februar 2020?"
 
@@ -96,9 +96,6 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 mutert = true,
             ).also { soknadBesvarer ->
                 soknadBesvarer.muterteSoknaden `should be` true
-
-                soknadBesvarer.rSSykepengesoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst `should be equal to`
-                    "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?"
 
                 soknadBesvarer.rSSykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
                     "Var du på reise utenfor EU/EØS og Storbritannia mens du var sykmeldt 1. - 4. februar 2020?"
@@ -124,6 +121,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
+                        ANDRE_INNTEKTSKILDER_V2,
                         TIL_SLUTT,
                     )
             }
@@ -148,7 +146,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
-                        ANDRE_INNTEKTSKILDER,
+                        ANDRE_INNTEKTSKILDER_V2,
                         OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
                     )
@@ -175,7 +173,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
-            .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
+            .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", ferdigBesvart = false)
             .besvarSporsmal(
                 OPPHOLD_UTENFOR_EOS_NAR,

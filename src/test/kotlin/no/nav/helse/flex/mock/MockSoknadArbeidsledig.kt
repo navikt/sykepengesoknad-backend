@@ -71,6 +71,7 @@ fun opprettNySoknad(): Sykepengesoknad {
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 harTidligereUtenlandskSpm = false,
                 erForsteSoknadISykeforlop = false,
+                ghostInntekter = emptyList(),
             ),
     )
 }
@@ -80,7 +81,7 @@ fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {
 
     soknad = soknad.besvarsporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
     soknad = soknad.besvarsporsmal(tag = FRISKMELDT, svar = "NEI")
-    soknad = soknad.besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
+    soknad = soknad.besvarsporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
     soknad = soknad.oppsummering()
 

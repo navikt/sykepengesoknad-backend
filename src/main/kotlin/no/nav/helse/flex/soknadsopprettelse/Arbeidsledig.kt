@@ -12,14 +12,27 @@ fun settOppSoknadArbeidsledig(
     yrkesskade: YrkesskadeSporsmalGrunnlag,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
+    ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> {
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()
         .apply {
             add(ansvarserklaringSporsmal())
-            add(andreInntektskilderArbeidsledig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-            add(friskmeldingSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+
+            if (ghostInntekter.isNotEmpty()) {
+                add(
+                    flereInntektskilderGhost(
+                        andreKjenteInntektskilder = ghostInntekter,
+                        fom = sykepengesoknad.fom!!,
+                        tom = sykepengesoknad.tom!!,
+                    ),
+                )
+            } else {
+                add(andreInntektskilderV2())
+            }
+
+            add(friskmeldingSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
             add(tilSlutt())
 

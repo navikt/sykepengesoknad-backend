@@ -4,7 +4,6 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -96,7 +95,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
@@ -121,7 +120,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 fnr = fnr,
             ).first()
 
-        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(5)
+        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(6)
 
         SoknadBesvarer(soknadEtterOppdatering, this, fnr)
             .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
