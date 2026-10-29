@@ -24,7 +24,6 @@ data class SelvstendigNaringsdrivendeInfo(
             roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
             inntekt = inntekt,
             hovedSporsmalSvar = sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(),
-            brukerHarOppgittForsikring = sykepengesoknad.selvstendigNaringsdrivende!!.brukerHarOppgittForsikring,
         )
     }
 

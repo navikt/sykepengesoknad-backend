@@ -146,7 +146,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
             kafkaSoknad.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
                 selvstendigNaringsdrivendeDTO.inntekt `should not be equal to` null
-                selvstendigNaringsdrivendeDTO.brukerHarOppgittForsikring `should be equal to` true
             }
 
             verifiserLagretNaringsdrivendeSoknad(

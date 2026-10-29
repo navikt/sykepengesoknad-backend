@@ -64,7 +64,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                     rolleDTO.rolletype `should be equal to` "INNH"
                 }
             }
-            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -293,10 +292,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 erEttersending = false,
                 soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
             )
-
-        soknadDTO.selvstendigNaringsdrivende!!.also {
-            it.brukerHarOppgittForsikring `should be equal to` true
-        }
     }
 
     @Test
