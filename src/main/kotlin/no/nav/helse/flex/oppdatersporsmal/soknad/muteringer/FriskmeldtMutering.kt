@@ -55,7 +55,14 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
 
     return when (this.arbeidssituasjon) {
         Arbeidssituasjon.ARBEIDSLEDIG -> {
-            this
+            if (sporsmal.any {
+                    it.tag in listOf(ANDRE_INNTEKTSKILDER, ANDRE_INNTEKTSKILDER_V2, FLERE_INNTEKTSKILDER_GRUPPE)
+                }
+            ) {
+                this
+            } else {
+                this.leggTilSporsmaal(andreInntektskilderV2(!this.ghostInntekter.isNullOrEmpty()))
+            }
         }
         ANNET -> {
             this
