@@ -7,9 +7,6 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -50,44 +47,6 @@ class InntektsopplysningerDokumenterTest {
                 InntektsopplysningerDokumentType.REGNSKAP_FORELOPIG,
             )
         assertEquals(forventet, dokumenterSomSkalSendesInn(testDato))
-    }
-
-    @Test
-    fun `Må dokumentere inntektsopplysninger når man er ny i arbeidslivet`() {
-        val soknad =
-            lagSoknad(
-                mapOf(
-                    INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA to "CHECKED",
-                ),
-            )
-
-        soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo true
-    }
-
-    @Test
-    fun `Må dokumentere inntektsopplysninger når ikke er ny i arbeidslivet men varig endring er over 25 prosent`() {
-        val soknad =
-            lagSoknad(
-                mapOf(
-                    INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI to "CHECKED",
-                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT to "JA",
-                ),
-            )
-
-        soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo true
-    }
-
-    @Test
-    fun `Må ikke dokumenere inntektsopplysninger når ikke er ny i arbeidslivet og varig endring er under25 prosent`() {
-        val soknad =
-            lagSoknad(
-                mapOf(
-                    INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI to "CHECKED",
-                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT to "NEI",
-                ),
-            )
-
-        soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo false
     }
 
     @Test

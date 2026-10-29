@@ -38,37 +38,5 @@ fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<Inntektsopplysninger
     }
 }
 
-fun Sykepengesoknad.inntektsopplysningerMaaDokumenteres(): Boolean {
-    if (getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)?.forsteSvar == "JA") {
-        return true
-    }
-
-    getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_NEI)?.let {
-        if (it.forsteSvar == "CHECKED") {
-            return false
-        }
-    }
-
-    getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA)?.let {
-        if (it.forsteSvar == "CHECKED") {
-            return false
-        }
-    }
-
-    getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA)?.let {
-        if (it.forsteSvar == "CHECKED") {
-            return true
-        }
-    }
-
-    getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI)?.let { sporsmal1 ->
-        if (sporsmal1.forsteSvar == "CHECKED") {
-            getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT)?.let {
-                if (it.forsteSvar == "JA") {
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
+fun Sykepengesoknad.inntektsopplysningerMaaDokumenteres(): Boolean =
+    getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)?.forsteSvar == "JA"
