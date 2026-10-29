@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional
 import tools.jackson.module.kotlin.readValue
 import kotlin.jvm.optionals.getOrElse
 
+
 @Service
 @Transactional
 class SporsmalGenerator(
@@ -230,7 +231,7 @@ class SporsmalGenerator(
             }
 
             ARBEIDSLEDIG -> {
-                val inntektsgrunnlag = hentInntekter(soknad, eksisterendeSoknader)
+                val inntektsgrunnlag = hentArbeidsforhold(soknad, eksisterendeSoknader)
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadArbeidsledig(

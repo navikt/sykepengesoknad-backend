@@ -131,14 +131,14 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
         soknaden.ghostInntekter!!.shouldHaveSize(2)
         soknaden.ghostInntekter[0].let {
-            it.navn `should be equal to` "Frilanseransetter AS"
-            it.orgnummer `should be equal to` "999333667"
-            it.kilde `should be equal to` RSKilde.INNTEKTSKOMPONENTEN
-        }
-        soknaden.ghostInntekter[1].let {
             it.navn `should be equal to` "Bensinstasjonen AS"
             it.orgnummer `should be equal to` "999333666"
             it.kilde `should be equal to` RSKilde.AAAREG
+        }
+        soknaden.ghostInntekter[1].let {
+            it.navn `should be equal to` "Frilanseransetter AS"
+            it.orgnummer `should be equal to` "999333667"
+            it.kilde `should be equal to` RSKilde.INNTEKTSKOMPONENTEN
         }
 
         val andreInntektskilderSpm = soknaden.getSporsmalMedTag("FLERE_INNTEKTSKILDER_GHOST")
@@ -168,8 +168,8 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         assertThat(kafkaSoknaderMedGhost[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknaderMedGhost[0].flereInntektskilderGhost)
             .containsExactlyInAnyOrder(
-                KjenteInntektskilderDTO("Frilanseransetter AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333667"),
                 KjenteInntektskilderDTO("Bensinstasjonen AS", KildeDTO.AAAREG, "999333666"),
+                KjenteInntektskilderDTO("Frilanseransetter AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333667"),
             )
 
         kafkaSoknaderMedGhost[0]
@@ -187,7 +187,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                     .first()
                     .verdi `should be equal to` "CHECKED"
 
-                sporsmal.sporsmalstekst `should be equal to` "Frilanseransetter AS"
+                sporsmal.sporsmalstekst `should be equal to` "Bensinstasjonen AS"
             }
 
         kafkaSoknaderMedGhost[0].andreInntektskilder `should be equal to`
