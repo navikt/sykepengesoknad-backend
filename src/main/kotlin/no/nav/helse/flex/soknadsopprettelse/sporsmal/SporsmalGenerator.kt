@@ -62,7 +62,12 @@ class SporsmalGenerator(
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
-        val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
+        val eksisterendeSoknader =
+            sykepengesoknadDAO
+                .finnSykepengesoknader(identer)
+                .filterNot { it.id == soknad.id }
+                .filterNot { it.soknadstype == Soknadstype.OPPHOLD_UTLAND }
+
         val sykepengegrunnlagNaeringsdrivende =
             if (soknad.erTilsvarendeSelvstendig()) {
                 sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
