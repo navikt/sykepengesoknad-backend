@@ -74,7 +74,7 @@ class FiskerLottSoknadTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                 NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
@@ -103,7 +103,7 @@ class FiskerLottSoknadTest : FellesTestOppsett() {
                 .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
                 .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
                 .besvarSporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT, "NEI")
-                .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
+                .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                 .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                 .besvarSporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
                 .besvarSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
@@ -157,7 +157,7 @@ class FiskerLottSoknadTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             )

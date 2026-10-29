@@ -4,13 +4,7 @@ Dette er en Spring Boot-backend for sykepengesøknader. Tjenesten tar imot sykme
 
 ## 1) Kommandoer
 
-Kjør dette når du har gjort kodeendringer:
-
-```sh
-./gradlew ktlintFormat
-./gradlew test
-./gradlew build
-```
+Se #file:AGENTS-intellij.md for hvordan du kjører formatering, tester og bygging fra IntelliJ.
 
 ## 2) Testing
 
@@ -59,11 +53,10 @@ Repoet bruker også testoppsett for fakes og integrasjonstester, samt Flyway-mig
 
 Standard flyt:
 
+Se #file:AGENTS-intellij.md for å kjøre formatering, tester og bygging.
+
 ```sh
 git checkout -b kort-beskrivende-navn
-./gradlew ktlintFormat
-./gradlew test
-./gradlew build
 git commit -m "Kort beskrivelse"
 git push origin <branch>
 gh pr create --fill
@@ -78,7 +71,7 @@ gh pr create --fill
 ## 8) Verktøy
 
 - Bruk tilgjengelige kodeverktøy for søk og redigering når de finnes.
-- Bruk shell for git og Gradle-kommandoer.
+- Bruk shell for git. Kjør Gradle-oppgaver (format, test, bygg) via IntelliJ run configurations, se #file:AGENTS-intellij.md.
 - Preferer repoets eksisterende verktøy og mønstre fremfor å legge til nye.
 
 ## Når du trenger mer kontekst

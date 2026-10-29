@@ -17,6 +17,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
+    ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> {
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
@@ -30,13 +31,23 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     tilbakeIFulltArbeidSporsmal(sykepengesoknad)
                 },
             )
-            add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
+            if (ghostInntekter.isNotEmpty()) {
+                add(
+                    flereInntektskilderGhost(
+                        andreKjenteInntektskilder = ghostInntekter,
+                        fom = sykepengesoknad.fom!!,
+                        tom = sykepengesoknad.tom!!,
+                    ),
+                )
+            } else {
+                add(andreInntektskilderV2())
+            }
             add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             add(tilSlutt())
             addAll(
                 jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
                     sykepengesoknad.soknadPerioder!!,
-                    sykepengesoknad.arbeidssituasjon,
+                    sykepengesoknad.arbeidssituasjon!!,
                 ),
             )
             if (sykepengesoknad.erTilsvarendeSelvstendig()) {
