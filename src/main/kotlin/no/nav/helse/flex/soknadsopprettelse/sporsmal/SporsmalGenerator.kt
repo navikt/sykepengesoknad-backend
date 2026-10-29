@@ -62,7 +62,12 @@ class SporsmalGenerator(
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
-        val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
+        val eksisterendeSoknader =
+            sykepengesoknadDAO
+                .finnSykepengesoknader(identer)
+                .filterNot { it.id == soknad.id }
+                .filterNot { it.soknadstype == Soknadstype.OPPHOLD_UTLAND }
+
         val sykepengegrunnlagNaeringsdrivende =
             if (soknad.erTilsvarendeSelvstendig()) {
                 sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
@@ -313,26 +318,34 @@ class SporsmalGenerator(
     private fun tilkommenInntektGrunnlagHenting(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
-    ): List<ArbeidsforholdFraAAreg>? =
+    ): List<ArbeidsforholdFraAAreg>? {
         if (soknad.arbeidssituasjon == FISKER) {
             log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er fisker")
-            null
-        } else {
-            if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
-                log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
-                aaregDataHenting.hentNyeArbeidsforhold(
-                    fnr = soknad.fnr,
-                    sykepengesoknad = soknad,
-                    eksisterendeSoknader = eksisterendeSoknader,
-                )
-            } else {
+            return null
+        }
+
+        if (soknad.erTilsvarendeArbeidstaker()) {
+            if (!soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
                 log.info(
                     "Leter ikke etter nye arbeidsforhold for person med soknad ${soknad.id} siden søknaden " +
                         "er estimert helt innenfor agp",
                 )
-                null
+                return null
             }
+            log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
+        } else {
+            log.info(
+                "Leter etter nye arbeidsforhold for søknad ${soknad.id} uten arbeidsgiverperiodesjekk, " +
+                    "siden søknaden ikke gjelder en arbeidstaker",
+            )
         }
+
+        return aaregDataHenting.hentNyeArbeidsforhold(
+            fnr = soknad.fnr,
+            sykepengesoknad = soknad,
+            eksisterendeSoknader = eksisterendeSoknader,
+        )
+    }
 
     private fun lagMedlemsskapSporsmalResultat(
         eksisterendeSoknader: List<Sykepengesoknad>,

@@ -5,7 +5,8 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.NormalisertSoknad
-import java.util.*
+import no.nav.helse.flex.util.objectMapper
+import tools.jackson.module.kotlin.readValue
 
 /**
  * Denne funksjonen gjør det motsatte av normaliseringen – den bygger et domene‑objekt
@@ -109,8 +110,8 @@ fun NormalisertSoknad.denormaliser(): Sykepengesoknad {
         tidligereArbeidsgiverOrgnummer = dbSoknad.tidligereArbeidsgiverOrgnummer,
         aktivertDato = dbSoknad.aktivertDato,
         fiskerBlad = dbSoknad.fiskerBlad,
-        // TODO Her må du implementere deserialiseringen etter eget behov:
-        arbeidsforholdFraAareg = emptyList(),
+        arbeidsforholdFraAareg = dbSoknad.arbeidsforholdFraAareg?.let { objectMapper.readValue(it) },
+        ghostInntekter = dbSoknad.ghostInntekter?.let { objectMapper.readValue(it) },
         friskTilArbeidVedtakId = dbSoknad.friskTilArbeidVedtakId,
         soknadPerioder = perioder,
         sporsmal = topLevelSporsmal,
