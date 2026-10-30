@@ -319,32 +319,25 @@ class SporsmalGenerator(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
     ): List<ArbeidsforholdFraAAreg>? {
-        if (soknad.arbeidssituasjon == FISKER) {
-            log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er fisker")
-            return null
-        }
-
-        if (soknad.erTilsvarendeArbeidstaker()) {
-            if (!soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
+        if (soknad.arbeidssituasjon == ARBEIDSTAKER) {
+            if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
+                log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
+                return aaregDataHenting.hentNyeArbeidsforhold(
+                    fnr = soknad.fnr,
+                    sykepengesoknad = soknad,
+                    eksisterendeSoknader = eksisterendeSoknader,
+                )
+            } else {
                 log.info(
                     "Leter ikke etter nye arbeidsforhold for person med soknad ${soknad.id} siden søknaden " +
                         "er estimert helt innenfor agp",
                 )
                 return null
             }
-            log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
         } else {
-            log.info(
-                "Leter etter nye arbeidsforhold for søknad ${soknad.id} uten arbeidsgiverperiodesjekk, " +
-                    "siden søknaden ikke gjelder en arbeidstaker",
-            )
+            log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er ${soknad.arbeidssituasjon}")
+            return null
         }
-
-        return aaregDataHenting.hentNyeArbeidsforhold(
-            fnr = soknad.fnr,
-            sykepengesoknad = soknad,
-            eksisterendeSoknader = eksisterendeSoknader,
-        )
     }
 
     private fun lagMedlemsskapSporsmalResultat(

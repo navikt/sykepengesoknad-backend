@@ -7,11 +7,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSKilde
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
-import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
-import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
@@ -29,14 +26,10 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AndreInntektskilderSpmTest : FellesTestOppsett() {
-    @Autowired
-    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
     val ghostFnr = "11111234565"
     val kunEttArbeidsforholdFnr = "11111234566"
     private final val basisdato = LocalDate.of(2021, 9, 1)
@@ -56,6 +49,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 fnr = kunEttArbeidsforholdFnr,
             )
         soknaden.inntektskilderDataFraInntektskomponenten!!.shouldBeEmpty()
+        soknaden.ghostInntekter!!.shouldBeEmpty()
 
         val andreInntektskilderSpm = soknaden.getSporsmalMedTag("ANDRE_INNTEKTSKILDER_V2")
         andreInntektskilderSpm.sporsmalstekst `should be equal to`
@@ -91,19 +85,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Har flere arbeidsforhold og får spørsmål om flere inntektskilder GHOST og andre arbeidsforhold`() {
-        AaregMockDispatcher.enqueue(
-            listOf(
-                skapArbeidsforholdOversikt(
-                    fnr = ghostFnr,
-                    startdato = basisdato.minusDays(18),
-                    sluttdato = null,
-                    arbeidssted = "999333666",
-                    opplysningspliktigOrganisasjonsnummer = "123456789",
-                ),
-            ),
-        )
-
+    fun `Får ghost-spørsmål fra inntektskomponenten og andre inntektskilder`() {
         InntektskomponentenMockDispatcher.enqueue(
             skapHentInntekterResponse(
                 fnr = ghostFnr,
@@ -130,13 +112,8 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 fnr = ghostFnr,
             )
 
-        soknaden.ghostInntekter!!.shouldHaveSize(2)
+        soknaden.ghostInntekter!!.shouldHaveSize(1)
         soknaden.ghostInntekter[0].let {
-            it.navn `should be equal to` "Bensinstasjonen AS"
-            it.orgnummer `should be equal to` "999333666"
-            it.kilde `should be equal to` RSKilde.AAAREG
-        }
-        soknaden.ghostInntekter[1].let {
             it.navn `should be equal to` "Frilanseransetter AS"
             it.orgnummer `should be equal to` "999333667"
             it.kilde `should be equal to` RSKilde.INNTEKTSKOMPONENTEN
@@ -169,7 +146,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         assertThat(kafkaSoknaderMedGhost[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknaderMedGhost[0].flereInntektskilderGhost)
             .containsExactlyInAnyOrder(
-                KjenteInntektskilderDTO("Bensinstasjonen AS", KildeDTO.AAAREG, "999333666"),
                 KjenteInntektskilderDTO("Frilanseransetter AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333667"),
             )
 
@@ -188,7 +164,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                     .first()
                     .verdi `should be equal to` "CHECKED"
 
-                sporsmal.sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+                sporsmal.sporsmalstekst `should be equal to` "Frilanseransetter AS"
             }
 
         kafkaSoknaderMedGhost[0].andreInntektskilder `should be equal to`
@@ -204,17 +180,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
     fun `Ghost-spørsmål blir værende og dupliseres ikke ved friskmelding-mutering`() {
         val fnr = "11111234567"
 
-        AaregMockDispatcher.enqueue(
-            listOf(
-                skapArbeidsforholdOversikt(
-                    fnr = fnr,
-                    startdato = basisdato.minusDays(18),
-                    sluttdato = null,
-                    arbeidssted = "999333666",
-                    opplysningspliktigOrganisasjonsnummer = "123456789",
-                ),
-            ),
-        )
         InntektskomponentenMockDispatcher.enqueue(
             skapHentInntekterResponse(
                 fnr = fnr,

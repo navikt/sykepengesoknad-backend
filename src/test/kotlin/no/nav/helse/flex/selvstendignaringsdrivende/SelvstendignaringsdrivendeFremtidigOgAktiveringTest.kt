@@ -3,17 +3,15 @@ package no.nav.helse.flex.selvstendignaringsdrivende
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.client.inntektskomponenten.HentInntekterResponse
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSKilde
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
-import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
@@ -244,18 +242,8 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
         }
 
         @Test
-        fun `Arbeidsforhold fra Aareg som starter i perioden vises i ghost-spørsmålet`() {
+        fun `Arbeidsforhold fra inntektskomponenten vises i ghost-spørsmålet`() {
             val ghostFnr = "1234567657"
-            AaregMockDispatcher.enqueue(
-                listOf(
-                    skapArbeidsforholdOversikt(
-                        fnr = ghostFnr,
-                        startdato = basisdato.plusDays(2),
-                        arbeidssted = "999333666",
-                        opplysningspliktigOrganisasjonsnummer = "123456789",
-                    ),
-                ),
-            )
             val soknad =
                 opprettSoknadMedGhostSporsmal(
                     fnr = ghostFnr,
@@ -268,41 +256,46 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 .none { it.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }
                 .`should be true`()
             soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+            soknad.ghostInntekter
+                .`should not be null`()
+                .single()
+                .kilde `should be equal to`
+                RSKilde.INNTEKTSKOMPONENTEN
             sykepengesoknadDAO
                 .finnSykepengesoknad(soknad.id)
                 .arbeidsforholdFraAareg
                 .`should not be null`()
-                .map { it.arbeidsstedOrgnummer } `should be equal to` listOf("999333666")
+                .shouldBeEmpty()
         }
 
         @Test
-        fun `Arbeidsforhold som bare finnes i Aareg vises i ghost-spørsmålet`() {
+        fun `Uten inntekt fra inntektskomponenten får søknaden kun spørsmål om andre inntektskilder`() {
             val ghostFnr = "1234567660"
-            AaregMockDispatcher.enqueue(
-                listOf(
-                    skapArbeidsforholdOversikt(
-                        fnr = ghostFnr,
-                        startdato = basisdato.plusDays(2),
-                        arbeidssted = "999333666",
-                        opplysningspliktigOrganisasjonsnummer = "123456789",
-                    ),
+            InntektskomponentenMockDispatcher.enqueue(skapHentInntekterResponse(fnr = ghostFnr))
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    fnr = ghostFnr,
+                    sykmeldingsperioder = heltSykmeldt(fom = basisdato, tom = basisdato.plusDays(20)),
                 ),
             )
+            aktiveringJob.bestillAktivering(now = basisdato.plusDays(61))
+            val aktivertSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
+            aktivertSoknad.flereInntektskilderGhost.`should not be null`().shouldBeEmpty()
             val soknad =
-                opprettSoknadMedGhostSporsmal(
+                hentSoknad(
+                    soknadId = aktivertSoknad.id,
                     fnr = ghostFnr,
-                    inntekter = skapHentInntekterResponse(fnr = ghostFnr),
-                    forventetGhostOrgnummer = "999333666",
                 )
 
             soknad.inntektskilderDataFraInntektskomponenten.`should not be null`().shouldBeEmpty()
-            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+            soknad.sporsmal!!.map { it.tag } shouldContain ANDRE_INNTEKTSKILDER_V2
+            soknad.sporsmal.map { it.tag } shouldNotContain FLERE_INNTEKTSKILDER_GRUPPE
             sykepengesoknadDAO
                 .finnSykepengesoknad(soknad.id)
                 .ghostInntekter
                 .`should not be null`()
-                .single()
-                .kilde `should be equal to` Kilde.AAAREG
+                .shouldBeEmpty()
         }
 
         @Test
