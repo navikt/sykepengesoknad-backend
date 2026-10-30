@@ -38,9 +38,6 @@ class FinnGhostInntekterTest {
             orgnummer = orgnummer,
         )
 
-    private fun kjentFraAareg(orgnummer: String) =
-        KjentInntektskilde(navn = "Aareg $orgnummer", kilde = Kilde.AAAREG, orgnummer = orgnummer)
-
     @Nested
     inner class Arbeidstaker {
         private fun finn(
@@ -51,7 +48,6 @@ class FinnGhostInntekterTest {
             arbeidsforholdFraInntektskomponenten = inntektskomponenten,
             arbeidsforholdFraAareg = aareg,
             arbeidsgiverOrgnummerSoknad = soknadsOrgnummer,
-            erArbeidstaker = true,
         )
 
         @Test
@@ -117,7 +113,6 @@ class FinnGhostInntekterTest {
             arbeidsforholdFraInntektskomponenten = inntektskomponenten,
             arbeidsforholdFraAareg = aareg,
             arbeidsgiverOrgnummerSoknad = soknadsOrgnummer,
-            erArbeidstaker = false,
         )
 
         @Test
@@ -133,41 +128,9 @@ class FinnGhostInntekterTest {
         }
 
         @Test
-        fun `arbeidsforhold som bare finnes i Aareg er ghost med kilde AAAREG`() {
-            finn(aareg = listOf(aareg(aaregOrgnummer))) `should be equal to` listOf(kjentFraAareg(aaregOrgnummer))
-        }
-
-        @Test
-        fun `tilkommet arbeidsforhold beholdes når det også finnes i inntektskomponenten, uten duplikat`() {
-            finn(
-                inntektskomponenten = listOf(inntektskomponenten(aaregOrgnummer)),
-                aareg = listOf(aareg(aaregOrgnummer)),
-            ) `should be equal to` listOf(kjentFraAareg(aaregOrgnummer))
-        }
-
-        @Test
-        fun `Aareg kommer før inntektskomponenten i resultatet`() {
-            finn(
-                inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer)),
-                aareg = listOf(aareg(aaregOrgnummer)),
-            ) `should be equal to`
-                listOf(
-                    kjentFraAareg(aaregOrgnummer),
-                    kjentFraInntektskomponenten(inntektskomponentenOrgnummer),
-                )
-        }
-
-        @Test
-        fun `samme orgnummer flere ganger i Aareg gir én ghost`() {
-            finn(aareg = listOf(aareg(aaregOrgnummer), aareg(aaregOrgnummer))) `should be equal to`
-                listOf(kjentFraAareg(aaregOrgnummer))
-        }
-
-        @Test
         fun `søknadens egen arbeidsgiver filtreres bort fra både inntektskomponenten og Aareg`() {
             finn(
                 inntektskomponenten = listOf(inntektskomponenten(soknadsOrgnummer)),
-                aareg = listOf(aareg(soknadsOrgnummer)),
                 soknadsOrgnummer = soknadsOrgnummer,
             ).shouldBeEmpty()
         }
@@ -176,9 +139,8 @@ class FinnGhostInntekterTest {
         fun `null som arbeidsgiver i søknaden filtrerer ikke bort noe`() {
             finn(
                 inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer)),
-                aareg = listOf(aareg(aaregOrgnummer)),
                 soknadsOrgnummer = null,
-            ).map { it.orgnummer } `should be equal to` listOf(aaregOrgnummer, inntektskomponentenOrgnummer)
+            ).map { it.orgnummer } `should be equal to` listOf(inntektskomponentenOrgnummer)
         }
     }
 }
