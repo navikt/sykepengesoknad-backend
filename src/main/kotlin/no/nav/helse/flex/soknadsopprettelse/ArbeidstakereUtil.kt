@@ -29,25 +29,20 @@ fun finnGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>,
     arbeidsgiverOrgnummerSoknad: String?,
-    erArbeidstaker: Boolean,
 ): List<KjentInntektskilde> {
-    val arbeidsforholdAareg =
-        arbeidsforholdFraAareg
-            .map { KjentInntektskilde(navn = it.arbeidsstedNavn, kilde = Kilde.AAAREG, orgnummer = it.arbeidsstedOrgnummer) }
-            .distinct()
+    val andreInntekter =
+        arbeidsforholdFraInntektskomponenten.map { inntekt ->
+            KjentInntektskilde(
+                navn = inntekt.navn,
+                kilde = Kilde.INNTEKTSKOMPONENTEN,
+                orgnummer = inntekt.orgnummer,
+            )
+        }
 
-    val arbeidsforholdInntekskomponenten =
-        arbeidsforholdFraInntektskomponenten
-            .map { KjentInntektskilde(navn = it.navn, kilde = Kilde.INNTEKTSKOMPONENTEN, orgnummer = it.orgnummer) }
-            .distinct()
-            .filterNot { arbeidsforhold -> arbeidsforhold.orgnummer in arbeidsforholdAareg.map { it.orgnummer } }
+    val tilkomneInntekterOrgNummer = arbeidsforholdFraAareg.map { it.arbeidsstedOrgnummer }
 
-    // Arbeidstakere får eget spørsmål om nye arbeidsforhold (NYTT_ARBEIDSFORHOLD_UNDERVEIS), så tilkomne holdes utenfor
-    return if (erArbeidstaker) {
-        arbeidsforholdInntekskomponenten
-            .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
-    } else {
-        (arbeidsforholdAareg + arbeidsforholdInntekskomponenten)
-            .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
-    }
+    return andreInntekter
+        .toSet()
+        .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
+        .filterNot { it.orgnummer in tilkomneInntekterOrgNummer }
 }

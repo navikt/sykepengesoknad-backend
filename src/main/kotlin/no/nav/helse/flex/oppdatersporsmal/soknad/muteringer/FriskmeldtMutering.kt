@@ -61,7 +61,17 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             ) {
                 this
             } else {
-                this.leggTilSporsmaal(andreInntektskilderV2(!this.ghostInntekter.isNullOrEmpty()))
+                if (!this.ghostInntekter.isNullOrEmpty()) {
+                    this.leggTilSporsmaal(
+                        flereInntektskilderGhost(
+                            andreKjenteInntektskilder = this.ghostInntekter,
+                            fom = this.fom,
+                            tom = this.tom!!,
+                        ),
+                    )
+                } else {
+                    this.leggTilSporsmaal(andreInntektskilderV2())
+                }
             }
         }
         ANNET -> {
@@ -70,7 +80,7 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
                 .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
         }
         else -> {
-            this.leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
+            throw IllegalStateException("Friskmeldt mutering støttes ikke for arbeidssituasjon ${this.arbeidssituasjon}")
         }
     }.leggTilSporsmaal(skalStilleNyEOSSporsmal)
 }
