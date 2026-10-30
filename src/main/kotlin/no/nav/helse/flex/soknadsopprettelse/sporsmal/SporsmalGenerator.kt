@@ -318,27 +318,26 @@ class SporsmalGenerator(
     private fun tilkommenInntektGrunnlagHenting(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
-    ): List<ArbeidsforholdFraAAreg>? {
-        if (soknad.arbeidssituasjon == ARBEIDSTAKER) {
-            if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
-                log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
-                return aaregDataHenting.hentNyeArbeidsforhold(
-                    fnr = soknad.fnr,
-                    sykepengesoknad = soknad,
-                    eksisterendeSoknader = eksisterendeSoknader,
-                )
-            } else {
+    ): List<ArbeidsforholdFraAAreg>? =
+        if (soknad.arbeidssituasjon != ARBEIDSTAKER) {
+            log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er ${soknad.arbeidssituasjon}")
+            null
+        } else {
+            if (!soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
                 log.info(
                     "Leter ikke etter nye arbeidsforhold for person med soknad ${soknad.id} siden søknaden " +
                         "er estimert helt innenfor agp",
                 )
-                return null
+                null
+            } else {
+                log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
+                aaregDataHenting.hentNyeArbeidsforhold(
+                    fnr = soknad.fnr,
+                    sykepengesoknad = soknad,
+                    eksisterendeSoknader = eksisterendeSoknader,
+                )
             }
-        } else {
-            log.info("Leter ikke etter nye arbeidsforhold for soknad ${soknad.id} siden arbeidssituasjon er ${soknad.arbeidssituasjon}")
-            return null
         }
-    }
 
     private fun lagMedlemsskapSporsmalResultat(
         eksisterendeSoknader: List<Sykepengesoknad>,
