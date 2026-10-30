@@ -13,6 +13,8 @@ import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
 import no.nav.helse.flex.repository.SoknadLagrer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.soknadsopprettelse.FLERE_INNTEKTSKILDER_GRUPPE
+import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be null`
@@ -36,21 +38,64 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
     fun `utenlandssøknader uten datoer påvirker ikke nye arbeidsforhold`(arbeidssituasjon: Arbeidssituasjon) {
         val soknad = opprettSoknadMedUtenlandssoknaderIHistorikken(arbeidssituasjon)
 
-        klargjorArbeidsforholdOgInntekter(soknad)
+        InntektskomponentenMockDispatcher.enqueue(skapHentInntekterResponse(fnr = soknad.fnr))
         sporsmalGenerator.lagSporsmalPaSoknad(soknad.id)
 
         sjekkArbeidsforholdFraAareg(soknad.id, forventedeOrgnumre = emptyList())
         sjekkGhostInntekter(soknad.id, forventedeOrgnumre = emptyList())
 
         leggTilTidligereSykefravar(soknad)
-        klargjorArbeidsforholdOgInntekter(soknad)
+        if (soknad.erTilsvarendeArbeidstaker()) {
+            klargjorArbeidsforholdFraAareg(soknad)
+        }
+        InntektskomponentenMockDispatcher.enqueue(skapHentInntekterResponse(fnr = soknad.fnr))
         sporsmalGenerator.lagSporsmalPaSoknad(soknad.id)
 
-        sjekkArbeidsforholdFraAareg(soknad.id, forventedeOrgnumre = listOf("999333666"))
-        sjekkGhostInntekter(
+        sjekkArbeidsforholdFraAareg(
             soknad.id,
-            forventedeOrgnumre = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) emptyList() else listOf("999333666"),
+            forventedeOrgnumre = if (soknad.erTilsvarendeArbeidstaker()) listOf("999333666") else emptyList(),
         )
+        sjekkGhostInntekter(soknad.id, forventedeOrgnumre = emptyList())
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Arbeidssituasjon::class, names = ["ARBEIDSTAKER", "FISKER", "ANNET"], mode = EnumSource.Mode.EXCLUDE)
+    fun `andre arbeidssituasjoner får ghost fra inntektskomponenten uten å hente nye arbeidsforhold fra Aareg`(
+        arbeidssituasjon: Arbeidssituasjon,
+    ) {
+        val soknad = opprettSoknadMedUtenlandssoknaderIHistorikken(arbeidssituasjon)
+        leggTilTidligereSykefravar(soknad)
+        InntektskomponentenMockDispatcher.enqueue(
+            skapHentInntekterResponse(fnr = soknad.fnr, loennsinntektOrgnumre = listOf("999333666")),
+        )
+
+        sporsmalGenerator.lagSporsmalPaSoknad(soknad.id)
+
+        sjekkArbeidsforholdFraAareg(soknad.id, forventedeOrgnumre = emptyList())
+        sjekkGhostInntekter(soknad.id, forventedeOrgnumre = listOf("999333666"))
+        val lagretSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
+        lagretSoknad.ghostInntekter!!.single().kilde `should be equal to` Kilde.INNTEKTSKOMPONENTEN
+        lagretSoknad.sporsmal.count { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } `should be equal to` 1
+        lagretSoknad.sporsmal.none { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) } `should be equal to` true
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(FiskerLottOgHyre::class)
+    fun `fiskere henter ikke nye arbeidsforhold fra Aareg heller ikke utenfor arbeidsgiverperioden`(fiskerLottOgHyre: FiskerLottOgHyre) {
+        val soknad =
+            opprettSoknadMedUtenlandssoknaderIHistorikken(Arbeidssituasjon.FISKER).copy(
+                fiskerLottOgHyre = fiskerLottOgHyre,
+                arbeidsgiverOrgnummer = "999333777",
+                arbeidsgiverNavn = "Arbeidsgiveren AS",
+            )
+        soknadLagrer.lagreSoknad(soknad)
+        leggTilTidligereSykefravar(soknad)
+        InntektskomponentenMockDispatcher.enqueue(skapHentInntekterResponse(fnr = soknad.fnr))
+
+        sporsmalGenerator.lagSporsmalPaSoknad(soknad.id)
+
+        sjekkArbeidsforholdFraAareg(soknad.id, forventedeOrgnumre = emptyList())
+        sjekkGhostInntekter(soknad.id, forventedeOrgnumre = emptyList())
     }
 
     @ParameterizedTest(name = "{0}")
@@ -122,7 +167,7 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
         )
     }
 
-    private fun klargjorArbeidsforholdOgInntekter(soknad: Sykepengesoknad) {
+    private fun klargjorArbeidsforholdFraAareg(soknad: Sykepengesoknad) {
         AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(
@@ -133,7 +178,6 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
                 ),
             ),
         )
-        InntektskomponentenMockDispatcher.enqueue(skapHentInntekterResponse(fnr = soknad.fnr))
     }
 
     private fun sjekkArbeidsforholdFraAareg(
