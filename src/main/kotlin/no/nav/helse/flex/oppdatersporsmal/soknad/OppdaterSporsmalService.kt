@@ -73,7 +73,7 @@ class OppdaterSporsmalService(
                 .arbeidGjenopptattMutering()
                 .jobbsituasjonenDinMutering()
                 .oppdaterMedSvarPaUtlandsopphold() // TODO: denne kan fjernes helt etterhvert
-                .naringsdrivendeErstattGamleSporsmalMutering() // TODO: denne kan fjernes november 2026
+                .naringsdrivendeErstattGamleSporsmalMutering() // TODO: denne kan fjernes 2027-01-28
                 .naringsdrivendeMutering()
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
