@@ -9,6 +9,21 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 
+fun flereInntektskilderGhostEllerAndreInntekterV2(
+    fom: LocalDate,
+    tom: LocalDate,
+    ghostInntekter: List<KjentInntektskilde>,
+): Sporsmal =
+    if (ghostInntekter.isNotEmpty()) {
+        flereInntektskilderGhost(
+            andreKjenteInntektskilder = ghostInntekter,
+            fom = fom,
+            tom = tom,
+        )
+    } else {
+        andreInntektskilderV2()
+    }
+
 fun flereInntektskilderGhost(
     andreKjenteInntektskilder: List<KjentInntektskilde>,
     fom: LocalDate,

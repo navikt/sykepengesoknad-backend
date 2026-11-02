@@ -22,6 +22,7 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.getSporsmalMedTag
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
@@ -214,17 +215,18 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 .besvarSporsmal(FRISKMELDT, "NEI", ferdigBesvart = false)
                 .besvarSporsmal(FRISKMELDT_START, basisdato.minusDays(20).toString(), mutert = true)
 
-        friskFraStart.rSSykepengesoknad.`har kun flere inntektskilder gruppe spørsmål`()
+        friskFraStart.rSSykepengesoknad.getSporsmalMedTagOrNull(FLERE_INNTEKTSKILDER_GRUPPE).`should be null`()
+        friskFraStart.rSSykepengesoknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2).`should be null`()
 
         val friskMidtI =
             friskFraStart
                 .besvarSporsmal(FRISKMELDT_START, basisdato.minusDays(12).toString(), mutert = true)
 
-        friskMidtI.rSSykepengesoknad.`har kun flere inntektskilder gruppe spørsmål`()
+        friskMidtI.rSSykepengesoknad.`har flere inntektskilder gruppe spørsmål`()
     }
 }
 
-private fun RSSykepengesoknad.`har kun flere inntektskilder gruppe spørsmål`() {
+private fun RSSykepengesoknad.`har flere inntektskilder gruppe spørsmål`() {
     this.sporsmal!!.count { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } `should be equal to` 1
     this.sporsmal.none { it.tag == ANDRE_INNTEKTSKILDER_V2 } `should be equal to` true
 }

@@ -120,7 +120,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 fnr = fnr,
             ).first()
 
-        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(6)
+        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(5)
 
         SoknadBesvarer(soknadEtterOppdatering, this, fnr)
             .besvarSporsmal(FRISKMELDT, "JA", mutert = true)

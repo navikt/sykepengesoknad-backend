@@ -24,7 +24,6 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
     val friskmeldtDato = this.finnGyldigDatoSvar(FRISKMELDT, FRISKMELDT_START, relevantSvarVerdi = "NEI")
     if (friskmeldtDato != null) {
         if (friskmeldtDato == this.fom) {
-            // Fjerner spørsmål som forsvinner
             return this.copy(
                 sporsmal =
                     sporsmal
@@ -33,6 +32,8 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag == ARBEIDSLEDIG_UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER }
+                        .filterNot { (_, tag) -> tag == FLERE_INNTEKTSKILDER_GRUPPE }
+                        .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER_V2 }
                         .filterNot { (_, tag) -> tag == PERMISJON_V2 }
                         .toMutableList(),
             )
@@ -53,45 +54,20 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
         }
 
-    return when (this.arbeidssituasjon) {
-        Arbeidssituasjon.ARBEIDSLEDIG -> {
-            this.leggTilAndreInntektskilderOmMangler()
+    return this
+        .leggTilSporsmaal(skalStilleNyEOSSporsmal)
+        .fjernSporsmal(ANDRE_INNTEKTSKILDER)
+        .leggTilSporsmaal(
+            flereInntektskilderGhostEllerAndreInntekterV2(
+                fom = this.fom,
+                tom = oppdatertTom,
+                ghostInntekter = this.ghostInntekter ?: emptyList(),
+            ),
+        ).let {
+            if (arbeidssituasjon == ANNET) {
+                it.leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
+            } else {
+                it
+            }
         }
-        ANNET -> {
-            this
-                .leggTilAndreInntektskilderOmMangler()
-                .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
-        }
-        else -> {
-            throw IllegalStateException("Friskmeldt mutering støttes ikke for arbeidssituasjon ${this.arbeidssituasjon}")
-        }
-    }.leggTilSporsmaal(skalStilleNyEOSSporsmal)
-}
-
-fun Sykepengesoknad.leggTilAndreInntektskilderOmMangler(): Sykepengesoknad {
-    val harInntektskildesporsmal =
-        this.sporsmal.any {
-            it.tag in
-                listOf(
-                    ANDRE_INNTEKTSKILDER,
-                    ANDRE_INNTEKTSKILDER_V2,
-                    FLERE_INNTEKTSKILDER_GRUPPE,
-                )
-        }
-
-    return if (harInntektskildesporsmal) {
-        this
-    } else {
-        if (!this.ghostInntekter.isNullOrEmpty()) {
-            this.leggTilSporsmaal(
-                flereInntektskilderGhost(
-                    andreKjenteInntektskilder = this.ghostInntekter,
-                    fom = this.fom!!,
-                    tom = this.tom!!,
-                ),
-            )
-        } else {
-            this.leggTilSporsmaal(andreInntektskilderV2())
-        }
-    }
 }
