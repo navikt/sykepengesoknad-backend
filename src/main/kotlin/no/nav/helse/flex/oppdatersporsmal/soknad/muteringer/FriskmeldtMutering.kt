@@ -60,7 +60,7 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
         ANNET -> {
             this
                 .leggTilAndreInntektskilderOmMangler()
-                .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom)) // Rename sporsmal til permisjonSporsmalV2?
+                .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
         }
         else -> {
             throw IllegalStateException("Friskmeldt mutering støttes ikke for arbeidssituasjon ${this.arbeidssituasjon}")
