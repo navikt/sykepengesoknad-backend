@@ -251,13 +251,22 @@ class SporsmalGenerator(
                 )
             }
 
-            ANNET ->
-                settOppSoknadAnnetArbeidsforhold(
-                    sykepengesoknad = soknad,
-                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
-                    harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+            ANNET -> {
+                val inntektsgrunnlag = hentArbeidsforhold(soknad, eksisterendeSoknader)
+                SporsmalOgAndreKjenteArbeidsforhold(
+                    sporsmal =
+                        settOppSoknadAnnetArbeidsforhold(
+                            sykepengesoknad = soknad,
+                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                        ),
+                    andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                    arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                )
+            }
 
             else -> {
                 throw RuntimeException(

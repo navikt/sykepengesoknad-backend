@@ -55,32 +55,43 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
 
     return when (this.arbeidssituasjon) {
         Arbeidssituasjon.ARBEIDSLEDIG -> {
-            if (sporsmal.any {
-                    it.tag in listOf(ANDRE_INNTEKTSKILDER, ANDRE_INNTEKTSKILDER_V2, FLERE_INNTEKTSKILDER_GRUPPE)
-                }
-            ) {
-                this
-            } else {
-                if (!this.ghostInntekter.isNullOrEmpty()) {
-                    this.leggTilSporsmaal(
-                        flereInntektskilderGhost(
-                            andreKjenteInntektskilder = this.ghostInntekter,
-                            fom = this.fom,
-                            tom = this.tom!!,
-                        ),
-                    )
-                } else {
-                    this.leggTilSporsmaal(andreInntektskilderV2())
-                }
-            }
+            this.leggTilAndreInntektskilderOmMangler()
         }
         ANNET -> {
             this
-                .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
-                .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
+                .leggTilAndreInntektskilderOmMangler()
+                .leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom)) // Rename sporsmal til permisjonSporsmalV2?
         }
         else -> {
             throw IllegalStateException("Friskmeldt mutering støttes ikke for arbeidssituasjon ${this.arbeidssituasjon}")
         }
     }.leggTilSporsmaal(skalStilleNyEOSSporsmal)
+}
+
+fun Sykepengesoknad.leggTilAndreInntektskilderOmMangler(): Sykepengesoknad {
+    val harInntektskildesporsmal =
+        this.sporsmal.any {
+            it.tag in
+                listOf(
+                    ANDRE_INNTEKTSKILDER,
+                    ANDRE_INNTEKTSKILDER_V2,
+                    FLERE_INNTEKTSKILDER_GRUPPE,
+                )
+        }
+
+    return if (harInntektskildesporsmal) {
+        this
+    } else {
+        if (!this.ghostInntekter.isNullOrEmpty()) {
+            this.leggTilSporsmaal(
+                flereInntektskilderGhost(
+                    andreKjenteInntektskilder = this.ghostInntekter,
+                    fom = this.fom!!,
+                    tom = this.tom!!,
+                ),
+            )
+        } else {
+            this.leggTilSporsmaal(andreInntektskilderV2())
+        }
+    }
 }

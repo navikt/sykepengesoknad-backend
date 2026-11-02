@@ -52,7 +52,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT,
                 PERMISJON_V2,
                 ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
@@ -68,9 +68,9 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        assertThat(soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst)
+        assertThat(soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).sporsmalstekst)
             .isEqualTo(
-                "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 10. januar 2018?",
+                "Har du annen inntekt eller oppdrag?",
             )
 
         assertThat(soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst)
@@ -90,9 +90,9 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
             ).also {
                 val oppdatertSoknad = it.rSSykepengesoknad
 
-                assertThat(oppdatertSoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst)
+                assertThat(oppdatertSoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).sporsmalstekst)
                     .isEqualTo(
-                        "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. januar 2018?",
+                        "Har du annen inntekt eller oppdrag?",
                     )
 
                 assertThat(oppdatertSoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst)
@@ -126,6 +126,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
+                        ANDRE_INNTEKTSKILDER_V2,
                         TIL_SLUTT,
                     ),
                 )
@@ -146,6 +147,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
+                ANDRE_INNTEKTSKILDER_V2,
                 TIL_SLUTT,
             ),
         )
@@ -159,7 +161,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                         FRISKMELDT,
                         PERMISJON_V2,
                         ARBEID_UTENFOR_NORGE,
-                        ANDRE_INNTEKTSKILDER,
+                        ANDRE_INNTEKTSKILDER_V2,
                         OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
                     ),
@@ -182,7 +184,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 .besvarSporsmal(FRISKMELDT, "JA")
                 .besvarSporsmal(PERMISJON_V2, "NEI")
                 .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-                .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
+                .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
                 .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                 .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
                 .oppsummering()
