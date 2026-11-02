@@ -34,7 +34,7 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
     private lateinit var sporsmalGenerator: SporsmalGenerator
 
     @ParameterizedTest(name = "{0}")
-    @EnumSource(Arbeidssituasjon::class, names = ["FISKER", "ANNET"], mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(Arbeidssituasjon::class, names = ["FISKER"], mode = EnumSource.Mode.EXCLUDE)
     fun `utenlandssøknader uten datoer påvirker ikke nye arbeidsforhold`(arbeidssituasjon: Arbeidssituasjon) {
         val soknad = opprettSoknadMedUtenlandssoknaderIHistorikken(arbeidssituasjon)
 
@@ -59,7 +59,7 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
     }
 
     @ParameterizedTest(name = "{0}")
-    @EnumSource(Arbeidssituasjon::class, names = ["ARBEIDSTAKER", "FISKER", "ANNET"], mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(Arbeidssituasjon::class, names = ["ARBEIDSTAKER", "FISKER"], mode = EnumSource.Mode.EXCLUDE)
     fun `andre arbeidssituasjoner får ghost fra inntektskomponenten uten å hente nye arbeidsforhold fra Aareg`(
         arbeidssituasjon: Arbeidssituasjon,
     ) {
@@ -99,7 +99,7 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
     }
 
     @ParameterizedTest(name = "{0}")
-    @EnumSource(Arbeidssituasjon::class, names = ["FISKER", "ANNET"])
+    @EnumSource(Arbeidssituasjon::class, names = ["FISKER"])
     fun `utenlandssøknader uten datoer hindrer ikke spørsmål for arbeidssituasjoner uten nye arbeidsforhold`(
         arbeidssituasjon: Arbeidssituasjon,
     ) {
