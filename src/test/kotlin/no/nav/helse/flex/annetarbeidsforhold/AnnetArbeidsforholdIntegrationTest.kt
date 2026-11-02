@@ -126,6 +126,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
+                        ANDRE_INNTEKTSKILDER_V2,
                         TIL_SLUTT,
                     ),
                 )
@@ -146,6 +147,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
+                ANDRE_INNTEKTSKILDER_V2,
                 TIL_SLUTT,
             ),
         )
