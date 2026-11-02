@@ -10,6 +10,7 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
+import java.time.LocalDate
 
 fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
     if (erIkkeAvType(ANNET_ARBEIDSFORHOLD, ARBEIDSLEDIG, GRADERT_REISETILSKUDD)) {
@@ -56,14 +57,8 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
 
     return this
         .leggTilSporsmaal(skalStilleNyEOSSporsmal)
-        .fjernSporsmal(ANDRE_INNTEKTSKILDER)
-        .leggTilSporsmaal(
-            flereInntektskilderGhostEllerAndreInntekterV2(
-                fom = this.fom,
-                tom = oppdatertTom,
-                ghostInntekter = this.ghostInntekter ?: emptyList(),
-            ),
-        ).let {
+        .muterAndreInntekter(oppdatertTom)
+        .let {
             if (arbeidssituasjon == ANNET) {
                 it.leggTilSporsmaal(permisjonSporsmal(this.fom, oppdatertTom))
             } else {
@@ -71,3 +66,20 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             }
         }
 }
+
+fun Sykepengesoknad.muterAndreInntekter(oppdatertTom: LocalDate): Sykepengesoknad =
+    this
+        .fjernSporsmal(ANDRE_INNTEKTSKILDER)
+        .let { soknad ->
+            if (!this.ghostInntekter.isNullOrEmpty() && this.sporsmal.any { it.tag == ANDRE_INNTEKTSKILDER_V2 }) {
+                soknad.fjernSporsmal(ANDRE_INNTEKTSKILDER_V2)
+            } else {
+                soknad
+            }
+        }.leggTilSporsmaal(
+            flereInntektskilderGhostEllerAndreInntekterV2(
+                fom = this.fom!!,
+                tom = oppdatertTom,
+                ghostInntekter = this.ghostInntekter ?: emptyList(),
+            ),
+        )
