@@ -47,6 +47,8 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
                         .filterNot { (_, tag) -> tag in OPPRETTHOLDT_INNTEKT_TAGS }
+                        .filterNot { (_, tag) -> tag == FLERE_INNTEKTSKILDER_GRUPPE }
+                        .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER_V2 }
                         .toMutableList(),
             )
         }
@@ -136,4 +138,5 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         }.filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
             )
         }.let { it.copy(sporsmal = it.sporsmal.filter { spm -> fjernIndexFraTag(spm.tag) !in sporsmalSomSkalFjernes }) }
+        .muterAndreInntekter(oppdatertTom)
 }

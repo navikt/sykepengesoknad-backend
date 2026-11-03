@@ -79,6 +79,27 @@ class ArbeidGjenopptattMuteringTest {
             }
 
         @TestFactory
+        fun `muter vekk og gjenopprett spørsmål arbeid gjenopptatt`() =
+            forHverSoknadstype { soknad ->
+                soknad.sporsmal.shouldHaveSize(9)
+
+                val mutertSoknad =
+                    soknad
+                        .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+                        .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
+                        .arbeidGjenopptattMutering()
+
+                mutertSoknad.sporsmal.shouldHaveSize(3)
+
+                val mutertGjenopprettSoknad =
+                    soknad
+                        .besvarsporsmal(TILBAKE_I_ARBEID, "NEI")
+                        .arbeidGjenopptattMutering()
+
+                mutertGjenopprettSoknad.sporsmal.shouldHaveSize(9)
+            }
+
+        @TestFactory
         fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() =
             forHverSoknadstype { soknad ->
                 val soknadMedEgenPermisjonSpmTekst =
@@ -309,7 +330,7 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
                     .arbeidGjenopptattMutering()
 
-            mutertSoknad.sporsmal.shouldHaveSize(9)
+            mutertSoknad.sporsmal.shouldHaveSize(8)
 
             val mutertGjenopprettSoknad =
                 soknad

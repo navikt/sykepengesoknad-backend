@@ -207,7 +207,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             ).first()
 
-        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(5)
+        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(4)
 
         SoknadBesvarer(soknadEtterOppdatering, this, fnr)
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI", mutert = true)
