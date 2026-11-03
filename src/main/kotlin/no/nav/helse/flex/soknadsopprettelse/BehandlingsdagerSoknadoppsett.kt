@@ -1,22 +1,14 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Arbeidssituasjon.ANNET
-import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
-import no.nav.helse.flex.domain.Arbeidssituasjon.BARNEPASSER
-import no.nav.helse.flex.domain.Arbeidssituasjon.FISKER
-import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
-import no.nav.helse.flex.domain.Arbeidssituasjon.JORDBRUKER
-import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.behandlingsdagerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.flereInntektskilderGhostEllerAndreInntekterV2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 
 fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int =
@@ -26,25 +18,12 @@ fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int =
         FERIE_V2 -> 103
         ARBEID_UTENFOR_NORGE -> 104
         ANDRE_INNTEKTSKILDER -> 105
+        ANDRE_INNTEKTSKILDER_V2 -> 105
+        FLERE_INNTEKTSKILDER_GRUPPE -> 105
         VAER_KLAR_OVER_AT -> 106
         BEKREFT_OPPLYSNINGER -> 107
         TIL_SLUTT -> 110
         else -> plasseringAvSporsmalSomKanRepeteresFlereGanger()
-    }
-
-fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal =
-    when (soknadMetadata.arbeidssituasjon) {
-        FISKER,
-        JORDBRUKER,
-        BARNEPASSER,
-        NAERINGSDRIVENDE,
-        -> andreInntektskilderSelvstendigOgFrilanser(NAERINGSDRIVENDE)
-
-        FRILANSER -> andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon)
-        ARBEIDSTAKER -> andreInntektskilderArbeidstaker(soknadMetadata.arbeidsgiverNavn)
-        ARBEIDSLEDIG -> andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!)
-        ANNET -> andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!)
-        null -> throw RuntimeException("Skal ikke skje")
     }
 
 private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int =
@@ -57,16 +36,21 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int =
 fun settOppSykepengesoknadBehandlingsdager(
     sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
+    ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> =
     mutableListOf(
         ansvarserklaringSporsmal(),
-        andreInntekstkilder(sykepengesoknad),
+        flereInntektskilderGhostEllerAndreInntekterV2(
+            fom = sykepengesoknad.fom!!,
+            tom = sykepengesoknad.tom!!,
+            ghostInntekter = ghostInntekter,
+        ),
     ).also {
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
         }
         if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
-            it.add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+            it.add(ferieSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
         }
         it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
         it.add(tilSlutt())

@@ -20,7 +20,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.behandingsdager
+import no.nav.helse.flex.testdata.behandlingsdager
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
@@ -571,7 +571,7 @@ class OverlapperEtter : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    behandingsdager(
+                    behandlingsdager(
                         fom = basisdato.minusDays(10),
                         tom = basisdato.minusDays(1),
                         behandlingsdager = 2,
@@ -613,7 +613,7 @@ class OverlapperEtter : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    behandingsdager(
+                    behandlingsdager(
                         fom = basisdato.plusDays(5),
                         tom = basisdato.plusDays(15),
                         behandlingsdager = 2,

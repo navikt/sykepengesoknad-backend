@@ -105,12 +105,11 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Behandlingsdager henter andre inntektskilder`() {
+    fun `Behandlingsdager henter ANDRE_INNTEKTSKILDER_V2`() {
         val soknad =
             opprettBehandlingsdagsoknadTestadata()
-                .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "JA")
+                .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA")
                 .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
-                .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, svar = "JA")
 
         val andreInntektskilder =
             konverterTilSykepengesoknadDTO(
@@ -123,7 +122,6 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
         andreInntektskilder.shouldHaveSize(1)
 
         andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
-        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(true)
     }
 
     @Test

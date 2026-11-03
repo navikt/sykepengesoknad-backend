@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -8,8 +7,6 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderV2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
@@ -45,50 +42,6 @@ class UnderersporsmalSortererTest {
                 INNTEKTSKILDE_STYREVERV,
             )
         soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
-    }
-
-    @Test
-    fun `Test sortering av spørsmål om andre inntektskilder frilansersøknad`() {
-        val sporsmalet = andreInntektskilderSelvstendigOgFrilanser(Arbeidssituasjon.FRILANSER)
-        val soknad = sporsmalet.tilSoknad()
-
-        val soknadShufflet = soknad.shuffleSporsmalRekursivt()
-        val soknadSortert = soknadShufflet.sorterUndersporsmal()
-
-        val forventetSortering =
-            listOf(
-                INNTEKTSKILDE_ARBEIDSFORHOLD,
-                INNTEKTSKILDE_JORDBRUKER,
-                INNTEKTSKILDE_FRILANSER_SELVSTENDIG,
-                INNTEKTSKILDE_ANNET,
-            )
-        soknadSortert
-            .getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-            .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
-    }
-
-    @Test
-    fun `Test sortering av spørsmål om andre inntektskilder arbeidstakersøknad`() {
-        val sporsmalet = andreInntektskilderArbeidstaker("Staten")
-        val soknad = sporsmalet.tilSoknad()
-
-        val soknadShufflet = soknad.shuffleSporsmalRekursivt()
-        val soknadSortert = soknadShufflet.sorterUndersporsmal()
-
-        val forventetSortering =
-            listOf(
-                INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
-                INNTEKTSKILDE_SELVSTENDIG,
-                INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-                INNTEKTSKILDE_JORDBRUKER,
-                INNTEKTSKILDE_FRILANSER,
-                INNTEKTSKILDE_ANNET,
-            )
-        soknadSortert
-            .getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-            .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
     }
 
     @Test

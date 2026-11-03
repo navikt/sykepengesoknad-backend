@@ -107,7 +107,7 @@ class MedlemskapSoknadstypeIntegrationTest : FellesTestOppsett() {
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     fnr = fnr,
                     sykmeldingsperioder =
-                        behandingsdager(
+                        behandlingsdager(
                             fom = fom,
                             tom = tom,
                         ),

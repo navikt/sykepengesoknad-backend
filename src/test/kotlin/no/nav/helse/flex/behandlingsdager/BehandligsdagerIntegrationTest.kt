@@ -15,7 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.AVBRUTT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
-import no.nav.helse.flex.testdata.behandingsdager
+import no.nav.helse.flex.testdata.behandlingsdager
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
@@ -45,12 +45,12 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
 
     @Test
     @Order(1)
-    fun `behandingsdagsøknad opprettes for en lang sykmelding`() {
+    fun `behandlingsdagsøknad opprettes for en lang sykmelding`() {
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     fnr = fnr,
-                    sykmeldingsperioder = behandingsdager(),
+                    sykmeldingsperioder = behandlingsdager(),
                 ),
             )
 
@@ -95,7 +95,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
                 svar = "${rsSykepengesoknad.fom}",
@@ -167,7 +167,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = behandingsdager(),
+                sykmeldingsperioder = behandlingsdager(),
             ),
         )
 
