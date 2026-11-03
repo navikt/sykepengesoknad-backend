@@ -11,7 +11,7 @@ import no.nav.helse.flex.mock.opprettNySoknadAnnet
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
-import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.muterErstattGammelAndreInntektskilder
+import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.erstattGammelAndreInntektskilderMutering
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -139,7 +139,7 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
         soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER).shouldNotBeNull()
         soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2).shouldBeNull()
 
-        val mutertSoknad = soknad.muterErstattGammelAndreInntektskilder()
+        val mutertSoknad = soknad.erstattGammelAndreInntektskilderMutering()
 
         mutertSoknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER).shouldBeNull()
         mutertSoknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2).shouldNotBeNull()
