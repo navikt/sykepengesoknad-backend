@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.testdata.behandingsdager
+import no.nav.helse.flex.testdata.behandlingsdager
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.assertj.core.api.Assertions.assertThat
@@ -29,7 +29,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    behandingsdager(
+                    behandlingsdager(
                         fom = LocalDate.of(2018, 1, 1),
                         tom = LocalDate.of(2018, 1, 10),
                     ),
@@ -41,7 +41,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    behandingsdager(
+                    behandlingsdager(
                         fom = LocalDate.of(2018, 1, 11),
                         tom = LocalDate.of(2018, 1, 12),
                     ),

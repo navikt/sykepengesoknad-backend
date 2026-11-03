@@ -7,7 +7,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.testdata.behandingsdager
+import no.nav.helse.flex.testdata.behandlingsdager
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -100,7 +100,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    behandingsdager(
+                    behandlingsdager(
                         fom = LocalDate.of(2025, 9, 1),
                         tom = LocalDate.of(2025, 9, 21),
                     ),

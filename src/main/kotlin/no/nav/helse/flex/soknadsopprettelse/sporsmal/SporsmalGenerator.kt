@@ -139,10 +139,19 @@ class SporsmalGenerator(
 
         when (soknad.soknadstype) {
             Soknadstype.BEHANDLINGSDAGER -> {
-                return settOppSykepengesoknadBehandlingsdager(
-                    sykepengesoknad = soknad,
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+                val inntektsgrunnlag = hentArbeidsforhold(soknad, eksisterendeSoknader)
+
+                return SporsmalOgAndreKjenteArbeidsforhold(
+                    sporsmal =
+                        settOppSykepengesoknadBehandlingsdager(
+                            sykepengesoknad = soknad,
+                            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                        ),
+                    andreKjenteArbeidsforhold = inntektsgrunnlag.andreKjenteArbeidsforhold,
+                    arbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
+                    ghostInntekter = inntektsgrunnlag.ghostInntekter,
+                )
             }
 
             Soknadstype.REISETILSKUDD -> {

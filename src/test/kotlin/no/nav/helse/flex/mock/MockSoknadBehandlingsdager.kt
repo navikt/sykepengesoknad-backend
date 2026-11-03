@@ -64,6 +64,7 @@ fun opprettBehandlingsdagsoknadTestadata(
             settOppSykepengesoknadBehandlingsdager(
                 sykepengesoknad = soknadMetadata,
                 erForsteSoknadISykeforlop = forsteSoknadIForlop,
+                ghostInntekter = emptyList(),
             ),
     )
 }

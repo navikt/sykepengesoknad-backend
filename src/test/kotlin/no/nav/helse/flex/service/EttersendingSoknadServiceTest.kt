@@ -156,6 +156,7 @@ class EttersendingSoknadServiceTest {
                 settOppSykepengesoknadBehandlingsdager(
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
+                    ghostInntekter = emptyList(),
                 ),
         )
     }

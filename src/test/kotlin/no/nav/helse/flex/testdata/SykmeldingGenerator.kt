@@ -370,7 +370,7 @@ fun avventende(
         ),
     )
 
-fun behandingsdager(
+fun behandlingsdager(
     fom: LocalDate = LocalDate.of(2018, 1, 1),
     tom: LocalDate = LocalDate.of(2018, 1, 10),
     behandlingsdager: Int = 1,

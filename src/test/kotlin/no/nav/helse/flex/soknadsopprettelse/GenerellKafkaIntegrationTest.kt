@@ -172,7 +172,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                             fom = LocalDate.of(2020, 5, 4),
                             tom = LocalDate.of(2020, 5, 18),
                         ) +
-                            behandingsdager(
+                            behandlingsdager(
                                 fom = LocalDate.of(2019, 3, 28),
                                 tom = LocalDate.of(2020, 1, 6),
                                 behandlingsdager = 4,
