@@ -59,6 +59,7 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 harTidligereUtenlandskSpm = false,
                 erForsteSoknadISykeforlop = false,
+                ghostInntekter = emptyList(),
             ),
     )
 }
