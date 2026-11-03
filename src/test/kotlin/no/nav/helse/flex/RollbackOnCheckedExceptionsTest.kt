@@ -1,9 +1,9 @@
 package no.nav.helse.flex
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingDbRecord
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
-import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.shouldHaveSize
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,7 +32,7 @@ class RollbackOnCheckedExceptionsTest : FellesTestOppsett() {
     @Test
     fun `Transactional ruller ikke tilbake når Kafka kaster Checked Exception`() {
         val e = assertThrows<ExecutionException> { mockService.sendMeldingRullerIkkeTilbake() }
-        e `should be instance of` ExecutionException::class
+        e.shouldBeInstanceOf<ExecutionException>()
 
         val findAll = medlemskapVurderingRepository.findAll()
         findAll shouldHaveSize 1
@@ -41,7 +41,7 @@ class RollbackOnCheckedExceptionsTest : FellesTestOppsett() {
     @Test
     fun `Transactional ruller ikke tilbake når Kafka kaster Checked Exception når vi setter rollbackFor`() {
         val e = assertThrows<ExecutionException> { mockService.sendMeldingRullerTilbake() }
-        e `should be instance of` ExecutionException::class
+        e.shouldBeInstanceOf<ExecutionException>()
 
         val findAll = medlemskapVurderingRepository.findAll()
         findAll shouldHaveSize 0

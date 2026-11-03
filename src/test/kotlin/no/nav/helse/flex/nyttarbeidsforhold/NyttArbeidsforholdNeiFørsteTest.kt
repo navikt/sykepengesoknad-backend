@@ -1,11 +1,14 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 
@@ -33,17 +36,17 @@ class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
 
-        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.SENDT
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
         kafkaSoknader[0]
             .inntektFraNyttArbeidsforhold!!
             .first()
             .harJobbet
-            .`should be false`()
+            .shouldBeFalse()
         kafkaSoknader[0]
             .inntektFraNyttArbeidsforhold!!
             .first()
             .belop
-            .`should be null`()
+            .shouldBeNull()
     }
 }

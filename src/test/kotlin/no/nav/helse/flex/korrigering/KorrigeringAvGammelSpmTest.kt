@@ -1,5 +1,6 @@
 package no.nav.helse.flex.korrigering
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
@@ -9,7 +10,6 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
-import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -52,7 +52,7 @@ class KorrigeringAvGammelSpmTest : FellesTestOppsett() {
             )
         val soknad = opprettNySoknad().copy(sporsmal = oppdatertSpormalsListe, status = Soknadstatus.SENDT)
 
-        soknad.status.shouldBeEqualTo(Soknadstatus.SENDT)
+        soknad.status.shouldBe(Soknadstatus.SENDT)
 
         assertThat(soknad.sporsmal.map { it.tag }).isEqualTo(
             listOf("VAER_KLAR_OVER_AT", "BEKREFT_OPPLYSNINGER"),

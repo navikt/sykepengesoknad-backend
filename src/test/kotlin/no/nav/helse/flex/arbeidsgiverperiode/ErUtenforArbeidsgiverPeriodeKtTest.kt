@@ -1,10 +1,10 @@
 package no.nav.helse.flex.arbeidsgiverperiode
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.`should be true`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -17,7 +17,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 12),
             )
 
-        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
+        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeFalse()
     }
 
     @Test
@@ -28,7 +28,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 16),
             )
 
-        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
+        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeFalse()
     }
 
     @Test
@@ -39,7 +39,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 17),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeFalse()
     }
 
     @Test
@@ -50,7 +50,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 16),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeFalse()
     }
 
     @Test
@@ -61,7 +61,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 15),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeTrue()
     }
 
     @Test
@@ -72,7 +72,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 14),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeTrue()
     }
 
     @Test
@@ -83,7 +83,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 20),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeTrue()
     }
 
     @Test
@@ -103,7 +103,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                     ).serialisertTilString(),
             )
 
-        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
+        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).shouldBeTrue()
     }
 
     @Test
@@ -122,7 +122,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                         tom = LocalDate.of(2022, 7, 10),
                     ),
                 ),
-            ).`should be true`()
+            ).shouldBeTrue()
     }
 
     @Test
@@ -141,7 +141,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                         tom = LocalDate.of(2022, 7, 10),
                     ),
                 ),
-            ).`should be false`()
+            ).shouldBeFalse()
     }
 
     @Test
@@ -160,7 +160,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                         tom = LocalDate.of(2024, 7, 15),
                     ),
                 ),
-            ).`should be false`()
+            ).shouldBeFalse()
     }
 
     @Test
@@ -179,7 +179,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                         tom = LocalDate.of(2024, 7, 15),
                     ),
                 ),
-            ).`should be true`()
+            ).shouldBeTrue()
     }
 
     @Test
@@ -198,7 +198,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                         tom = LocalDate.of(2024, 7, 18),
                     ),
                 ),
-            ).`should be false`()
+            ).shouldBeFalse()
     }
 }
 

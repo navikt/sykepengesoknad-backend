@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.SoknadKafkaFormatController.HentSoknaderRequest
 import no.nav.helse.flex.sendSykmelding
@@ -10,7 +11,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.kafka.NAV_CALLID
-import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -71,8 +71,8 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                 sykmeldingSkrevet = sykmeldingSkrevet?.truncatedTo(SECONDS),
             )
 
-        fraRest.fjernMs().shouldBeEqualTo(kafkaSoknad.fjernMs())
-        fraRest.fjernMs().shouldBeEqualTo(listeFraRest[0].fjernMs())
+        fraRest.fjernMs().shouldBe(kafkaSoknad.fjernMs())
+        fraRest.fjernMs().shouldBe(listeFraRest[0].fjernMs())
     }
 
     @Test

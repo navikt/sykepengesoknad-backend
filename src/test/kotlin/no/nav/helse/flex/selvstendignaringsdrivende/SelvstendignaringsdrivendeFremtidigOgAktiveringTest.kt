@@ -1,5 +1,15 @@
 package no.nav.helse.flex.selvstendignaringsdrivende
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.client.inntektskomponenten.HentInntekterResponse
@@ -23,7 +33,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.getSporsmalMedTag
-import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -65,15 +74,15 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 ),
                 forventaSoknader = 2,
             )
-        kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.FREMTIDIG
-        kafkaSoknader.first().arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+        kafkaSoknader.first().status shouldBe SoknadsstatusDTO.FREMTIDIG
+        kafkaSoknader.first().arbeidssituasjon shouldBe ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest.shouldHaveSize(2)
-        hentetViaRest[0].soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
-        hentetViaRest[0].status `should be equal to` RSSoknadstatus.FREMTIDIG
-        hentetViaRest[1].soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
-        hentetViaRest[1].status `should be equal to` RSSoknadstatus.FREMTIDIG
+        hentetViaRest[0].soknadstype shouldBe RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+        hentetViaRest[0].status shouldBe RSSoknadstatus.FREMTIDIG
+        hentetViaRest[1].soknadstype shouldBe RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+        hentetViaRest[1].status shouldBe RSSoknadstatus.FREMTIDIG
     }
 
     @Test
@@ -84,7 +93,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        soknad.sporsmal.`should not be null`().shouldHaveSize(0)
+        soknad.sporsmal.shouldNotBeNull().shouldHaveSize(0)
     }
 
     @Test
@@ -94,8 +103,8 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         kafkaSoknader.shouldHaveSize(1)
-        kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
-        kafkaSoknader.first().arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+        kafkaSoknader.first().status shouldBe SoknadsstatusDTO.NY
+        kafkaSoknader.first().arbeidssituasjon shouldBe ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
     }
 
     @Test
@@ -107,7 +116,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 fnr = fnr,
             )
 
-        soknad.sporsmal!!.map { it.tag } `should be equal to`
+        soknad.sporsmal!!.map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
                 FRAVAR_FOR_SYKMELDINGEN_V2,
@@ -126,7 +135,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
             "1. - 31. januar 3025",
         )
 
-        soknad.forstegangssoknad.`should not be null`().`should be true`()
+        soknad.forstegangssoknad.shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -159,13 +168,13 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                     mutert = true,
                 ).oppsummering()
                 .sendSoknad()
-        sendtSoknad.status `should be equal to` RSSoknadstatus.SENDT
+        sendtSoknad.status shouldBe RSSoknadstatus.SENDT
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         kafkaSoknader.shouldHaveSize(1)
-        kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
-        kafkaSoknader.first().arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+        kafkaSoknader.first().status shouldBe SoknadsstatusDTO.SENDT
+        kafkaSoknader.first().arbeidssituasjon shouldBe ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
 
         juridiskVurderingKafkaConsumer.ventPåRecords(1)
     }
@@ -183,10 +192,10 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
             )
 
         soknad.forstegangssoknad
-            .`should not be null`()
-            .`should be false`()
+            .shouldNotBeNull()
+            .shouldBeFalse()
 
-        soknad.sporsmal!!.map { it.tag } `should be equal to`
+        soknad.sporsmal!!.map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -207,16 +216,16 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
 
             soknad.sporsmal!!.map { it.tag } shouldContain FLERE_INNTEKTSKILDER_GRUPPE
             soknad.sporsmal.map { it.tag } shouldNotContain ANDRE_INNTEKTSKILDER_V2
-            soknad.getSporsmalMedTag(FLERE_INNTEKTSKILDER_GHOST).sporsmalstekst `should be equal to`
+            soknad.getSporsmalMedTag(FLERE_INNTEKTSKILDER_GHOST).sporsmalstekst shouldBe
                 "Har du jobbet noe mer i disse enn du vanligvis gjør, mens du var sykmeldt i perioden 1. - 21. januar 3025?"
-            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Matbutikken AS"
-            soknad.inntektskilderDataFraInntektskomponenten.`should not be null`().map { it.orgnummer } `should be equal to`
+            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst shouldBe "Matbutikken AS"
+            soknad.inntektskilderDataFraInntektskomponenten.shouldNotBeNull().map { it.orgnummer } shouldBe
                 listOf("123454543")
-            soknad.ghostInntekter.`should not be null`().map { it.orgnummer } `should be equal to` listOf("123454543")
+            soknad.ghostInntekter.shouldNotBeNull().map { it.orgnummer } shouldBe listOf("123454543")
 
             val lagretSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
-            lagretSoknad.ghostInntekter.`should not be null`().map { it.orgnummer } `should be equal to` listOf("123454543")
-            lagretSoknad.arbeidsforholdFraAareg.`should not be null`().shouldBeEmpty()
+            lagretSoknad.ghostInntekter.shouldNotBeNull().map { it.orgnummer } shouldBe listOf("123454543")
+            lagretSoknad.arbeidsforholdFraAareg.shouldNotBeNull().shouldBeEmpty()
         }
 
         @Test
@@ -235,10 +244,10 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 )
 
             soknad.inntektskilderDataFraInntektskomponenten
-                .`should not be null`()
+                .shouldNotBeNull()
                 .single()
-                .arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
-            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Frilanseransetter AS"
+                .arbeidsforholdstype shouldBe Arbeidsforholdstype.FRILANSER
+            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst shouldBe "Frilanseransetter AS"
         }
 
         @Test
@@ -254,17 +263,17 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
             soknad.sporsmal!!
                 .map { it.tag }
                 .none { it.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }
-                .`should be true`()
-            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Bensinstasjonen AS"
+                .shouldBeTrue()
+            soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst shouldBe "Bensinstasjonen AS"
             soknad.ghostInntekter
-                .`should not be null`()
+                .shouldNotBeNull()
                 .single()
-                .kilde `should be equal to`
+                .kilde shouldBe
                 RSKilde.INNTEKTSKOMPONENTEN
             sykepengesoknadDAO
                 .finnSykepengesoknad(soknad.id)
                 .arbeidsforholdFraAareg
-                .`should not be null`()
+                .shouldNotBeNull()
                 .shouldBeEmpty()
         }
 
@@ -281,20 +290,20 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
             )
             aktiveringJob.bestillAktivering(now = basisdato.plusDays(61))
             val aktivertSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
-            aktivertSoknad.flereInntektskilderGhost.`should not be null`().shouldBeEmpty()
+            aktivertSoknad.flereInntektskilderGhost.shouldNotBeNull().shouldBeEmpty()
             val soknad =
                 hentSoknad(
                     soknadId = aktivertSoknad.id,
                     fnr = ghostFnr,
                 )
 
-            soknad.inntektskilderDataFraInntektskomponenten.`should not be null`().shouldBeEmpty()
+            soknad.inntektskilderDataFraInntektskomponenten.shouldNotBeNull().shouldBeEmpty()
             soknad.sporsmal!!.map { it.tag } shouldContain ANDRE_INNTEKTSKILDER_V2
             soknad.sporsmal.map { it.tag } shouldNotContain FLERE_INNTEKTSKILDER_GRUPPE
             sykepengesoknadDAO
                 .finnSykepengesoknad(soknad.id)
                 .ghostInntekter
-                .`should not be null`()
+                .shouldNotBeNull()
                 .shouldBeEmpty()
         }
 
@@ -307,7 +316,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
 
             val besvartSoknad = hentSoknad(soknadId = soknad.id, fnr = ghostFnr)
             forventedeGhostSvar.forEach { (tag, forventetSvar) ->
-                besvartSoknad.getSporsmalMedTag(tag).svar.map { it.verdi } `should be equal to` listOf(forventetSvar)
+                besvartSoknad.getSporsmalMedTag(tag).svar.map { it.verdi } shouldBe listOf(forventetSvar)
             }
         }
 
@@ -326,20 +335,20 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                     .besvarSporsmal(tag = NARINGSDRIVENDE_VARIG_ENDRING, svar = "NEI")
                     .oppsummering()
                     .sendSoknad()
-            sendtSoknad.status `should be equal to` RSSoknadstatus.SENDT
+            sendtSoknad.status shouldBe RSSoknadstatus.SENDT
 
             val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
-            kafkaSoknad.status `should be equal to` SoknadsstatusDTO.SENDT
+            kafkaSoknad.status shouldBe SoknadsstatusDTO.SENDT
             kafkaSoknad.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-                it[FLERE_INNTEKTSKILDER_GHOST] `should be equal to` true
-                it[ANDRE_INNTEKTSKILDER_V2] `should be equal to` true
+                it[FLERE_INNTEKTSKILDER_GHOST] shouldBe true
+                it[ANDRE_INNTEKTSKILDER_V2] shouldBe true
             }
-            kafkaSoknad.flereInntektskilderGhost `should be equal to`
+            kafkaSoknad.flereInntektskilderGhost shouldBe
                 setOf(KjenteInntektskilderDTO("Matbutikken AS", KildeDTO.INNTEKTSKOMPONENTEN, "123454543"))
             forventedeGhostSvar.forEach { (tag, forventetSvar) ->
-                kafkaSoknad.getSporsmalMedTag(tag).svar!!.map { it.verdi } `should be equal to` listOf(forventetSvar)
+                kafkaSoknad.getSporsmalMedTag(tag).svar!!.map { it.verdi } shouldBe listOf(forventetSvar)
             }
-            kafkaSoknad.andreInntektskilder `should be equal to`
+            kafkaSoknad.andreInntektskilder shouldBe
                 listOf(InntektskildeDTO(type = InntektskildetypeDTO.STYREVERV, sykmeldt = null))
 
             juridiskVurderingKafkaConsumer.ventPåRecords(1)
@@ -392,7 +401,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
 
             aktiveringJob.bestillAktivering(now = basisdato.plusDays(61))
             val aktivertSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
-            aktivertSoknad.flereInntektskilderGhost.`should not be null`().map { it.orgnummer } `should be equal to`
+            aktivertSoknad.flereInntektskilderGhost.shouldNotBeNull().map { it.orgnummer } shouldBe
                 listOf(forventetGhostOrgnummer)
 
             return hentSoknad(

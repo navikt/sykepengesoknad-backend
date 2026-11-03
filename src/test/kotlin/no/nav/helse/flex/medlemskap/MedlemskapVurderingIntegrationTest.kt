@@ -1,9 +1,15 @@
 package no.nav.helse.flex.medlemskap
 
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -57,8 +63,8 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same`
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal shouldContainExactlyInAnyOrder
             listOf(
                 MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
@@ -67,7 +73,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
         response.kjentOppholdstillatelse shouldBe null
 
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should not be` null
+        dbRecords.first().sporsmal shouldNotBe null
     }
 
     @Test
@@ -82,7 +88,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal shouldHaveSize 0
         response.kjentOppholdstillatelse shouldBe null
 
@@ -90,7 +96,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         // Vi lagrer ikke tom liste med spørsmål.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should be equal to` null
+        dbRecords.first().sporsmal shouldBe null
     }
 
     @Test
@@ -104,13 +110,13 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
         )
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.JA
+        response.svar shouldBe MedlemskapVurderingSvarType.JA
         response.sporsmal shouldHaveSize 0
         response.kjentOppholdstillatelse shouldBe null
 
         // Vi lagrer ikke tom liste med spørsmål.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should be equal to` null
+        dbRecords.first().sporsmal shouldBe null
     }
 
     @Test
@@ -125,7 +131,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.NEI
+        response.svar shouldBe MedlemskapVurderingSvarType.NEI
         response.sporsmal shouldHaveSize 0
         response.kjentOppholdstillatelse shouldBe null
 
@@ -133,7 +139,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         // Vi lagrer ikke tom liste med spørsmål.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should be equal to` null
+        dbRecords.first().sporsmal shouldBe null
     }
 
     @Test
@@ -199,7 +205,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should not be` null
+        dbRecords.first().sporsmal shouldNotBe null
     }
 
     @Test
@@ -227,7 +233,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should not be` null
+        dbRecords.first().sporsmal shouldNotBe null
     }
 
     @Test
@@ -251,15 +257,15 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same`
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal shouldContainExactlyInAnyOrder
             listOf(
                 MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
             )
-        response.kjentOppholdstillatelse `should be equal to` kjentOppholdstillatelse
+        response.kjentOppholdstillatelse shouldBe kjentOppholdstillatelse
 
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().kjentOppholdstillatelse!!.value `should be equal to` kjentOppholdstillatelse.serialisertTilString()
+        dbRecords.first().kjentOppholdstillatelse!!.value shouldBe kjentOppholdstillatelse.serialisertTilString()
     }
 
     @Test
@@ -296,6 +302,6 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
 
         // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should not be` null
+        dbRecords.first().sporsmal shouldNotBe null
     }
 }

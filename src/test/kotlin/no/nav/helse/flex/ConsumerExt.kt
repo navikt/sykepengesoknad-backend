@@ -1,10 +1,10 @@
 package no.nav.helse.flex
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.SubsumsjonAssertions.assertSubsumsjonsmelding
 import no.nav.helse.flex.util.objectMapper
-import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.awaitility.Awaitility.await

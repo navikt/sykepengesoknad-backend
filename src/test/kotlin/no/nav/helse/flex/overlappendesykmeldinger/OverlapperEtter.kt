@@ -1,5 +1,8 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -30,10 +33,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeEqualTo
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -86,12 +85,12 @@ class OverlapperEtter : FellesTestOppsett() {
                         ),
                 ),
             )
-        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.FREMTIDIG
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
-        hentetViaRest[0].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        hentetViaRest[0].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        hentetViaRest[0].soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        hentetViaRest[0].status shouldBe RSSoknadstatus.FREMTIDIG
     }
 
     @Test
@@ -111,13 +110,13 @@ class OverlapperEtter : FellesTestOppsett() {
                 forventaSoknader = 2,
             )
 
-        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        kafkaSoknader[0].fom shouldBeEqualTo basisdato
-        kafkaSoknader[0].tom shouldBeEqualTo basisdato.plusDays(15)
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.FREMTIDIG
+        kafkaSoknader[0].fom shouldBe basisdato
+        kafkaSoknader[0].tom shouldBe basisdato.plusDays(15)
 
-        kafkaSoknader[1].status shouldBeEqualTo SoknadsstatusDTO.NY
-        kafkaSoknader[1].fom shouldBeEqualTo basisdato.minusDays(1)
-        kafkaSoknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
+        kafkaSoknader[1].status shouldBe SoknadsstatusDTO.NY
+        kafkaSoknader[1].fom shouldBe basisdato.minusDays(1)
+        kafkaSoknader[1].tom shouldBe basisdato.minusDays(1)
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 2
@@ -128,37 +127,37 @@ class OverlapperEtter : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
-        forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        forsteSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        forsteSoknad.status shouldBe RSSoknadstatus.NY
+        forsteSoknad.fom shouldBe basisdato.minusDays(1)
+        forsteSoknad.tom shouldBe basisdato.minusDays(1)
         val forsteSoknadSpmFinnes = forsteSoknad.getSporsmalMedTagOrNull(TILBAKE_I_ARBEID)
-        forsteSoknadSpmFinnes shouldNotBeEqualTo null
+        forsteSoknadSpmFinnes shouldNotBe null
         val periodeSpmSok1 =
             forsteSoknad
                 .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
-        periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
-        periodeSpmSok1?.max shouldBeEqualTo basisdato.minusDays(1).toString()
+        periodeSpmSok1?.min shouldBe basisdato.minusDays(1).toString()
+        periodeSpmSok1?.max shouldBe basisdato.minusDays(1).toString()
 
         val fremtidigSoknad =
             hentSoknad(
                 soknadId = soknaderMetadata.last().id,
                 fnr = fnr,
             )
-        fremtidigSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        fremtidigSoknad.status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
-        fremtidigSoknad.fom shouldBeEqualTo basisdato
-        fremtidigSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
+        fremtidigSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        fremtidigSoknad.status shouldBe RSSoknadstatus.FREMTIDIG
+        fremtidigSoknad.fom shouldBe basisdato
+        fremtidigSoknad.tom shouldBe basisdato.plusDays(15)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -170,7 +169,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .ventPåRecords(antall = 1)
             .tilSoknader()
             .first()
-            .status shouldBeEqualTo SoknadsstatusDTO.NY
+            .status shouldBe SoknadsstatusDTO.NY
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 2
@@ -181,36 +180,36 @@ class OverlapperEtter : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
-        forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        forsteSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        forsteSoknad.status shouldBe RSSoknadstatus.NY
+        forsteSoknad.fom shouldBe basisdato.minusDays(1)
+        forsteSoknad.tom shouldBe basisdato.minusDays(1)
         val forsteSoknadSpmFinnes = forsteSoknad.getSporsmalMedTagOrNull(TILBAKE_I_ARBEID)
-        forsteSoknadSpmFinnes shouldNotBeEqualTo null
+        forsteSoknadSpmFinnes shouldNotBe null
         val periodeSpmSok1 =
             forsteSoknad
                 .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
-        periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
-        periodeSpmSok1?.max shouldBeEqualTo basisdato.minusDays(1).toString()
+        periodeSpmSok1?.min shouldBe basisdato.minusDays(1).toString()
+        periodeSpmSok1?.max shouldBe basisdato.minusDays(1).toString()
 
         val andreSoknad =
             hentSoknad(
                 soknadId = soknaderMetadata.last().id,
                 fnr = fnr,
             )
-        andreSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        andreSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        andreSoknad.fom shouldBeEqualTo basisdato
-        andreSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
+        andreSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        andreSoknad.status shouldBe RSSoknadstatus.NY
+        andreSoknad.fom shouldBe basisdato
+        andreSoknad.tom shouldBe basisdato.plusDays(15)
         val periodeSpmSok2 =
             andreSoknad
                 .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
-        periodeSpmSok2?.min shouldBeEqualTo basisdato.toString()
-        periodeSpmSok2?.max shouldBeEqualTo basisdato.plusDays(15).toString()
+        periodeSpmSok2?.min shouldBe basisdato.toString()
+        periodeSpmSok2?.max shouldBe basisdato.plusDays(15).toString()
     }
 
     @Test
@@ -284,16 +283,16 @@ class OverlapperEtter : FellesTestOppsett() {
                 ),
             ).first()
 
-        soknad.fom shouldBeEqualTo basisdato.plusDays(16)
-        soknad.tom shouldBeEqualTo basisdato.plusDays(20)
+        soknad.fom shouldBe basisdato.plusDays(16)
+        soknad.tom shouldBe basisdato.plusDays(20)
 
         await().until { klippetSykepengesoknadRepository.findBySykmeldingUuid(soknad.sykmeldingId!!) != null }
 
         val klipp = klippetSykepengesoknadRepository.findBySykmeldingUuid(soknad.sykmeldingId!!)!!
-        klipp.sykepengesoknadUuid shouldNotBeEqualTo soknad.id
-        klipp.sykmeldingUuid shouldBeEqualTo soknad.sykmeldingId
-        klipp.klippVariant shouldBeEqualTo KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI
-        klipp.periodeFor.tilSoknadsperioder() shouldBeEqualTo
+        klipp.sykepengesoknadUuid shouldNotBe soknad.id
+        klipp.sykmeldingUuid shouldBe soknad.sykmeldingId
+        klipp.klippVariant shouldBe KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI
+        klipp.periodeFor.tilSoknadsperioder() shouldBe
             listOf(
                 Soknadsperiode(
                     fom = basisdato.plusDays(10),
@@ -302,7 +301,7 @@ class OverlapperEtter : FellesTestOppsett() {
                     sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
                 ),
             )
-        klipp.periodeEtter.tilSoknadsperioder() shouldBeEqualTo
+        klipp.periodeEtter.tilSoknadsperioder() shouldBe
             listOf(
                 Soknadsperiode(
                     fom = basisdato.plusDays(16),
@@ -315,10 +314,10 @@ class OverlapperEtter : FellesTestOppsett() {
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "SENDT"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -342,7 +341,7 @@ class OverlapperEtter : FellesTestOppsett() {
                 ),
             ).first()
 
-        soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        soknad.status shouldBe SoknadsstatusDTO.NY
     }
 
     @Test
@@ -363,16 +362,16 @@ class OverlapperEtter : FellesTestOppsett() {
                     ),
             ).last()
 
-        soknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        soknad.tom shouldBeEqualTo basisdato.plusDays(5)
+        soknad.fom shouldBe basisdato.minusDays(10)
+        soknad.tom shouldBe basisdato.plusDays(5)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "NY"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "LAVERE_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "NY"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "LAVERE_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -429,8 +428,8 @@ class OverlapperEtter : FellesTestOppsett() {
         soknaderMetadata shouldHaveSize 2
 
         val overlappendeSoknad = soknaderMetadata.first { it.sykmeldingId == overlappendeSykmeldingId }
-        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        overlappendeSoknad.fom shouldBe basisdato.minusDays(10)
+        overlappendeSoknad.tom shouldBe basisdato.minusDays(1)
 
         val klippetSoknad =
             hentSoknad(
@@ -438,21 +437,21 @@ class OverlapperEtter : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        klippetSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(15)
-        klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(11)
+        klippetSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        klippetSoknad.status shouldBe RSSoknadstatus.NY
+        klippetSoknad.fom shouldBe basisdato.minusDays(15)
+        klippetSoknad.tom shouldBe basisdato.minusDays(11)
 
-        klippetSoknad.sporsmal!!.all { it.svar.isEmpty() } shouldBeEqualTo true
+        klippetSoknad.sporsmal!!.all { it.svar.isEmpty() } shouldBe true
 
         val periodeSpm = klippetSoknad.getSporsmalMedTag(FERIE_V2)
-        periodeSpm.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        periodeSpm.sporsmalstekst shouldBe "Tok du ut feriedager i tidsrommet ${
             formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
             )
         }?"
-        periodeSpm.svar.size shouldBeEqualTo 0
+        periodeSpm.svar.size shouldBe 0
     }
 
     @Test
@@ -535,16 +534,16 @@ class OverlapperEtter : FellesTestOppsett() {
                 ),
             ).first()
 
-        soknad.fom shouldBeEqualTo basisdato.plusDays(16)
-        soknad.tom shouldBeEqualTo basisdato.plusDays(20)
+        soknad.fom shouldBe basisdato.plusDays(16)
+        soknad.tom shouldBe basisdato.plusDays(20)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "SENDT"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -581,18 +580,18 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
-        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
-        soknader[0].fom shouldBeEqualTo basisdato.minusDays(15)
-        soknader[0].tom shouldBeEqualTo basisdato.minusDays(5)
-        soknader[0].status shouldBeEqualTo Soknadstatus.NY
+        soknader[0].soknadstype shouldBe Soknadstype.ARBEIDSTAKERE
+        soknader[0].fom shouldBe basisdato.minusDays(15)
+        soknader[0].tom shouldBe basisdato.minusDays(5)
+        soknader[0].status shouldBe Soknadstatus.NY
 
-        soknader[1].soknadstype shouldBeEqualTo Soknadstype.BEHANDLINGSDAGER
-        soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
-        soknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknader[1].status shouldBeEqualTo Soknadstatus.NY
+        soknader[1].soknadstype shouldBe Soknadstype.BEHANDLINGSDAGER
+        soknader[1].fom shouldBe basisdato.minusDays(10)
+        soknader[1].tom shouldBe basisdato.minusDays(1)
+        soknader[1].status shouldBe Soknadstatus.NY
 
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 
     @Test
@@ -623,18 +622,18 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
-        soknader[0].fom shouldBeEqualTo basisdato
-        soknader[0].tom shouldBeEqualTo basisdato.plusDays(10)
-        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
-        soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        soknader[0].fom shouldBe basisdato
+        soknader[0].tom shouldBe basisdato.plusDays(10)
+        soknader[0].soknadstype shouldBe Soknadstype.ARBEIDSTAKERE
+        soknader[0].status shouldBe Soknadstatus.FREMTIDIG
 
-        soknader[1].fom shouldBeEqualTo basisdato.plusDays(5)
-        soknader[1].tom shouldBeEqualTo basisdato.plusDays(15)
-        soknader[1].soknadstype shouldBeEqualTo Soknadstype.BEHANDLINGSDAGER
-        soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        soknader[1].fom shouldBe basisdato.plusDays(5)
+        soknader[1].tom shouldBe basisdato.plusDays(15)
+        soknader[1].soknadstype shouldBe Soknadstype.BEHANDLINGSDAGER
+        soknader[1].status shouldBe Soknadstatus.FREMTIDIG
 
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 
     @Test
@@ -663,18 +662,18 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
-        soknader[0].fom shouldBeEqualTo basisdato.minusDays(15)
-        soknader[0].tom shouldBeEqualTo basisdato.minusDays(5)
-        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
-        soknader[0].status shouldBeEqualTo Soknadstatus.NY
+        soknader[0].fom shouldBe basisdato.minusDays(15)
+        soknader[0].tom shouldBe basisdato.minusDays(5)
+        soknader[0].soknadstype shouldBe Soknadstype.ARBEIDSTAKERE
+        soknader[0].status shouldBe Soknadstatus.NY
 
-        soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
-        soknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
-        soknader[1].status shouldBeEqualTo Soknadstatus.NY
+        soknader[1].fom shouldBe basisdato.minusDays(10)
+        soknader[1].tom shouldBe basisdato.minusDays(1)
+        soknader[1].soknadstype shouldBe Soknadstype.REISETILSKUDD
+        soknader[1].status shouldBe Soknadstatus.NY
 
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 
     @Test
@@ -703,18 +702,18 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
-        soknader[0].fom shouldBeEqualTo basisdato
-        soknader[0].tom shouldBeEqualTo basisdato.plusDays(10)
-        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
-        soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        soknader[0].fom shouldBe basisdato
+        soknader[0].tom shouldBe basisdato.plusDays(10)
+        soknader[0].soknadstype shouldBe Soknadstype.ARBEIDSTAKERE
+        soknader[0].status shouldBe Soknadstatus.FREMTIDIG
 
-        soknader[1].fom shouldBeEqualTo basisdato.plusDays(5)
-        soknader[1].tom shouldBeEqualTo basisdato.plusDays(15)
-        soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
-        soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        soknader[1].fom shouldBe basisdato.plusDays(5)
+        soknader[1].tom shouldBe basisdato.plusDays(15)
+        soknader[1].soknadstype shouldBe Soknadstype.REISETILSKUDD
+        soknader[1].status shouldBe Soknadstatus.FREMTIDIG
 
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 
     @Test
@@ -734,7 +733,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
-        soknaderMetadata.first().status shouldBeEqualTo RSSoknadstatus.NY
+        soknaderMetadata.first().status shouldBe RSSoknadstatus.NY
 
         val rsSoknad =
             hentSoknad(
@@ -784,32 +783,32 @@ class OverlapperEtter : FellesTestOppsett() {
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 3
 
-        soknaderMetadata[0].fom shouldBeEqualTo basisdato.minusDays(20)
-        soknaderMetadata[0].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknaderMetadata[0].status shouldBeEqualTo RSSoknadstatus.SENDT
+        soknaderMetadata[0].fom shouldBe basisdato.minusDays(20)
+        soknaderMetadata[0].tom shouldBe basisdato.minusDays(1)
+        soknaderMetadata[0].status shouldBe RSSoknadstatus.SENDT
 
-        soknaderMetadata[1].fom shouldBeEqualTo basisdato.minusDays(5)
-        soknaderMetadata[1].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknaderMetadata[1].status shouldBeEqualTo RSSoknadstatus.NY
+        soknaderMetadata[1].fom shouldBe basisdato.minusDays(5)
+        soknaderMetadata[1].tom shouldBe basisdato.minusDays(1)
+        soknaderMetadata[1].status shouldBe RSSoknadstatus.NY
 
-        soknaderMetadata[2].fom shouldBeEqualTo basisdato
-        soknaderMetadata[2].tom shouldBeEqualTo basisdato
-        soknaderMetadata[2].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        soknaderMetadata[2].fom shouldBe basisdato
+        soknaderMetadata[2].tom shouldBe basisdato
+        soknaderMetadata[2].status shouldBe RSSoknadstatus.FREMTIDIG
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "VET_IKKE"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "SENDT"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "VET_IKKE"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
     @Order(92)
     fun `Reset data`() {
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 
     @Test
@@ -828,7 +827,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
-        soknaderMetadata.first().status shouldBeEqualTo RSSoknadstatus.NY
+        soknaderMetadata.first().status shouldBe RSSoknadstatus.NY
 
         val rsSoknad =
             hentSoknad(
@@ -878,36 +877,36 @@ class OverlapperEtter : FellesTestOppsett() {
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 4
 
-        soknaderMetadata[0].fom shouldBeEqualTo basisdato.minusDays(5)
-        soknaderMetadata[0].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknaderMetadata[0].status shouldBeEqualTo RSSoknadstatus.SENDT
+        soknaderMetadata[0].fom shouldBe basisdato.minusDays(5)
+        soknaderMetadata[0].tom shouldBe basisdato.minusDays(1)
+        soknaderMetadata[0].status shouldBe RSSoknadstatus.SENDT
 
-        soknaderMetadata[1].fom shouldBeEqualTo basisdato.minusDays(5)
-        soknaderMetadata[1].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknaderMetadata[1].status shouldBeEqualTo RSSoknadstatus.NY
+        soknaderMetadata[1].fom shouldBe basisdato.minusDays(5)
+        soknaderMetadata[1].tom shouldBe basisdato.minusDays(1)
+        soknaderMetadata[1].status shouldBe RSSoknadstatus.NY
 
-        soknaderMetadata[2].fom shouldBeEqualTo basisdato
-        soknaderMetadata[2].tom shouldBeEqualTo basisdato.plusDays(30)
-        soknaderMetadata[2].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        soknaderMetadata[2].fom shouldBe basisdato
+        soknaderMetadata[2].tom shouldBe basisdato.plusDays(30)
+        soknaderMetadata[2].status shouldBe RSSoknadstatus.FREMTIDIG
 
-        soknaderMetadata[3].fom shouldBeEqualTo basisdato.plusDays(31)
-        soknaderMetadata[3].tom shouldBeEqualTo basisdato.plusDays(60)
-        soknaderMetadata[3].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        soknaderMetadata[3].fom shouldBe basisdato.plusDays(31)
+        soknaderMetadata[3].tom shouldBe basisdato.plusDays(60)
+        soknaderMetadata[3].status shouldBe RSSoknadstatus.FREMTIDIG
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "VET_IKKE"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "SENDT"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "VET_IKKE"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
     @Order(102)
     fun `Reset testdata`() {
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 
     @Test
@@ -940,23 +939,23 @@ class OverlapperEtter : FellesTestOppsett() {
                     ),
             ).last()
 
-        overlappendeSoknad.fom shouldBeEqualTo basisdato.plusDays(1)
-        overlappendeSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
-        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+        overlappendeSoknad.fom shouldBe basisdato.plusDays(1)
+        overlappendeSoknad.tom shouldBe basisdato.plusDays(10)
+        overlappendeSoknad.status shouldBe SoknadsstatusDTO.FREMTIDIG
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
     @Order(111)
     fun `Reset database data`() {
         databaseReset.resetDatabase()
-        klippMetrikkRepository.count() shouldBeEqualTo 0
+        klippMetrikkRepository.count() shouldBe 0
     }
 }

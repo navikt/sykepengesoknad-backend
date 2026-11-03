@@ -1,5 +1,7 @@
 package no.nav.helse.flex
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import no.nav.helse.flex.controller.HentSoknaderRequest
 import no.nav.helse.flex.controller.HentSoknaderResponse
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
@@ -13,8 +15,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.syfo.kafka.NAV_CALLID
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should not be null`
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -321,9 +321,9 @@ fun TestOppsettInterfaces.oppdaterSporsmal(
             .response.contentAsString
     val response = objectMapper.readValue<RSOppdaterSporsmalResponse>(json)
     if (mutert) {
-        response.mutertSoknad.`should not be null`()
+        response.mutertSoknad.shouldNotBeNull()
     } else {
-        response.mutertSoknad.`should be null`()
+        response.mutertSoknad.shouldBeNull()
     }
     return response
 }

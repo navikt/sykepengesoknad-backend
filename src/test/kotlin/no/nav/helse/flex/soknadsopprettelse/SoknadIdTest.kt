@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be equal to`
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalTime
@@ -19,7 +19,7 @@ class SoknadIdTest {
         val soknadIdEn = skapSoknadsId(dato, dato.plusDays(1), sykmeldingId, eventTimestamp)
         val soknadIdTo = skapSoknadsId(dato, dato.plusDays(1), sykmeldingId, eventTimestamp)
 
-        soknadIdEn `should be equal to` soknadIdTo
+        soknadIdEn shouldBe soknadIdTo
     }
 
     @Test
@@ -27,7 +27,7 @@ class SoknadIdTest {
         val soknadIdEn = skapSoknadsId(dato, dato.plusDays(1), sykmeldingId, eventTimestamp)
         val soknadIdTo = skapSoknadsId(dato, dato, sykmeldingId, eventTimestamp)
 
-        soknadIdEn `should not be equal to` soknadIdTo
+        soknadIdEn shouldNotBe soknadIdTo
     }
 
     @Test
@@ -36,6 +36,6 @@ class SoknadIdTest {
 
         val soknadIdTo = skapSoknadsId(dato, dato, sykmeldingId, eventTimestamp.plusDays(1))
 
-        soknadIdEn `should not be equal to` soknadIdTo
+        soknadIdEn shouldNotBe soknadIdTo
     }
 }

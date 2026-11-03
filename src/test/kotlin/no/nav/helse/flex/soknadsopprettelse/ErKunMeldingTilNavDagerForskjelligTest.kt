@@ -1,9 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstype
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -27,7 +27,7 @@ class ErKunMeldingTilNavDagerForskjelligTest {
                 ),
             )
 
-        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) `should be equal to` true
+        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) shouldBe true
     }
 
     @Test
@@ -45,7 +45,7 @@ class ErKunMeldingTilNavDagerForskjelligTest {
                 ),
             )
 
-        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) `should be equal to` true
+        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) shouldBe true
     }
 
     @Test
@@ -63,7 +63,7 @@ class ErKunMeldingTilNavDagerForskjelligTest {
                 ),
             )
 
-        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) `should be equal to` false
+        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) shouldBe false
     }
 
     @Test
@@ -83,7 +83,7 @@ class ErKunMeldingTilNavDagerForskjelligTest {
                 ),
             )
 
-        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) `should be equal to` false
+        erKunMeldingTilNavDagerForskjellig(eksisterende, nye) shouldBe false
     }
 
     private fun sammenlikner(

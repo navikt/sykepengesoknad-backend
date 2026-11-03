@@ -1,9 +1,9 @@
 package no.nav.helse.flex
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.vedtaksperiodebehandling.*
 import no.nav.helse.flex.vedtaksperiodebehandling.StatusVerdi.*
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -82,7 +82,7 @@ class LagringAvSisTest : FellesTestOppsett() {
                 }.toSet()
         soknadRelasjoner shouldHaveSize 2
 
-        soknadRelasjoner shouldBeEqualTo opppdatertBehandlingstatusMelding.eksterneSøknadIder.toSet()
+        soknadRelasjoner shouldBe opppdatertBehandlingstatusMelding.eksterneSøknadIder.toSet()
     }
 
     @Test

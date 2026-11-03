@@ -1,5 +1,9 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Sporsmal
@@ -15,10 +19,6 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.muterErstattGammelAn
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class AndreInntektskilderKtTest : FellesTestOppsett() {
@@ -58,11 +58,11 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(3)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[0].type.shouldBe(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
 
-        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.FRILANSER)
+        andreInntektskilder[1].type.shouldBe(InntektskildetypeDTO.FRILANSER)
 
-        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.STYREVERV)
+        andreInntektskilder[2].type.shouldBe(InntektskildetypeDTO.STYREVERV)
     }
 
     @Test
@@ -79,13 +79,13 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(3)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[0].type.shouldBe(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
         andreInntektskilder[0].sykmeldt.shouldBeNull()
 
-        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE)
+        andreInntektskilder[1].type.shouldBe(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE)
         andreInntektskilder[1].sykmeldt.shouldBeNull()
 
-        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
+        andreInntektskilder[2].type.shouldBe(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
         andreInntektskilder[2].sykmeldt.shouldBeNull()
     }
 
@@ -103,10 +103,10 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(4)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
-        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
-        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.FOSTERHJEMGODTGJORELSE)
-        andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.STYREVERV)
+        andreInntektskilder[0].type.shouldBe(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[1].type.shouldBe(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
+        andreInntektskilder[2].type.shouldBe(InntektskildetypeDTO.FOSTERHJEMGODTGJORELSE)
+        andreInntektskilder[3].type.shouldBe(InntektskildetypeDTO.STYREVERV)
     }
 
     @Test
@@ -126,7 +126,7 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(1)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[0].type.shouldBe(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
     }
 
     @Test
@@ -162,6 +162,6 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(1)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[0].type.shouldBe(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
     }
 }

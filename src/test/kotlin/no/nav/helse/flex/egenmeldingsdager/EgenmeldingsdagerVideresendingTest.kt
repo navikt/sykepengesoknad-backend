@@ -1,5 +1,6 @@
 package no.nav.helse.flex.egenmeldingsdager
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -18,7 +19,6 @@ import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
-import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -83,8 +83,8 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
                 ),
             ).get()
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.FREMTIDIG
+        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBe
             listOf(
                 basisdato.minusDays(3),
                 basisdato.minusDays(2),
@@ -97,8 +97,8 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
     fun `Vi aktiverer søknaden`() {
         aktiveringJob.bestillAktivering(now = basisdato.plusDays(16))
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
-        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.NY
+        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBe
             listOf(
                 basisdato.minusDays(3),
                 basisdato.minusDays(2),
@@ -129,8 +129,8 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
             .sendSoknad()
 
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.SENDT
+        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBe
             listOf(
                 basisdato.minusDays(3),
                 basisdato.minusDays(2),

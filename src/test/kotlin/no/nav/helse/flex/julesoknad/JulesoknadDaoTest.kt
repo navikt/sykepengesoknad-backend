@@ -1,8 +1,8 @@
 package no.nav.helse.flex.julesoknad
 
+import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder

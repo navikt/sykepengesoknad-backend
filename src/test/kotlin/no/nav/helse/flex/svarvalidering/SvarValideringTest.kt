@@ -2,6 +2,9 @@
 
 package no.nav.helse.flex.svarvalidering
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.string.shouldStartWith
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
@@ -10,9 +13,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSluttGammel
 import no.nav.helse.flex.testutil.byttSvar
 import no.nav.helse.flex.util.periodeTilJson
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.`should be true`
-import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -22,70 +22,70 @@ import java.util.*
 internal class SvarValideringTest {
     @Test
     fun `test er double med max en desimal`() {
-        "34.2".`er double med max en desimal`().`should be true`()
-        "34".`er double med max en desimal`().`should be true`()
-        "34.0".`er double med max en desimal`().`should be true`()
-        "-34.0".`er double med max en desimal`().`should be true`()
+        "34.2".`er double med max en desimal`().shouldBeTrue()
+        "34".`er double med max en desimal`().shouldBeTrue()
+        "34.0".`er double med max en desimal`().shouldBeTrue()
+        "-34.0".`er double med max en desimal`().shouldBeTrue()
 
-        "34.".`er double med max en desimal`().`should be false`()
-        "34,2".`er double med max en desimal`().`should be false`()
-        "34.20".`er double med max en desimal`().`should be false`()
-        "aergaerg".`er double med max en desimal`().`should be false`()
-        "".`er double med max en desimal`().`should be false`()
+        "34.".`er double med max en desimal`().shouldBeFalse()
+        "34,2".`er double med max en desimal`().shouldBeFalse()
+        "34.20".`er double med max en desimal`().shouldBeFalse()
+        "aergaerg".`er double med max en desimal`().shouldBeFalse()
+        "".`er double med max en desimal`().shouldBeFalse()
     }
 
     @Test
     fun `test er heltall`() {
-        "3".`er heltall`().`should be true`()
-        "-3".`er heltall`().`should be true`()
-        "0".`er heltall`().`should be true`()
-        "000".`er heltall`().`should be true`()
-        "34".`er heltall`().`should be true`()
+        "3".`er heltall`().shouldBeTrue()
+        "-3".`er heltall`().shouldBeTrue()
+        "0".`er heltall`().shouldBeTrue()
+        "000".`er heltall`().shouldBeTrue()
+        "34".`er heltall`().shouldBeTrue()
 
-        "34.0".`er heltall`().`should be false`()
-        "3.0".`er heltall`().`should be false`()
-        "34,2".`er heltall`().`should be false`()
-        "aergaerg".`er heltall`().`should be false`()
-        "".`er heltall`().`should be false`()
+        "34.0".`er heltall`().shouldBeFalse()
+        "3.0".`er heltall`().shouldBeFalse()
+        "34,2".`er heltall`().shouldBeFalse()
+        "aergaerg".`er heltall`().shouldBeFalse()
+        "".`er heltall`().shouldBeFalse()
     }
 
     @Test
     fun `test er dato`() {
-        "2020-03-12".`er dato`().`should be true`()
+        "2020-03-12".`er dato`().shouldBeTrue()
 
-        "2020-02-30".`er dato`().`should be false`()
-        "2020-3-12".`er dato`().`should be false`()
-        "34.0".`er dato`().`should be false`()
-        "aergaerg".`er dato`().`should be false`()
-        "".`er dato`().`should be false`()
+        "2020-02-30".`er dato`().shouldBeFalse()
+        "2020-3-12".`er dato`().shouldBeFalse()
+        "34.0".`er dato`().shouldBeFalse()
+        "aergaerg".`er dato`().shouldBeFalse()
+        "".`er dato`().shouldBeFalse()
     }
 
     @Test
     fun `test er uuid`() {
-        "d4ee3021-4021-45c4-aa82-4af38bd99505".`er uuid`().`should be true`()
+        "d4ee3021-4021-45c4-aa82-4af38bd99505".`er uuid`().shouldBeTrue()
         UUID
             .randomUUID()
             .toString()
             .`er uuid`()
-            .`should be true`()
+            .shouldBeTrue()
 
-        "d4ee3021-4021-45c4-aa82-4af38bd99505a".`er uuid`().`should be false`()
-        "d4ee3021-4021-45c4-aa82-4af38bd9950".`er uuid`().`should be false`()
-        "d4ee3021402145c4aa824af38bd99505".`er uuid`().`should be false`()
+        "d4ee3021-4021-45c4-aa82-4af38bd99505a".`er uuid`().shouldBeFalse()
+        "d4ee3021-4021-45c4-aa82-4af38bd9950".`er uuid`().shouldBeFalse()
+        "d4ee3021402145c4aa824af38bd99505".`er uuid`().shouldBeFalse()
     }
 
     @Test
     fun `test validering av beløp grenseverdi`() {
-        "d4ee3021-4021-45c4-aa82-4af38bd99505".`er uuid`().`should be true`()
+        "d4ee3021-4021-45c4-aa82-4af38bd99505".`er uuid`().shouldBeTrue()
         UUID
             .randomUUID()
             .toString()
             .`er uuid`()
-            .`should be true`()
+            .shouldBeTrue()
 
-        "d4ee3021-4021-45c4-aa82-4af38bd99505a".`er uuid`().`should be false`()
-        "d4ee3021-4021-45c4-aa82-4af38bd9950".`er uuid`().`should be false`()
-        "d4ee3021402145c4aa824af38bd99505".`er uuid`().`should be false`()
+        "d4ee3021-4021-45c4-aa82-4af38bd99505a".`er uuid`().shouldBeFalse()
+        "d4ee3021-4021-45c4-aa82-4af38bd9950".`er uuid`().shouldBeFalse()
+        "d4ee3021402145c4aa824af38bd99505".`er uuid`().shouldBeFalse()
     }
 
     @Test

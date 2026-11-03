@@ -1,6 +1,10 @@
 package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
 import com.nhaarman.mockitokotlin2.any
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import mockwebserver3.MockResponse
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
@@ -31,10 +35,6 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.*
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be equal to`
-import org.amshove.kluent.`should not be null`
-import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -99,7 +99,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 erUtenforVentetid = false,
             )
 
-            hentSoknaderMetadata(fnr).size `should be equal to` 0
+            hentSoknaderMetadata(fnr).size shouldBe 0
             verifyNoMoreInteractions(aivenKafkaProducer)
         }
 
@@ -145,13 +145,13 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             )
 
             kafkaSoknad.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                selvstendigNaringsdrivendeDTO.inntekt `should not be equal to` null
+                selvstendigNaringsdrivendeDTO.inntekt shouldNotBe null
             }
 
             verifiserLagretNaringsdrivendeSoknad(
                 forventetArbeidssituasjon = RSArbeidssituasjon.NAERINGSDRIVENDE,
                 forsikring = forsikring,
-                verifiserSykepengegrunnlag = { it `should not be equal to` null },
+                verifiserSykepengegrunnlag = { it shouldNotBe null },
             )
 
             verify(aivenKafkaProducer, times(1)).produserMelding(any())
@@ -212,16 +212,16 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                             NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
                         ),
                     verifiserSykepengegrunnlag = {
-                        it.`should not be null`()
-                        it.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-                        it.inntekter.map { inntekt -> inntekt.inntektsaar } `should be equal to`
+                        it.shouldNotBeNull()
+                        it.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+                        it.inntekter.map { inntekt -> inntekt.inntektsaar } shouldBe
                             listOf(
                                 "2023",
                                 "2022",
                                 "2021",
                             )
                         it.inntekter
-                            .map { inntekt -> inntekt.pensjonsgivendeInntekt.isEmpty() } `should be equal to`
+                            .map { inntekt -> inntekt.pensjonsgivendeInntekt.isEmpty() } shouldBe
                             listOf(true, true, true)
                     },
                 ).single()
@@ -416,9 +416,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             forventedePerioder: List<RSSoknadsperiode>,
         ) {
             hentSoknad(soknadId = soknadId, fnr = fnr).also { soknad ->
-                soknad.fom `should be equal to` forventedePerioder.first().fom
-                soknad.tom `should be equal to` forventedePerioder.last().tom
-                soknad.soknadPerioder `should be equal to` forventedePerioder
+                soknad.fom shouldBe forventedePerioder.first().fom
+                soknad.tom shouldBe forventedePerioder.last().tom
+                soknad.soknadPerioder shouldBe forventedePerioder
             }
         }
     }
@@ -467,7 +467,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
             verify(aivenKafkaProducer, times(1)).produserMelding(any())
 
-            sykepengesoknadDAO.finnSykepengesoknad(kafkaSoknad.id).meldingTilNavDagerFraSykmelding `should be equal to`
+            sykepengesoknadDAO.finnSykepengesoknad(kafkaSoknad.id).meldingTilNavDagerFraSykmelding shouldBe
                 listOf(
                     Periode(
                         fom = fom,
@@ -528,17 +528,17 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             hentSoknaderMetadata(fnr)
                 .filter { it.sykmeldingId == testdata.sykmeldingId }
                 .also { soknader ->
-                    soknader.size `should be equal to` 2
-                    soknader.map { it.status }.contains(RSSoknadstatus.KORRIGERT) `should be equal to` true
-                    soknader.map { it.status }.contains(RSSoknadstatus.NY) `should be equal to` true
+                    soknader.size shouldBe 2
+                    soknader.map { it.status }.contains(RSSoknadstatus.KORRIGERT) shouldBe true
+                    soknader.map { it.status }.contains(RSSoknadstatus.NY) shouldBe true
 
                     val korrigertSoknadId = soknader.first { it.status == RSSoknadstatus.KORRIGERT }.id
                     val nySoknadId = soknader.first { it.status == RSSoknadstatus.NY }.id
 
-                    sykepengesoknadDAO.finnSykepengesoknad(korrigertSoknadId).meldingTilNavDagerFraSykmelding `should be equal to`
+                    sykepengesoknadDAO.finnSykepengesoknad(korrigertSoknadId).meldingTilNavDagerFraSykmelding shouldBe
                         listOf(Periode(forsteFom, tom))
 
-                    sykepengesoknadDAO.finnSykepengesoknad(nySoknadId).meldingTilNavDagerFraSykmelding `should be equal to`
+                    sykepengesoknadDAO.finnSykepengesoknad(nySoknadId).meldingTilNavDagerFraSykmelding shouldBe
                         listOf(Periode(andreFom, tom))
                 }
         }
@@ -648,8 +648,8 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     private fun verifiserFisker() {
         hentSoknaderMetadata(fnr).single().also {
             val soknad = sykepengesoknadDAO.finnSykepengesoknad(it.id)
-            soknad.fiskerBlad `should be equal to` FiskerBlad.A
-            soknad.fiskerLottOgHyre `should be equal to` FiskerLottOgHyre.LOTT
+            soknad.fiskerBlad shouldBe FiskerBlad.A
+            soknad.fiskerLottOgHyre shouldBe FiskerLottOgHyre.LOTT
         }
     }
 
@@ -698,17 +698,17 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         forventetArbeidssituasjon: ArbeidssituasjonDTO,
         forventetSoknadstype: SoknadstypeDTO = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE,
     ) {
-        sykepengesoknadDTO.arbeidssituasjon `should be equal to` forventetArbeidssituasjon
-        sykepengesoknadDTO.type `should be equal to` forventetSoknadstype
+        sykepengesoknadDTO.arbeidssituasjon shouldBe forventetArbeidssituasjon
+        sykepengesoknadDTO.type shouldBe forventetSoknadstype
 
         sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
             selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
-                rolleDTO.orgnummer `should be equal to` "orgnummer"
-                rolleDTO.rolletype `should be equal to` "INNH"
+                rolleDTO.orgnummer shouldBe "orgnummer"
+                rolleDTO.rolletype shouldBe "INNH"
             }
-            selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+            selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size shouldBe 3
             selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.forEach {
-                it.pensjonsgivendeInntektPerSkatteordning.isNotEmpty() `should be equal to` it.erFerdigLignet
+                it.pensjonsgivendeInntektPerSkatteordning.isNotEmpty() shouldBe it.erFerdigLignet
             }
         }
     }
@@ -723,18 +723,18 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         verifiserSykepengegrunnlag: ((SykepengegrunnlagNaeringsdrivende?) -> Unit)? = null,
     ): List<RSSykepengesoknad> {
         hentSoknader(fnr).sortedBy { it.fom }.also { soknader ->
-            soknader.size `should be equal to` antallSoknader
+            soknader.size shouldBe antallSoknader
 
             soknader.forEach {
-                it.soknadstype `should be equal to` forventetSoknadstype
-                it.arbeidssituasjon `should be equal to` forventetArbeidssituasjon
+                it.soknadstype shouldBe forventetSoknadstype
+                it.arbeidssituasjon shouldBe forventetArbeidssituasjon
             }
 
             soknader.last().also {
                 val sykepengegrunnlag = it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende
 
                 if (verifiserSykepengegrunnlag == null) {
-                    sykepengegrunnlag `should be equal to`
+                    sykepengegrunnlag shouldBe
                         lagSykepengegrunnlagNaeringsdrivende(
                             fnr = fnr,
                             dato = testDato,
@@ -743,8 +743,8 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 } else {
                     verifiserSykepengegrunnlag(sykepengegrunnlag)
                 }
-                it.sporsmal!!.map { sporsmal -> sporsmal.tag } shouldContainSame forventedeSporsmalTags
-                it.selvstendigNaringsdrivendeInfo?.brukerHarOppgittForsikring `should be equal to` forsikring
+                it.sporsmal!!.map { sporsmal -> sporsmal.tag } shouldContainExactlyInAnyOrder forventedeSporsmalTags
+                it.selvstendigNaringsdrivendeInfo?.brukerHarOppgittForsikring shouldBe forsikring
             }
 
             return soknader

@@ -1,5 +1,8 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -23,10 +26,6 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be null`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -95,22 +94,22 @@ class OverlapperFor : FellesTestOppsett() {
         hentetViaRest shouldHaveSize 2
 
         val klippetSoknad = hentetViaRest[0]
-        klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.fom shouldBe basisdato.plusDays(8)
+        klippetSoknad.tom shouldBe basisdato.plusDays(10)
 
         val nyesteSoknad = hentetViaRest[1]
-        nyesteSoknad.fom shouldBeEqualTo basisdato
-        nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.fom shouldBe basisdato
+        nyesteSoknad.tom shouldBe basisdato.plusDays(7)
 
         Awaitility
             .await()
             .until { klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!) != null }
 
         val klipp = klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!)!!
-        klipp.sykepengesoknadUuid shouldBeEqualTo klippetSoknad.id
-        klipp.sykmeldingUuid shouldBeEqualTo nyesteSoknad.sykmeldingId
-        klipp.klippVariant shouldBeEqualTo KlippVariant.SOKNAD_STARTER_FOR_SLUTTER_INNI
-        klipp.periodeFor.tilSoknadsperioder() shouldBeEqualTo
+        klipp.sykepengesoknadUuid shouldBe klippetSoknad.id
+        klipp.sykmeldingUuid shouldBe nyesteSoknad.sykmeldingId
+        klipp.klippVariant shouldBe KlippVariant.SOKNAD_STARTER_FOR_SLUTTER_INNI
+        klipp.periodeFor.tilSoknadsperioder() shouldBe
             listOf(
                 Soknadsperiode(
                     fom = basisdato.plusDays(5),
@@ -119,7 +118,7 @@ class OverlapperFor : FellesTestOppsett() {
                     sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
                 ),
             )
-        klipp.periodeEtter.tilSoknadsperioder() shouldBeEqualTo
+        klipp.periodeEtter.tilSoknadsperioder() shouldBe
             listOf(
                 Soknadsperiode(
                     fom = basisdato.plusDays(8),
@@ -131,10 +130,10 @@ class OverlapperFor : FellesTestOppsett() {
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -165,26 +164,26 @@ class OverlapperFor : FellesTestOppsett() {
         hentetViaRest shouldHaveSize 2
 
         val klippetSoknad = hentetViaRest[0]
-        klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.fom shouldBe basisdato.plusDays(8)
+        klippetSoknad.tom shouldBe basisdato.plusDays(10)
         klippetSoknad.soknadPerioder!! shouldHaveSize 1
-        klippetSoknad.soknadPerioder[0].fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.soknadPerioder[0].tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.soknadPerioder[0].fom shouldBe basisdato.plusDays(8)
+        klippetSoknad.soknadPerioder[0].tom shouldBe basisdato.plusDays(10)
 
         val nyesteSoknad = hentetViaRest[1]
-        nyesteSoknad.fom shouldBeEqualTo basisdato
-        nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.fom shouldBe basisdato
+        nyesteSoknad.tom shouldBe basisdato.plusDays(7)
         nyesteSoknad.soknadPerioder!! shouldHaveSize 1
-        nyesteSoknad.soknadPerioder[0].fom shouldBeEqualTo basisdato
-        nyesteSoknad.soknadPerioder[0].tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.soknadPerioder[0].fom shouldBe basisdato
+        nyesteSoknad.soknadPerioder[0].tom shouldBe basisdato.plusDays(7)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -214,10 +213,10 @@ class OverlapperFor : FellesTestOppsett() {
                     ),
             ).last()
 
-        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(2)
-        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
-        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBeEqualTo false
+        overlappendeSoknad.fom shouldBe basisdato.minusDays(10)
+        overlappendeSoknad.tom shouldBe basisdato.minusDays(2)
+        overlappendeSoknad.status shouldBe SoknadsstatusDTO.NY
+        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBe false
 
         val klippetSoknad =
             hentSoknad(
@@ -225,11 +224,11 @@ class OverlapperFor : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
-        klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
-        klippetSoknad.klippet shouldBeEqualTo true
-        klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        klippetSoknad.getSporsmalMedTag(FERIE_V2).sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        klippetSoknad.fom shouldBe basisdato.minusDays(1)
+        klippetSoknad.tom shouldBe basisdato.minusDays(1)
+        klippetSoknad.klippet shouldBe true
+        klippetSoknad.status shouldBe RSSoknadstatus.NY
+        klippetSoknad.getSporsmalMedTag(FERIE_V2).sporsmalstekst shouldBe "Tok du ut feriedager i tidsrommet ${
             formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
@@ -239,10 +238,10 @@ class OverlapperFor : FellesTestOppsett() {
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "NY"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "NY"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -275,17 +274,17 @@ class OverlapperFor : FellesTestOppsett() {
                     ),
             ).last()
 
-        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(6)
-        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        overlappendeSoknad.fom shouldBe basisdato.minusDays(10)
+        overlappendeSoknad.tom shouldBe basisdato.minusDays(6)
+        overlappendeSoknad.status shouldBe SoknadsstatusDTO.NY
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "NY"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "NY"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -303,12 +302,12 @@ class OverlapperFor : FellesTestOppsett() {
                 ),
             ).first()
 
-        soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
-        soknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        soknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        soknad.status shouldBe SoknadsstatusDTO.NY
+        soknad.fom shouldBe basisdato.minusDays(10)
+        soknad.tom shouldBe basisdato.minusDays(1)
 
         avbrytSoknad(soknad.id, fnr)
-        hentSoknad(soknad.id, fnr).status shouldBeEqualTo RSSoknadstatus.AVBRUTT
+        hentSoknad(soknad.id, fnr).status shouldBe RSSoknadstatus.AVBRUTT
         sykepengesoknadKafkaConsumer.ventPåRecords(1)
 
         val overlappendeSoknad =
@@ -325,17 +324,17 @@ class OverlapperFor : FellesTestOppsett() {
                     ),
             ).last()
 
-        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(15)
-        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(5)
-        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
-        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBeEqualTo false
+        overlappendeSoknad.fom shouldBe basisdato.minusDays(15)
+        overlappendeSoknad.tom shouldBe basisdato.minusDays(5)
+        overlappendeSoknad.status shouldBe SoknadsstatusDTO.NY
+        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBe false
 
         val klippetSoknad = hentSoknad(soknad.id, fnr)
-        klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(4)
-        klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
-        klippetSoknad.klippet shouldBeEqualTo true
-        klippetSoknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
-        klippetSoknad.getSporsmalMedTag(FERIE_V2).sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        klippetSoknad.fom shouldBe basisdato.minusDays(4)
+        klippetSoknad.tom shouldBe basisdato.minusDays(1)
+        klippetSoknad.klippet shouldBe true
+        klippetSoknad.status shouldBe RSSoknadstatus.AVBRUTT
+        klippetSoknad.getSporsmalMedTag(FERIE_V2).sporsmalstekst shouldBe "Tok du ut feriedager i tidsrommet ${
             formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
@@ -359,7 +358,7 @@ class OverlapperFor : FellesTestOppsett() {
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
-        soknaderMetadata.first().status shouldBeEqualTo RSSoknadstatus.NY
+        soknaderMetadata.first().status shouldBe RSSoknadstatus.NY
 
         val rsSoknad =
             hentSoknad(
@@ -408,28 +407,28 @@ class OverlapperFor : FellesTestOppsett() {
         val soknader = hentSoknaderMetadata(fnr)
         soknader shouldHaveSize 3
 
-        soknader[0].status shouldBeEqualTo RSSoknadstatus.SENDT
-        soknader[0].fom shouldBeEqualTo basisdato.minusDays(10)
-        soknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
-        hentSoknad(soknader[0].id, fnr).klippet shouldBeEqualTo false
+        soknader[0].status shouldBe RSSoknadstatus.SENDT
+        soknader[0].fom shouldBe basisdato.minusDays(10)
+        soknader[0].tom shouldBe basisdato.minusDays(1)
+        hentSoknad(soknader[0].id, fnr).klippet shouldBe false
 
-        soknader[1].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[1].fom shouldBeEqualTo basisdato.minusDays(15)
-        soknader[1].tom shouldBeEqualTo basisdato.minusDays(11)
-        hentSoknad(soknader[1].id, fnr).klippet shouldBeEqualTo false
+        soknader[1].status shouldBe RSSoknadstatus.NY
+        soknader[1].fom shouldBe basisdato.minusDays(15)
+        soknader[1].tom shouldBe basisdato.minusDays(11)
+        hentSoknad(soknader[1].id, fnr).klippet shouldBe false
 
-        soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[2].fom shouldBeEqualTo basisdato.minusDays(10)
-        soknader[2].tom shouldBeEqualTo basisdato.minusDays(5)
-        hentSoknad(soknader[2].id, fnr).klippet shouldBeEqualTo false
+        soknader[2].status shouldBe RSSoknadstatus.NY
+        soknader[2].fom shouldBe basisdato.minusDays(10)
+        soknader[2].tom shouldBe basisdato.minusDays(5)
+        hentSoknad(soknader[2].id, fnr).klippet shouldBe false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "VET_IKKE"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "SENDT"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "VET_IKKE"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -467,17 +466,17 @@ class OverlapperFor : FellesTestOppsett() {
         hentetViaRest shouldHaveSize 2
 
         val klippetSoknad = hentetViaRest[0]
-        klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
-        klippetSoknad.soknadPerioder.`should not be null`().size `should be equal to` 1
-        klippetSoknad.soknadPerioder.first().fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.soknadPerioder.first().tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.fom shouldBe basisdato.plusDays(8)
+        klippetSoknad.tom shouldBe basisdato.plusDays(10)
+        klippetSoknad.soknadPerioder.shouldNotBeNull().size shouldBe 1
+        klippetSoknad.soknadPerioder.first().fom shouldBe basisdato.plusDays(8)
+        klippetSoknad.soknadPerioder.first().tom shouldBe basisdato.plusDays(10)
 
         val nyesteSoknad = hentetViaRest[1]
-        nyesteSoknad.fom shouldBeEqualTo basisdato
-        nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
-        nyesteSoknad.soknadPerioder.`should not be null`().size `should be equal to` 1
-        nyesteSoknad.soknadPerioder.first().fom shouldBeEqualTo basisdato
-        nyesteSoknad.soknadPerioder.first().tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.fom shouldBe basisdato
+        nyesteSoknad.tom shouldBe basisdato.plusDays(7)
+        nyesteSoknad.soknadPerioder.shouldNotBeNull().size shouldBe 1
+        nyesteSoknad.soknadPerioder.first().fom shouldBe basisdato
+        nyesteSoknad.soknadPerioder.first().tom shouldBe basisdato.plusDays(7)
     }
 }

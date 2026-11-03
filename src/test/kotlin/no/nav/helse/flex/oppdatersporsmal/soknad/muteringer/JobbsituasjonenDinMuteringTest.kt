@@ -1,5 +1,8 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -9,9 +12,6 @@ import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.settOppSykepengesokna
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.testutil.besvarsporsmal
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -68,7 +68,7 @@ class JobbsituasjonenDinMuteringTest {
         val mutertSoknad = soknad.jobbsituasjonenDinMutering()
 
         // Siden hovedspørsmålet mangler, skal ingen mutering skje
-        mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
+        mutertSoknad.sporsmal shouldBe soknad.sporsmal
     }
 
     @Test
@@ -79,7 +79,7 @@ class JobbsituasjonenDinMuteringTest {
 
         val mutertSoknad = soknadUtenSvar.jobbsituasjonenDinMutering()
         // Ingen begrensende dato – muteringen skal ikke endre spørsmålene
-        mutertSoknad.sporsmal `should be equal to` soknadUtenSvar.sporsmal
+        mutertSoknad.sporsmal shouldBe soknadUtenSvar.sporsmal
     }
 
     @Test
@@ -104,12 +104,12 @@ class JobbsituasjonenDinMuteringTest {
             .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
         soknadMedSvar.sporsmal
             .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
 
         // Muter søknaden
         val mutertSoknad = soknadMedSvar.jobbsituasjonenDinMutering()
@@ -118,12 +118,12 @@ class JobbsituasjonenDinMuteringTest {
             .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 5. februar 2025?"
+            .first() shouldBe "Hadde du  inntekt i perioden 1. - 5. februar 2025?"
         mutertSoknad.sporsmal
             .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 5. februar 2025?"
+            .first() shouldBe "Var du på reise utenfor EU/EØS i perioden 1. - 5. februar 2025?"
         mutertSoknad.sporsmal.shouldHaveSize(5)
 
         mutertSoknad.sporsmal
@@ -143,12 +143,12 @@ class JobbsituasjonenDinMuteringTest {
             .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
         remutert.sporsmal
             .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
     }
 
     @Test
@@ -186,12 +186,12 @@ class JobbsituasjonenDinMuteringTest {
             .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
         remutert.sporsmal
             .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
     }
 
     @Test
@@ -216,12 +216,12 @@ class JobbsituasjonenDinMuteringTest {
             .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
         soknadMedSvar.sporsmal
             .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
+            .first() shouldBe "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
 
         val mutertSoknad = soknadMedSvar.jobbsituasjonenDinMutering()
 
@@ -230,12 +230,12 @@ class JobbsituasjonenDinMuteringTest {
             .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 7. februar 2025?"
+            .first() shouldBe "Hadde du  inntekt i perioden 1. - 7. februar 2025?"
         mutertSoknad.sporsmal
             .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
             .map { it.sporsmalstekst }
-            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 7. februar 2025?"
+            .first() shouldBe "Var du på reise utenfor EU/EØS i perioden 1. - 7. februar 2025?"
         mutertSoknad.sporsmal.shouldHaveSize(5)
     }
 }

@@ -1,5 +1,9 @@
 package no.nav.helse.flex.service
 
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvartype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
@@ -10,10 +14,6 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSluttGammel
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain`
-import org.amshove.kluent.`should not be`
-import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,14 +34,14 @@ class HentSoknadServiceTest : FellesTestOppsett() {
             soknadArbeidstaker.replaceSporsmal(
                 tilSluttGammel(),
             )
-        soknadGammel.getSporsmalMedTag(BEKREFT_OPPLYSNINGER) `should not be` null
+        soknadGammel.getSporsmalMedTag(BEKREFT_OPPLYSNINGER) shouldNotBe null
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknadGammel)
         val hentetSoknad = hentSoknad(soknadGammel.id, soknadGammel.fnr)
-        hentetSoknad `should not be` null
+        hentetSoknad shouldNotBe null
         hentetSoknad.alleSporsmalOgUndersporsmal().flatten().map { it.tag }.let {
-            it `should contain` TIL_SLUTT
-            it `should not contain` BEKREFT_OPPLYSNINGER
+            it shouldContain TIL_SLUTT
+            it shouldNotContain BEKREFT_OPPLYSNINGER
         }
     }
 
@@ -51,10 +51,10 @@ class HentSoknadServiceTest : FellesTestOppsett() {
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknadArbeidstaker)
         val hentetSoknad = hentSoknad(soknadArbeidstaker.id, soknadArbeidstaker.fnr)
-        hentetSoknad `should not be` null
+        hentetSoknad shouldNotBe null
         hentetSoknad.alleSporsmalOgUndersporsmal().flatten().map { it.tag }.let {
-            it `should contain` TIL_SLUTT
-            it `should not contain` BEKREFT_OPPLYSNINGER
+            it shouldContain TIL_SLUTT
+            it shouldNotContain BEKREFT_OPPLYSNINGER
         }
     }
 
@@ -65,17 +65,17 @@ class HentSoknadServiceTest : FellesTestOppsett() {
             soknadArbeidstaker.replaceSporsmal(
                 tilSluttGammel(),
             )
-        soknadGammel.getSporsmalMedTag(TIL_SLUTT).svartype `should be equal to` Svartype.BEKREFTELSESPUNKTER
+        soknadGammel.getSporsmalMedTag(TIL_SLUTT).svartype shouldBe Svartype.BEKREFTELSESPUNKTER
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknadGammel)
         val hentetSoknad = hentSoknad(soknadGammel.id, soknadGammel.fnr)
-        hentetSoknad `should not be` null
+        hentetSoknad shouldNotBe null
         hentetSoknad.alleSporsmalOgUndersporsmal().flatten().map { it.tag }.let {
-            it `should contain` TIL_SLUTT
+            it shouldContain TIL_SLUTT
         }
         hentetSoknad.alleSporsmalOgUndersporsmal().flatten().map { it.svartype }.let {
-            it `should contain` RSSvartype.OPPSUMMERING
-            it `should not contain` RSSvartype.BEKREFTELSESPUNKTER
+            it shouldContain RSSvartype.OPPSUMMERING
+            it shouldNotContain RSSvartype.BEKREFTELSESPUNKTER
         }
     }
 }

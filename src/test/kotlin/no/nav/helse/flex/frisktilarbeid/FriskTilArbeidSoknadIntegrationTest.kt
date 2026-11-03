@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -11,7 +12,6 @@ import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -75,21 +75,21 @@ class FriskTilArbeidSoknadIntegrationTest : FellesTestOppsett() {
             )
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknad).also {
-            it.friskTilArbeidVedtakId `should be equal to` lagretVedtak.id
+            it.friskTilArbeidVedtakId shouldBe lagretVedtak.id
         }
 
         hentSoknaderMetadata(fnr).first().also {
-            it.friskTilArbeidVedtakId `should be equal to` lagretVedtak.id
+            it.friskTilArbeidVedtakId shouldBe lagretVedtak.id
         }
 
         hentSoknader(fnr).first().also {
-            it.friskTilArbeidVedtakId `should be equal to` lagretVedtak.id
+            it.friskTilArbeidVedtakId shouldBe lagretVedtak.id
         }
 
         soknadProducer.soknadEvent(soknad)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().also {
-            it.friskTilArbeidVedtakId `should be equal to` lagretVedtak.id
+            it.friskTilArbeidVedtakId shouldBe lagretVedtak.id
         }
     }
 }

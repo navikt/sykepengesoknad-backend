@@ -1,5 +1,7 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
@@ -10,8 +12,6 @@ import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 
 class NaringsdrivendeErstattGamleSporsmalMuteringTest {
@@ -21,8 +21,8 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeErstattGamleSporsmalMutering()
 
-        mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
-        mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
+        mutertSoknad.sporsmal.size shouldBe soknad.sporsmal.size
+        mutertSoknad.sporsmal shouldBe soknad.sporsmal
     }
 
     @Test
@@ -33,10 +33,10 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeErstattGamleSporsmalMutering()
 
-        mutertSoknad.sporsmal.size `should be equal to` antallSporsmalForMutering
-        mutertSoknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET) `should be equal to` null
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) `should not be` null
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO) `should not be` null
+        mutertSoknad.sporsmal.size shouldBe antallSporsmalForMutering
+        mutertSoknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET) shouldBe null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) shouldNotBe null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO) shouldNotBe null
     }
 
     @Test
@@ -46,10 +46,10 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
         val mutertSoknad = soknad.naringsdrivendeErstattGamleSporsmalMutering()
 
         val nyttSporsmal = mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET)
-        nyttSporsmal `should not be` null
-        nyttSporsmal!!.svartype `should be equal to` Svartype.JA_NEI
-        nyttSporsmal.undersporsmal.size `should be equal to` 1
-        nyttSporsmal.undersporsmal.first().tag `should be equal to` NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO
+        nyttSporsmal shouldNotBe null
+        nyttSporsmal!!.svartype shouldBe Svartype.JA_NEI
+        nyttSporsmal.undersporsmal.size shouldBe 1
+        nyttSporsmal.undersporsmal.first().tag shouldBe NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO
     }
 
     @Test
@@ -59,8 +59,8 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
         val mutertSoknad = soknad.naringsdrivendeErstattGamleSporsmalMutering()
         val dobbeltMutertSoknad = mutertSoknad.naringsdrivendeErstattGamleSporsmalMutering()
 
-        dobbeltMutertSoknad.sporsmal.size `should be equal to` mutertSoknad.sporsmal.size
-        dobbeltMutertSoknad.sporsmal `should be equal to` mutertSoknad.sporsmal
+        dobbeltMutertSoknad.sporsmal.size shouldBe mutertSoknad.sporsmal.size
+        dobbeltMutertSoknad.sporsmal shouldBe mutertSoknad.sporsmal
     }
 
     @Test
@@ -70,8 +70,8 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
         val mutertSoknad = soknad.naringsdrivendeErstattGamleSporsmalMutering()
 
         val alleTagsEtterMutering = mutertSoknad.sporsmal.flatten().map { it.tag }
-        alleTagsEtterMutering.none { it.startsWith("INNTEKTSOPPLYSNINGER_") } `should be equal to` true
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) `should not be` null
+        alleTagsEtterMutering.none { it.startsWith("INNTEKTSOPPLYSNINGER_") } shouldBe true
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) shouldNotBe null
     }
 
     @Test
@@ -80,7 +80,7 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeErstattGamleSporsmalMutering()
 
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) `should not be` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) shouldNotBe null
 
         val mutertEtterForsteSvar =
             mutertSoknad
@@ -88,7 +88,7 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
                 .naringsdrivendeErstattGamleSporsmalMutering()
                 .naringsdrivendeMutering()
 
-        mutertEtterForsteSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should not be` null
+        mutertEtterForsteSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) shouldNotBe null
 
         val mutertEtterAndreSvar =
             mutertEtterForsteSvar
@@ -96,7 +96,7 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
                 .naringsdrivendeErstattGamleSporsmalMutering()
                 .naringsdrivendeMutering()
 
-        mutertEtterAndreSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null
+        mutertEtterAndreSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) shouldNotBe null
 
         val mutertEtterTredjeSvar =
             mutertEtterAndreSvar
@@ -104,12 +104,12 @@ class NaringsdrivendeErstattGamleSporsmalMuteringTest {
                 .naringsdrivendeErstattGamleSporsmalMutering()
                 .naringsdrivendeMutering()
 
-        mutertEtterTredjeSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET)!!.forsteSvar `should be equal to` "NEI"
-        mutertEtterTredjeSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)!!.forsteSvar `should be equal to` "NEI"
-        mutertEtterTredjeSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING)!!.forsteSvar `should be equal to` "NEI"
+        mutertEtterTredjeSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET)!!.forsteSvar shouldBe "NEI"
+        mutertEtterTredjeSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)!!.forsteSvar shouldBe "NEI"
+        mutertEtterTredjeSvar.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING)!!.forsteSvar shouldBe "NEI"
 
         val alleTagsEtterMutering = mutertEtterTredjeSvar.sporsmal.flatten().map { it.tag }
-        alleTagsEtterMutering.none { it.startsWith("INNTEKTSOPPLYSNINGER_") } `should be equal to` true
+        alleTagsEtterMutering.none { it.startsWith("INNTEKTSOPPLYSNINGER_") } shouldBe true
     }
 }
 

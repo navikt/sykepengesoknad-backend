@@ -1,11 +1,11 @@
 package no.nav.helse.flex.fakes
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.testutil.lagSoknad
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -24,15 +24,15 @@ class SykepengesoknadRepositoryFakeTest {
 
         val funnet = repository.findBySykmeldingUuid(sykmeldingUuid)
 
-        funnet.size `should be equal to` 2
-        funnet.all { it.sykmeldingUuid == sykmeldingUuid } `should be equal to` true
+        funnet.size shouldBe 2
+        funnet.all { it.sykmeldingUuid == sykmeldingUuid } shouldBe true
     }
 
     @Test
     fun `returnerer tom liste nar sykmeldingUuid ikke finnes`() {
         val funnet = repository.findBySykmeldingUuid(UUID.randomUUID().toString())
 
-        funnet.isEmpty() `should be equal to` true
+        funnet.isEmpty() shouldBe true
     }
 
     private fun lagreSoknad(

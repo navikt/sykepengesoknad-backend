@@ -1,5 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
@@ -15,9 +17,6 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -165,18 +164,18 @@ class OverlapperMedFlere : FellesTestOppsett() {
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 3
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
-        klippmetrikker[1].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[1].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[1].klippet `should be equal to` true
-        klippmetrikker[2].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[2].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[2].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[2].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_FOR_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
+        klippmetrikker[1].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[1].variant shouldBe "SOKNAD_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[1].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[1].klippet shouldBe true
+        klippmetrikker[2].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[2].variant shouldBe "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[2].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[2].klippet shouldBe true
     }
 
     @Test
@@ -824,7 +823,7 @@ class OverlapperMedFlere : FellesTestOppsett() {
                     traceId = "",
                     sykmeldingSkrevet = null,
                 )
-            } shouldBeEqualTo
+            } shouldBe
                 faktiskResultat.map {
                     it.copy(
                         traceId = "",

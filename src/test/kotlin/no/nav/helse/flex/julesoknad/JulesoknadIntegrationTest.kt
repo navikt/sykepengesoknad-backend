@@ -1,5 +1,8 @@
 package no.nav.helse.flex.julesoknad
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
@@ -14,10 +17,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -242,7 +241,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().run {
             this shouldHaveSize 1
-            this.first().sykepengesoknadUuid shouldBeEqualTo soknaden.id
+            this.first().sykepengesoknadUuid shouldBe soknaden.id
         }
 
         // Lagre at arbeidsgiver ikke forskutterer.

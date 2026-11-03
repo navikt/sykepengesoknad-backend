@@ -1,10 +1,9 @@
 package no.nav.helse.flex.medlemskap
 
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.util.objectMapper
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tools.jackson.databind.DatabindException
@@ -31,8 +30,8 @@ class MedlemskapVurderingResponseTest {
 
         val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same`
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal shouldContainExactlyInAnyOrder
             listOf(
                 MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                 MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
@@ -76,13 +75,13 @@ class MedlemskapVurderingResponseTest {
 
         val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same`
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal shouldContainExactlyInAnyOrder
             listOf(
                 MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
             )
-        response.kjentOppholdstillatelse?.fom `should be equal to` LocalDate.of(2024, 1, 1)
-        response.kjentOppholdstillatelse?.tom `should be equal to` LocalDate.of(2024, 1, 31)
+        response.kjentOppholdstillatelse?.fom shouldBe LocalDate.of(2024, 1, 1)
+        response.kjentOppholdstillatelse?.tom shouldBe LocalDate.of(2024, 1, 31)
     }
 
     @Test
@@ -101,12 +100,12 @@ class MedlemskapVurderingResponseTest {
 
         val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same`
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal shouldContainExactlyInAnyOrder
             listOf(
                 MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
             )
-        response.kjentOppholdstillatelse?.fom `should be equal to` LocalDate.of(2024, 1, 1)
+        response.kjentOppholdstillatelse?.fom shouldBe LocalDate.of(2024, 1, 1)
         response.kjentOppholdstillatelse?.tom shouldBe null
     }
 
@@ -134,7 +133,7 @@ class MedlemskapVurderingResponseTest {
 
         val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+        response.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal shouldHaveSize 0
         response.kjentOppholdstillatelse?.tom shouldBe null
     }

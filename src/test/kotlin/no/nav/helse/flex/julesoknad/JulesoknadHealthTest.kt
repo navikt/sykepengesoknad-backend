@@ -1,5 +1,7 @@
 package no.nav.helse.flex.julesoknad
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -9,8 +11,6 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -67,7 +67,7 @@ class JulesoknadHealthTest : FellesTestOppsett() {
 
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldHaveSize(1)
-        soknader.first().status.shouldBeEqualTo(FREMTIDIG)
+        soknader.first().status.shouldBe(FREMTIDIG)
     }
 
     @Test
@@ -83,6 +83,6 @@ class JulesoknadHealthTest : FellesTestOppsett() {
 
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldHaveSize(1)
-        soknader.first().status.shouldBeEqualTo(NY)
+        soknader.first().status.shouldBe(NY)
     }
 }

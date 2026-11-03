@@ -5,7 +5,6 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 

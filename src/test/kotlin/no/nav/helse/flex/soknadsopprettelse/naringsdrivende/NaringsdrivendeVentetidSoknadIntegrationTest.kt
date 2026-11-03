@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -9,7 +10,6 @@ import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -54,7 +54,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
             erUtenforVentetid = false,
         )
 
-        hentSoknader(fnr).size `should be equal to` 0
+        hentSoknader(fnr).size shouldBe 0
 
         sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessage1,
@@ -65,10 +65,10 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         )
 
         hentSoknader(fnr).run {
-            this.size `should be equal to` 2
-            this.first { it.sykmeldingId == kafkaMessage.sykmelding.id }.ventetidSykmeldingUuid `should be equal to`
+            this.size shouldBe 2
+            this.first { it.sykmeldingId == kafkaMessage.sykmelding.id }.ventetidSykmeldingUuid shouldBe
                 kafkaMessage1.sykmelding.id
-            this.first { it.sykmeldingId == kafkaMessage1.sykmelding.id }.ventetidSykmeldingUuid `should be equal to` null
+            this.first { it.sykmeldingId == kafkaMessage1.sykmelding.id }.ventetidSykmeldingUuid shouldBe null
         }
     }
 
@@ -91,7 +91,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
             )
         }
 
-        hentSoknader(fnr).size `should be equal to` 0
+        hentSoknader(fnr).size shouldBe 0
     }
 
     @Test
@@ -118,7 +118,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         )
 
         val hentSoknader = hentSoknader(fnr)
-        hentSoknader.size `should be equal to` 2
+        hentSoknader.size shouldBe 2
 
         sendSykmelding(
             sykmeldingKafkaMessage = kafkaMessage1,
@@ -129,8 +129,8 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         )
 
         val hentSoknader1 = hentSoknader(fnr)
-        hentSoknader1.size `should be equal to` 2
-        hentSoknader.map { it.id } `should be equal to` hentSoknader1.map { it.id }
+        hentSoknader1.size shouldBe 2
+        hentSoknader.map { it.id } shouldBe hentSoknader1.map { it.id }
     }
 
     @Test
@@ -149,9 +149,9 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         )
 
         val hentSoknader = hentSoknader(fnr)
-        hentSoknader.size `should be equal to` 2
-        hentSoknader[0].fom `should be equal to` dato
-        hentSoknader[1].fom `should be equal to` dato.plusDays(10)
+        hentSoknader.size shouldBe 2
+        hentSoknader[0].fom shouldBe dato
+        hentSoknader[1].fom shouldBe dato.plusDays(10)
     }
 
     private fun lagSykmeldingKafkaMessage(

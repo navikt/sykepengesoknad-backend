@@ -1,5 +1,11 @@
 package no.nav.helse.flex.reisetilskudd
 
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -21,7 +27,6 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -152,7 +157,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        avbruttSøknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
+        avbruttSøknad.status shouldBe RSSoknadstatus.AVBRUTT
     }
 
     @Test
@@ -166,7 +171,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        gjenåpnet.status shouldBeEqualTo RSSoknadstatus.NY
+        gjenåpnet.status shouldBe RSSoknadstatus.NY
     }
 
     @Test
@@ -187,7 +192,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             ).getSporsmalMedTag(ANSVARSERKLARING).svar.first()
-        svaret.verdi shouldBeEqualTo "CHECKED"
+        svaret.verdi shouldBe "CHECKED"
     }
 
     @Test
@@ -237,7 +242,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
-            .verdi shouldBeEqualTo "JA"
+            .verdi shouldBe "JA"
 
         assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -284,7 +289,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         val returnertSvar = spmSomBleSvart.svar.first()
 
         val returnertKvittering: Kvittering = objectMapper.readValue(returnertSvar.verdi)
-        returnertKvittering.typeUtgift.`should be equal to`(Utgiftstype.PARKERING)
+        returnertKvittering.typeUtgift.shouldBe(Utgiftstype.PARKERING)
     }
 
     @Test
@@ -296,13 +301,13 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
-        kvitteringSpm.svar.size `should be equal to` 1
+        kvitteringSpm.svar.size shouldBe 1
 
         val returnertSvar = kvitteringSpm.svar.first()
         val returnertKvittering: Kvittering = objectMapper.readValue(returnertSvar.verdi)
 
-        returnertKvittering.blobId.`should be equal to`("9a186e3c-aeeb-4566-a865-15aa9139d364")
-        returnertKvittering.belop.`should be equal to`(133700)
+        returnertKvittering.blobId.shouldBe("9a186e3c-aeeb-4566-a865-15aa9139d364")
+        returnertKvittering.belop.shouldBe(133700)
     }
 
     @Test
@@ -314,7 +319,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
-        kvitteringSpm.svar.size `should be equal to` 1
+        kvitteringSpm.svar.size shouldBe 1
 
         val svaret = kvitteringSpm.svar.first()
 
@@ -326,7 +331,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val kvitteringSpmEtter = reisetilskuddSoknadEtter.getSporsmalMedTag(KVITTERINGER)
-        kvitteringSpmEtter.svar.size `should be equal to` 0
+        kvitteringSpmEtter.svar.size shouldBe 0
     }
 
     @Test
@@ -390,7 +395,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleArbeidsgiverperiode()
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
         val mottaker = finnMottakerAvSoknad(reisetilskudd.id, fnr)
-        mottaker.mottaker shouldBeEqualTo RSMottaker.ARBEIDSGIVER
+        mottaker.mottaker shouldBe RSMottaker.ARBEIDSGIVER
     }
 
     @Test
@@ -406,7 +411,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         val sendtSøknad =
             SoknadBesvarer(reisetilskudd, this, fnr)
                 .sendSoknad()
-        sendtSøknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+        sendtSøknad.status shouldBe RSSoknadstatus.SENDT
         sendtSøknad.sendtTilArbeidsgiverDato.shouldNotBeNull()
         sendtSøknad.sendtTilNAVDato.shouldBeNull()
     }
@@ -446,7 +451,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         val ettersendt = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         ettersendt.sendtNav.shouldNotBeNull()
         ettersendt.sendtArbeidsgiver.shouldNotBeNull()
-        ettersendt.ettersending.`should be true`()
+        ettersendt.ettersending.shouldBeTrue()
     }
 
     @Test
@@ -463,7 +468,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
-            .verdi shouldBeEqualTo "NEI"
+            .verdi shouldBe "NEI"
         assertThat(utkastMedSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -499,7 +504,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .sendSoknad()
 
         val sendtSøknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        sendtSøknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        sendtSøknad.status shouldBe SoknadsstatusDTO.SENDT
         sendtSøknad.sendtNav.shouldNotBeNull()
         sendtSøknad.sendtArbeidsgiver.shouldNotBeNull()
     }

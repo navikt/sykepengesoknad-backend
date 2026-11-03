@@ -1,15 +1,14 @@
 package no.nav.helse.flex.medlemskap
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingDbRecord
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -58,14 +57,14 @@ class MedlemskapVurderingRepositoryTest : FellesTestOppsett() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "11111111111"
-        dbRecord.fom `should be equal to` fom
-        dbRecord.tom `should be equal to` tom
+        dbRecord.fnr shouldBe "11111111111"
+        dbRecord.fom shouldBe fom
+        dbRecord.tom shouldBe tom
         dbRecord.timestamp shouldNotBe null
-        dbRecord.svartid `should be equal to` svartid
-        dbRecord.svartype `should be equal to` "UAVKLART"
-        dbRecord.sporsmal!!.value `should be equal to` (listOf("En", "To").serialisertTilString())
-        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
+        dbRecord.svartid shouldBe svartid
+        dbRecord.svartype shouldBe "UAVKLART"
+        dbRecord.sporsmal!!.value shouldBe (listOf("En", "To").serialisertTilString())
+        dbRecord.sykepengesoknadId shouldBe sykepengesoknadId
         dbRecord.kjentOppholdstillatelse shouldBe null
     }
 
@@ -92,14 +91,14 @@ class MedlemskapVurderingRepositoryTest : FellesTestOppsett() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "11111111111"
-        dbRecord.fom `should be equal to` fom
-        dbRecord.tom `should be equal to` tom
+        dbRecord.fnr shouldBe "11111111111"
+        dbRecord.fom shouldBe fom
+        dbRecord.tom shouldBe tom
         dbRecord.timestamp shouldNotBe null
-        dbRecord.svartid `should be equal to` svartid
-        dbRecord.svartype `should be equal to` "JA"
-        dbRecord.sporsmal!!.value.`should be equal to`(emptyList<String>().serialisertTilString())
-        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
+        dbRecord.svartid shouldBe svartid
+        dbRecord.svartype shouldBe "JA"
+        dbRecord.sporsmal!!.value.shouldBe(emptyList<String>().serialisertTilString())
+        dbRecord.sykepengesoknadId shouldBe sykepengesoknadId
         dbRecord.kjentOppholdstillatelse shouldBe null
     }
 
@@ -125,14 +124,14 @@ class MedlemskapVurderingRepositoryTest : FellesTestOppsett() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "11111111111"
-        dbRecord.fom `should be equal to` fom
-        dbRecord.tom `should be equal to` tom
+        dbRecord.fnr shouldBe "11111111111"
+        dbRecord.fom shouldBe fom
+        dbRecord.tom shouldBe tom
         dbRecord.timestamp shouldNotBe null
-        dbRecord.svartid `should be equal to` svartid
-        dbRecord.svartype `should be equal to` "JA"
-        dbRecord.sporsmal `should be equal to` null
-        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
+        dbRecord.svartid shouldBe svartid
+        dbRecord.svartype shouldBe "JA"
+        dbRecord.sporsmal shouldBe null
+        dbRecord.sykepengesoknadId shouldBe sykepengesoknadId
         dbRecord.kjentOppholdstillatelse shouldBe null
     }
 
@@ -163,15 +162,15 @@ class MedlemskapVurderingRepositoryTest : FellesTestOppsett() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "11111111111"
-        dbRecord.fom `should be equal to` fom
-        dbRecord.tom `should be equal to` tom
+        dbRecord.fnr shouldBe "11111111111"
+        dbRecord.fom shouldBe fom
+        dbRecord.tom shouldBe tom
         dbRecord.timestamp shouldNotBe null
-        dbRecord.svartid `should be equal to` svartid
-        dbRecord.svartype `should be equal to` "JA"
-        dbRecord.sporsmal `should be equal to` null
-        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
-        dbRecord.kjentOppholdstillatelse!!.value `should be equal to`
+        dbRecord.svartid shouldBe svartid
+        dbRecord.svartype shouldBe "JA"
+        dbRecord.sporsmal shouldBe null
+        dbRecord.sykepengesoknadId shouldBe sykepengesoknadId
+        dbRecord.kjentOppholdstillatelse!!.value shouldBe
             KjentOppholdstillatelse(
                 LocalDate.of(2024, 1, 1),
                 LocalDate.of(2024, 1, 31),
@@ -201,15 +200,15 @@ class MedlemskapVurderingRepositoryTest : FellesTestOppsett() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "11111111111"
-        dbRecord.fom `should be equal to` fom
-        dbRecord.tom `should be equal to` tom
+        dbRecord.fnr shouldBe "11111111111"
+        dbRecord.fom shouldBe fom
+        dbRecord.tom shouldBe tom
         dbRecord.timestamp shouldNotBe null
-        dbRecord.svartid `should be equal to` svartid
-        dbRecord.svartype `should be equal to` "JA"
-        dbRecord.sporsmal `should be equal to` null
-        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
-        dbRecord.kjentOppholdstillatelse!!.value `should be equal to`
+        dbRecord.svartid shouldBe svartid
+        dbRecord.svartype shouldBe "JA"
+        dbRecord.sporsmal shouldBe null
+        dbRecord.sykepengesoknadId shouldBe sykepengesoknadId
+        dbRecord.kjentOppholdstillatelse!!.value shouldBe
             KjentOppholdstillatelse(
                 LocalDate.of(2024, 1, 1),
             ).serialisertTilString()

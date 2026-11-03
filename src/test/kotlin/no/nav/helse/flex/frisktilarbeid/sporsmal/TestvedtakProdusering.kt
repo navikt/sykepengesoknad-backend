@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid.sporsmal
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.frisktilarbeid.*
@@ -7,7 +8,6 @@ import no.nav.helse.flex.frisktilarbeid.asProducerRecordKey
 import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidVedtakStatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.time.LocalDate
 
@@ -36,12 +36,12 @@ fun FakesTestOppsett.sendFriskTilArbeidVedtak(
 
     val vedtakSomSkalBehandles = friskTilArbeidRepository.finnVedtakSomSkalBehandles(10)
 
-    vedtakSomSkalBehandles.size `should be equal to` 1
+    vedtakSomSkalBehandles.size shouldBe 1
     vedtakSomSkalBehandles.first().also {
-        it.fnr `should be equal to` fnr
-        it.behandletStatus `should be equal to` BehandletStatus.NY
-        it.fom `should be equal to` vedtaksperiode.fom
-        it.tom `should be equal to` vedtaksperiode.tom
+        it.fnr shouldBe fnr
+        it.behandletStatus shouldBe BehandletStatus.NY
+        it.fom shouldBe vedtaksperiode.fom
+        it.tom shouldBe vedtaksperiode.tom
     }
     return key
 }

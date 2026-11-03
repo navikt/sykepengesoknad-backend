@@ -1,5 +1,8 @@
 package no.nav.helse.flex.utenlandsksykmelding
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -7,7 +10,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -36,7 +38,7 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
             )
 
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeFalse()
-        kafkaSoknader[0].startSyketilfelle!!.toString() shouldBeEqualTo "2021-09-01"
+        kafkaSoknader[0].startSyketilfelle!!.toString() shouldBe "2021-09-01"
     }
 
     @Test
@@ -77,7 +79,7 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
             )
 
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
-        kafkaSoknader[0].startSyketilfelle!!.toString() shouldBeEqualTo "2021-09-01"
+        kafkaSoknader[0].startSyketilfelle!!.toString() shouldBe "2021-09-01"
     }
 
     @Test

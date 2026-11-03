@@ -1,5 +1,7 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -9,8 +11,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
@@ -44,11 +44,11 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
 
-        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.SENDT
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
-        inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
+        inntektFraNyttArbeidsforhold.fom shouldBe LocalDate.of(2022, 9, 5)
+        inntektFraNyttArbeidsforhold.tom shouldBe basisdato
     }
 }

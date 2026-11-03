@@ -1,5 +1,8 @@
 package no.nav.helse.flex.frisktilarbeid.sporsmal
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -11,9 +14,6 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.`should be true`
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
@@ -47,11 +47,11 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
     fun `Oppretter søknader med status FREMTIDIG`() {
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
 
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
             }
 
         await().until {
@@ -66,14 +66,14 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
         }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size `should be equal to` 2
-            it.map { it.status } `should be equal to`
+            it.size shouldBe 2
+            it.map { it.status } shouldBe
                 listOf(
                     Soknadstatus.NY,
                     Soknadstatus.FREMTIDIG,
                 )
             it.forEach {
-                it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
+                it.friskTilArbeidVedtakId shouldBe friskTilArbeidDbRecord.id
             }
         }
     }
@@ -82,7 +82,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
     @Order(3)
     fun `Sortering av tags er riktig`() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
-        soknad.sporsmal!!.map { it.tag } `should be equal to`
+        soknad.sporsmal!!.map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
                 FTA_JOBBSITUASJONEN_DIN,
@@ -91,7 +91,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
                 TIL_SLUTT,
             )
         val jaSpørsmål = soknad.getSporsmalMedTag(FTA_JOBBSITUASJONEN_DIN_JA)
-        jaSpørsmål.undersporsmal.map { it.tag }.`should be equal to`(
+        jaSpørsmål.undersporsmal.map { it.tag }.shouldBe(
             listOf(
                 FTA_JOBBSITUASJONEN_DIN_NAR,
                 FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB,
@@ -120,9 +120,9 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
     fun `Sendt søknad har riktig data`() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
         val sendtSoknad = SoknadKafkaProducerFake.records.last().value()
-        sendtSoknad.id `should be equal to` soknad.id
-        sendtSoknad.inntektUnderveis!!.`should be false`()
-        sendtSoknad.fortsattArbeidssoker!!.`should be true`()
+        sendtSoknad.id shouldBe soknad.id
+        sendtSoknad.inntektUnderveis!!.shouldBeFalse()
+        sendtSoknad.fortsattArbeidssoker!!.shouldBeTrue()
     }
 
     @Test
@@ -131,8 +131,8 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
         aktiveringJob.bestillAktivering(LocalDate.now().plusDays(1))
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
         val kafkaSoknad = SoknadKafkaProducerFake.records.last().value()
-        kafkaSoknad.id `should be equal to` soknad.id
-        kafkaSoknad.status `should be equal to` SoknadsstatusDTO.NY
+        kafkaSoknad.id shouldBe soknad.id
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.NY
     }
 
     @Test
@@ -142,7 +142,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
 
         val jobbsitasjonenDin = soknad.getSporsmalMedTag(FTA_JOBBSITUASJONEN_DIN)
         val tags = listOf(jobbsitasjonenDin).flatten().map { it.tag }
-        tags `should be equal to`
+        tags shouldBe
             listOf(
                 FTA_JOBBSITUASJONEN_DIN,
                 FTA_JOBBSITUASJONEN_DIN_JA,
@@ -167,9 +167,9 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
             }.sendSoknad()
 
         val kafkaSoknad = SoknadKafkaProducerFake.records.last().value()
-        kafkaSoknad.id `should be equal to` soknad.id
-        kafkaSoknad.status `should be equal to` SoknadsstatusDTO.SENDT
-        kafkaSoknad.fortsattArbeidssoker `should be equal to` null
-        kafkaSoknad.inntektUnderveis!!.`should be true`()
+        kafkaSoknad.id shouldBe soknad.id
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.SENDT
+        kafkaSoknad.fortsattArbeidssoker shouldBe null
+        kafkaSoknad.inntektUnderveis!!.shouldBeTrue()
     }
 }

@@ -1,12 +1,11 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.AaregDataHenting
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -30,7 +29,7 @@ class AaregHentingTest : FellesTestOppsett() {
                 fnr = "11111234565",
                 eksisterendeSoknader = emptyList(),
                 sykepengesoknad = soknad,
-            ).`should be empty`()
+            ).shouldBeEmpty()
     }
 
     @Test
@@ -49,8 +48,8 @@ class AaregHentingTest : FellesTestOppsett() {
                 sykepengesoknad = soknad,
             )
         nyeArbeidsforhold.shouldHaveSize(2)
-        nyeArbeidsforhold[0].arbeidsstedNavn `should be equal to` "Bensinstasjonen AS"
-        nyeArbeidsforhold[1].arbeidsstedNavn `should be equal to` "Kiosken, avd Oslo AS"
+        nyeArbeidsforhold[0].arbeidsstedNavn shouldBe "Bensinstasjonen AS"
+        nyeArbeidsforhold[1].arbeidsstedNavn shouldBe "Kiosken, avd Oslo AS"
     }
 
     @Test

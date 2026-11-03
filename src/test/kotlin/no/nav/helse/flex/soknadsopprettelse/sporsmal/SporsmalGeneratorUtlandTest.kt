@@ -1,5 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.FiskerLottOgHyre
@@ -16,8 +18,6 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.FLERE_INNTEKTSKILDER_GRUPPE
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.beans.factory.annotation.Autowired
@@ -74,9 +74,9 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
         sjekkArbeidsforholdFraAareg(soknad.id, forventedeOrgnumre = emptyList())
         sjekkGhostInntekter(soknad.id, forventedeOrgnumre = listOf("999333666"))
         val lagretSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
-        lagretSoknad.ghostInntekter!!.single().kilde `should be equal to` Kilde.INNTEKTSKOMPONENTEN
-        lagretSoknad.sporsmal.count { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } `should be equal to` 1
-        lagretSoknad.sporsmal.none { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) } `should be equal to` true
+        lagretSoknad.ghostInntekter!!.single().kilde shouldBe Kilde.INNTEKTSKOMPONENTEN
+        lagretSoknad.sporsmal.count { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } shouldBe 1
+        lagretSoknad.sporsmal.none { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) } shouldBe true
     }
 
     @ParameterizedTest(name = "{0}")
@@ -108,10 +108,10 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
         sporsmalGenerator.lagSporsmalPaSoknad(soknad.id)
 
         val lagretSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
-        lagretSoknad.sporsmal.isNotEmpty() `should be equal to` true
-        lagretSoknad.arbeidsforholdFraAareg `should be equal to`
+        lagretSoknad.sporsmal.isNotEmpty() shouldBe true
+        lagretSoknad.arbeidsforholdFraAareg shouldBe
             if (arbeidssituasjon == Arbeidssituasjon.FISKER) emptyList() else null
-        lagretSoknad.ghostInntekter `should be equal to`
+        lagretSoknad.ghostInntekter shouldBe
             if (arbeidssituasjon == Arbeidssituasjon.FISKER) emptyList() else null
     }
 
@@ -185,8 +185,8 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
         forventedeOrgnumre: List<String>,
     ) {
         val lagretSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
-        lagretSoknad.sporsmal.isNotEmpty() `should be equal to` true
-        lagretSoknad.arbeidsforholdFraAareg.`should not be null`().map { it.arbeidsstedOrgnummer } `should be equal to`
+        lagretSoknad.sporsmal.isNotEmpty() shouldBe true
+        lagretSoknad.arbeidsforholdFraAareg.shouldNotBeNull().map { it.arbeidsstedOrgnummer } shouldBe
             forventedeOrgnumre
     }
 
@@ -195,6 +195,6 @@ class SporsmalGeneratorUtlandTest : FakesTestOppsett() {
         forventedeOrgnumre: List<String>,
     ) {
         val lagretSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
-        lagretSoknad.ghostInntekter.`should not be null`().map { it.orgnummer } `should be equal to` forventedeOrgnumre
+        lagretSoknad.ghostInntekter.shouldNotBeNull().map { it.orgnummer } shouldBe forventedeOrgnumre
     }
 }

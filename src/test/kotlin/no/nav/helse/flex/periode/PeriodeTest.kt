@@ -1,7 +1,7 @@
 package no.nav.helse.flex.periode
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Periode
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate.of
 
@@ -14,7 +14,7 @@ class PeriodeTest {
                 of(2024, 10, 27),
             ) // Mandag til søndag
 
-        periode.hentUkedager().size `should be equal to` 5 // Forventer kun ukedager, dvs. mandag til fredag
+        periode.hentUkedager().size shouldBe 5 // Forventer kun ukedager, dvs. mandag til fredag
     }
 
     @Test
@@ -22,7 +22,7 @@ class PeriodeTest {
         val sammeDag = of(2024, 10, 23) // Onsdag
         val periodeSammeDag = Periode(sammeDag, sammeDag)
 
-        periodeSammeDag.hentUkedager().size `should be equal to` 1 // Forventer kun én ukedag
+        periodeSammeDag.hentUkedager().size shouldBe 1 // Forventer kun én ukedag
     }
 
     @Test
@@ -33,7 +33,7 @@ class PeriodeTest {
                 of(2024, 10, 28),
             ) // Fredag til mandag
 
-        fredagTilMandag.hentUkedager().size `should be equal to` 2 // Forventer fredag og mandag, ingen helgedager
+        fredagTilMandag.hentUkedager().size shouldBe 2 // Forventer fredag og mandag, ingen helgedager
     }
 
     @Test
@@ -44,7 +44,7 @@ class PeriodeTest {
                 of(2024, 10, 27),
             ) // Lørdag til søndag
 
-        kunHelg.hentUkedager().size `should be equal to` 0 // Forventer ingen ukedager
+        kunHelg.hentUkedager().size shouldBe 0 // Forventer ingen ukedager
     }
 
     @Test
@@ -55,7 +55,7 @@ class PeriodeTest {
                 of(2024, 10, 31),
             ) // Fredag til neste torsdag
 
-        overFlereUker.hentUkedager().size `should be equal to` 10 // Forventer 10 ukedager (fre, man-fre, man-tor)
+        overFlereUker.hentUkedager().size shouldBe 10 // Forventer 10 ukedager (fre, man-fre, man-tor)
     }
 
     @Test
@@ -63,6 +63,6 @@ class PeriodeTest {
         val periode1 = Periode(of(2024, 10, 21), of(2024, 10, 27))
         val periode2 = Periode(of(2024, 10, 24), of(2024, 10, 30))
 
-        periode1.overlapper(periode2) `should be equal to` true
+        periode1.overlapper(periode2) shouldBe true
     }
 }

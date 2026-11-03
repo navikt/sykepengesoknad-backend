@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
@@ -9,7 +10,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,8 +62,8 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
 
         ventPåLagredeSoknader(antall = 1)
         val soknader = hentSoknader(fnr)
-        soknader.size `should be equal to` 1
-        soknader.first().sykmeldingId `should be equal to` kafkaMessage.sykmelding.id
+        soknader.size shouldBe 1
+        soknader.first().sykmeldingId shouldBe kafkaMessage.sykmelding.id
     }
 
     @Test
@@ -94,8 +94,8 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
 
         ventPåLagredeSoknader(antall = 1)
         val soknader = hentSoknader(fnr)
-        soknader.size `should be equal to` 1
-        soknader.first().sykmeldingId `should be equal to` kafkaMessage.sykmelding.id
+        soknader.size shouldBe 1
+        soknader.first().sykmeldingId shouldBe kafkaMessage.sykmelding.id
     }
 
     @Test

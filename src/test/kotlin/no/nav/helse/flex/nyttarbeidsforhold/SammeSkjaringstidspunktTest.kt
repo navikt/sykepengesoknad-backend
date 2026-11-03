@@ -1,5 +1,7 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Svar
@@ -12,8 +14,6 @@ import no.nav.helse.flex.soknadsopprettelse.aaregdata.ingenArbeidsdagerMellomSta
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidSporsmal
 import no.nav.helse.flex.testutil.byttSvar
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.`should be true`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -29,7 +29,7 @@ class SammeSkjaringstidspunktTest {
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
-        ).`should be true`()
+        ).shouldBeTrue()
     }
 
     @Test
@@ -47,7 +47,7 @@ class SammeSkjaringstidspunktTest {
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
-        ).`should be false`()
+        ).shouldBeFalse()
     }
 
     @Test
@@ -66,7 +66,7 @@ class SammeSkjaringstidspunktTest {
                 tom = LocalDate.of(2022, 9, 15),
                 egenmeldingsdager = listOf(LocalDate.of(2022, 9, 9)),
             ),
-        ).`should be true`()
+        ).shouldBeTrue()
     }
 
     @Test
@@ -84,7 +84,7 @@ class SammeSkjaringstidspunktTest {
                 fom = LocalDate.of(2022, 9, 13),
                 tom = LocalDate.of(2022, 9, 15),
             ),
-        ).`should be false`()
+        ).shouldBeFalse()
     }
 
     @Test
@@ -102,7 +102,7 @@ class SammeSkjaringstidspunktTest {
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
-        ).`should be true`()
+        ).shouldBeTrue()
     }
 
     @Test
@@ -121,7 +121,7 @@ class SammeSkjaringstidspunktTest {
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
-        ).`should be false`()
+        ).shouldBeFalse()
     }
 }
 

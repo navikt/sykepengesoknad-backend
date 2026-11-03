@@ -1,6 +1,7 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
+import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.JURIDISK_VURDERING_TOPIC
@@ -20,7 +21,6 @@ import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.amshove.kluent.should
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
@@ -199,5 +199,5 @@ infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this
 infix fun Instant.shouldBeWithinSecondsOf(pair: Pair<Int, Instant>) {
     val (seconds, other) = pair
     val difference = abs(this.epochSecond - other.epochSecond)
-    this.should { difference <= seconds }
+    difference shouldBeLessThanOrEqual seconds.toLong()
 }

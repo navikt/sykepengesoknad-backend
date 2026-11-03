@@ -1,8 +1,8 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
@@ -38,8 +38,8 @@ class FriskTilArbeidTestDataIntegrationTest : FellesTestOppsett() {
             await().atMost(1, TimeUnit.SECONDS).until({ friskTilArbeidRepository.findAll().toList() }, { it.size == 1 })
 
         dbRecords.first().also {
-            it.fnr `should be equal to` fnr
-            it.behandletStatus `should be equal to` BehandletStatus.NY
+            it.fnr shouldBe fnr
+            it.behandletStatus shouldBe BehandletStatus.NY
         }
     }
 }

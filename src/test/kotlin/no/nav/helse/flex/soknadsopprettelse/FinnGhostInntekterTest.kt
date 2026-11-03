@@ -1,10 +1,10 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEmpty
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -57,7 +57,7 @@ class FinnGhostInntekterTest {
 
         @Test
         fun `inntekt fra inntektskomponenten hos andre enn arbeidsgiver er ghost`() {
-            finn(inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer))) `should be equal to`
+            finn(inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer))) shouldBe
                 listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
         }
 
@@ -74,7 +74,7 @@ class FinnGhostInntekterTest {
                         inntektskomponenten(inntektskomponentenOrgnummer),
                         inntektskomponenten(inntektskomponentenOrgnummer),
                     ),
-            ) `should be equal to` listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
+            ) shouldBe listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
         }
 
         @Test
@@ -99,7 +99,7 @@ class FinnGhostInntekterTest {
                         inntektskomponenten(aaregOrgnummer),
                     ),
                 aareg = listOf(aareg(aaregOrgnummer)),
-            ) `should be equal to` listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
+            ) shouldBe listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
         }
     }
 
@@ -124,7 +124,7 @@ class FinnGhostInntekterTest {
         fun `inntekt fra inntektskomponenten er ghost uten arbeidsgiver i søknaden`() {
             finn(
                 inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer, type = Arbeidsforholdstype.FRILANSER)),
-            ) `should be equal to` listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
+            ) shouldBe listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
         }
 
         @Test
@@ -140,7 +140,7 @@ class FinnGhostInntekterTest {
             finn(
                 inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer)),
                 soknadsOrgnummer = null,
-            ).map { it.orgnummer } `should be equal to` listOf(inntektskomponentenOrgnummer)
+            ).map { it.orgnummer } shouldBe listOf(inntektskomponentenOrgnummer)
         }
     }
 }

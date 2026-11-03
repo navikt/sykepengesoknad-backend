@@ -1,5 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknader
@@ -11,7 +12,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -52,7 +52,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 ),
             )
 
-        perioderMedGrad shouldBeEqualTo
+        perioderMedGrad shouldBe
             listOf(
                 Triple(50, 100, 37.5),
             )
@@ -84,7 +84,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 ),
             )
 
-        perioderMedGrad shouldBeEqualTo
+        perioderMedGrad shouldBe
             listOf(
                 Triple(25, 100, 40.0),
             )
@@ -116,7 +116,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 ),
             )
 
-        perioderMedGrad shouldBeEqualTo
+        perioderMedGrad shouldBe
             listOf(
                 Triple(13, 100, 40.0),
             )
@@ -148,7 +148,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 ),
             )
 
-        perioderMedGrad shouldBeEqualTo
+        perioderMedGrad shouldBe
             listOf(
                 Triple(11, 100, 40.0),
             )
@@ -180,7 +180,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 ),
             )
 
-        perioderMedGrad shouldBeEqualTo
+        perioderMedGrad shouldBe
             listOf(
                 Triple(15, 100, 40.0),
             )
@@ -211,7 +211,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 ),
             )
 
-        perioderMedGrad shouldBeEqualTo
+        perioderMedGrad shouldBe
             listOf(
                 Triple(15, 100, 37.5),
             )

@@ -1,5 +1,9 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNySoknad
@@ -9,17 +13,13 @@ import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_JA
 import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_NEI
 import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.jobbsituasjonenDin
 import no.nav.helse.flex.testutil.byttSvar
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class FortsattArbeidssokerTest {
     @Test
     fun `Retunerer null ved ingen spørsmål`() {
-        soknadMedSporsmal(emptyList()).fortsattFriskmeldtTilArbeidsformidling() shouldBeEqualTo null
+        soknadMedSporsmal(emptyList()).fortsattFriskmeldtTilArbeidsformidling() shouldBe null
     }
 
     @Test

@@ -1,5 +1,6 @@
 package no.nav.helse.flex.svarvalidering
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -15,7 +16,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.periodeTilJson
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -58,8 +58,8 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             ),
         )
         val soknad = hentSoknaderMetadata(fnr).first()
-        soknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        soknad.status shouldBeEqualTo RSSoknadstatus.NY
+        soknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        soknad.status shouldBe RSSoknadstatus.NY
     }
 
     @Test
@@ -70,7 +70,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, svar)
 
-        soknaden.getSporsmalMedTag(ANSVARSERKLARING).forsteSvar shouldBeEqualTo svar
+        soknaden.getSporsmalMedTag(ANSVARSERKLARING).forsteSvar shouldBe svar
     }
 
     @Test
@@ -82,12 +82,12 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "JA", ferdigBesvart = false)
             .besvarSporsmal(TILBAKE_NAR, svar, mutert = true)
 
-        soknaden.getSporsmalMedTag(TILBAKE_NAR).forsteSvar shouldBeEqualTo svar
+        soknaden.getSporsmalMedTag(TILBAKE_NAR).forsteSvar shouldBe svar
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI", mutert = true)
 
-        soknaden.getSporsmalMedTag(TILBAKE_NAR).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(TILBAKE_NAR).forsteSvar shouldBe null
     }
 
     @Test
@@ -99,12 +99,12 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             .besvarSporsmal(FERIE_V2, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE_NAR_V2, svar)
 
-        soknaden.getSporsmalMedTag(FERIE_NAR_V2).forsteSvar shouldBeEqualTo svar
+        soknaden.getSporsmalMedTag(FERIE_NAR_V2).forsteSvar shouldBe svar
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FERIE_V2, "NEI")
 
-        soknaden.getSporsmalMedTag(FERIE_NAR_V2).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(FERIE_NAR_V2).forsteSvar shouldBe null
     }
 
     @Test
@@ -116,12 +116,12 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             .besvarSporsmal(PERMISJON_V2, "JA", ferdigBesvart = false)
             .besvarSporsmal(PERMISJON_NAR_V2, svar)
 
-        soknaden.getSporsmalMedTag(PERMISJON_NAR_V2).forsteSvar shouldBeEqualTo svar
+        soknaden.getSporsmalMedTag(PERMISJON_NAR_V2).forsteSvar shouldBe svar
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(PERMISJON_V2, "NEI")
 
-        soknaden.getSporsmalMedTag(PERMISJON_NAR_V2).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(PERMISJON_NAR_V2).forsteSvar shouldBe null
     }
 
     @Test
@@ -134,39 +134,39 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             .besvarSporsmal(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0), "37,5", ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MYE_PROSENT, 0), "CHECKED", ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MYE_PROSENT_VERDI, 0), "79")
-        soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBeEqualTo "NEI"
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBeEqualTo "37,5"
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBeEqualTo "79"
+        soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBe "NEI"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBe "37,5"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBe "CHECKED"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBe "79"
 
         // Har vanlig arbeidsuke og arbeid i prosent
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0), svar = "JA")
-        soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBeEqualTo "JA"
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBeEqualTo "79"
+        soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBe "JA"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBe "CHECKED"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBe "79"
 
         // Har vanlig arbeidsuke og arbeid i timer
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(HVOR_MYE_PROSENT, 0), svar = null, ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MYE_TIMER, 0), svar = "CHECKED", ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MYE_TIMER_VERDI, 0), svar = "120")
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER, 0)).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER_VERDI, 0)).forsteSvar shouldBeEqualTo "120"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER, 0)).forsteSvar shouldBe "CHECKED"
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER_VERDI, 0)).forsteSvar shouldBe "120"
 
         // Svarer nei på hovedspørsmål
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
-        soknaden.getSporsmalMedTag(medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0)).forsteSvar shouldBeEqualTo "NEI"
-        soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER, 0)).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER_VERDI, 0)).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0)).forsteSvar shouldBe "NEI"
+        soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER, 0)).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER_VERDI, 0)).forsteSvar shouldBe null
     }
 
     @Test
@@ -177,30 +177,30 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(INNTEKTSKILDE_STYREVERV, svar = "CHECKED", ferdigBesvart = false)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
-        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo "CHECKED"
+        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBe "JA"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBe "CHECKED"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBe "CHECKED"
 
         // velger bort andre arbeidsforhold
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = null)
-        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBe "JA"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBe "CHECKED"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBe null
 
         // velger andre arbeidsforhold med jobbing
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
-        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo "CHECKED"
+        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBe "JA"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBe "CHECKED"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBe "CHECKED"
 
         // Nei på hovedspørsmål nullstiller underspørsmål
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
-        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "NEI"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBe "NEI"
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBe null
+        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBe null
     }
 
     @Test
@@ -209,8 +209,8 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
 
-        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).forsteSvar shouldBeEqualTo "NEI"
-        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).forsteSvar shouldBe "NEI"
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).forsteSvar shouldBe null
     }
 
     @Test
@@ -219,7 +219,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .oppsummering()
 
-        soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo "true"
+        soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBe "true"
     }
 
     @Test
@@ -231,7 +231,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .sendSoknad()
 
-        soknaden.status shouldBeEqualTo RSSoknadstatus.SENDT
+        soknaden.status shouldBe RSSoknadstatus.SENDT
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 }

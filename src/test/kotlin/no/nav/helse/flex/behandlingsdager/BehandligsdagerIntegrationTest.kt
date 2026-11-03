@@ -1,5 +1,6 @@
 package no.nav.helse.flex.behandlingsdager
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -23,7 +24,6 @@ import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
@@ -74,8 +74,8 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         val uke0 = soknaden.getSporsmalMedTag("ENKELTSTAENDE_BEHANDLINGSDAGER_0").undersporsmal[0]
         val uke1 = soknaden.getSporsmalMedTag("ENKELTSTAENDE_BEHANDLINGSDAGER_0").undersporsmal[1]
 
-        uke0.sporsmalstekst `should be equal to` "01.01.2018 - 05.01.2018"
-        uke1.sporsmalstekst `should be equal to` "08.01.2018 - 10.01.2018"
+        uke0.sporsmalstekst shouldBe "01.01.2018 - 05.01.2018"
+        uke1.sporsmalstekst shouldBe "08.01.2018 - 10.01.2018"
     }
 
     @Test

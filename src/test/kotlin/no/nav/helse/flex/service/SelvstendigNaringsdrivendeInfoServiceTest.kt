@@ -1,5 +1,8 @@
 package no.nav.helse.flex.service
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.QueueDispatcher
@@ -12,10 +15,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.invoking
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -58,14 +57,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` ORGNAVN
-            it.orgnummer `should be equal to` ORGNUMMER
-            it.rolletype `should be equal to` "INNH"
+            it.orgnavn shouldBe ORGNAVN
+            it.orgnummer shouldBe ORGNUMMER
+            it.rolletype shouldBe "INNH"
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` true
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe true
         }
     }
 
@@ -89,14 +88,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` ORGNAVN
-            it.orgnummer `should be equal to` ORGNUMMER
-            it.rolletype `should be equal to` "INNH"
+            it.orgnavn shouldBe ORGNAVN
+            it.orgnummer shouldBe ORGNUMMER
+            it.rolletype shouldBe "INNH"
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` true
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe true
+            it.brukerHarOppgittForsikring shouldBe false
         }
     }
 
@@ -119,17 +118,17 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` ORGNAVN
-            it.orgnummer `should be equal to` ORGNUMMER
-            it.rolletype `should be equal to` "INNH"
+            it.orgnavn shouldBe ORGNAVN
+            it.orgnummer shouldBe ORGNUMMER
+            it.rolletype shouldBe "INNH"
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe false
         }
 
-        EnhetsregisterMockDispatcher.antallKall() `should be equal to` antallKall
+        EnhetsregisterMockDispatcher.antallKall() shouldBe antallKall
     }
 
     @Test
@@ -154,24 +153,24 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 )
 
         selvstendigNaringsdrivendeInfo.roller.also {
-            it.size `should be equal to` 2
+            it.size shouldBe 2
 
             it.first().also { rolle ->
-                rolle.orgnavn `should be equal to` ORGNAVN
-                rolle.orgnummer `should be equal to` ORGNUMMER
-                rolle.rolletype `should be equal to` "INNH"
+                rolle.orgnavn shouldBe ORGNAVN
+                rolle.orgnummer shouldBe ORGNUMMER
+                rolle.rolletype shouldBe "INNH"
             }
 
             it.last().also { rolle ->
-                rolle.orgnavn `should be equal to` ORGNAVN
-                rolle.orgnummer `should be equal to` ORGNUMMER
-                rolle.rolletype `should be equal to` "DAGL"
+                rolle.orgnavn shouldBe ORGNAVN
+                rolle.orgnummer shouldBe ORGNUMMER
+                rolle.rolletype shouldBe "DAGL"
             }
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe false
         }
     }
 
@@ -198,14 +197,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` ORGNAVN
-            it.orgnummer `should be equal to` ORGNUMMER
-            it.rolletype `should be equal to` "INNH"
+            it.orgnavn shouldBe ORGNAVN
+            it.orgnummer shouldBe ORGNUMMER
+            it.rolletype shouldBe "INNH"
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe false
         }
     }
 
@@ -225,11 +224,11 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
-        selvstendigNaringsdrivendeInfo.roller.`should be empty`()
+        selvstendigNaringsdrivendeInfo.roller.shouldBeEmpty()
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe false
         }
     }
 
@@ -251,11 +250,11 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
-        selvstendigNaringsdrivendeInfo.roller.`should be empty`()
+        selvstendigNaringsdrivendeInfo.roller.shouldBeEmpty()
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe false
         }
     }
 
@@ -274,12 +273,12 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             ).also {
                 it.roller.single().also { rolle ->
-                    rolle.orgnavn `should be equal to` ORGNAVN
-                    rolle.orgnummer `should be equal to` ORGNUMMER
-                    rolle.rolletype `should be equal to` "INNH"
+                    rolle.orgnavn shouldBe ORGNAVN
+                    rolle.orgnummer shouldBe ORGNUMMER
+                    rolle.rolletype shouldBe "INNH"
                 }
-                it.erBarnepasser `should be equal to` false
-                it.brukerHarOppgittForsikring `should be equal to` false
+                it.erBarnepasser shouldBe false
+                it.brukerHarOppgittForsikring shouldBe false
             }
     }
 
@@ -291,13 +290,13 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 setFailFast(withContentTypeApplicationJson { MockResponse(code = 500) })
             }
 
-        invoking {
+        shouldThrow<HttpServerErrorException> {
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             )
-        }.shouldThrow(HttpServerErrorException::class)
+        }
     }
 
     @Test
@@ -323,14 +322,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` ORGNAVN
-            it.orgnummer `should be equal to` ORGNUMMER
-            it.rolletype `should be equal to` "INNH"
+            it.orgnavn shouldBe ORGNAVN
+            it.orgnummer shouldBe ORGNUMMER
+            it.rolletype shouldBe "INNH"
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.erBarnepasser `should be equal to` false
-            it.brukerHarOppgittForsikring `should be equal to` false
+            it.erBarnepasser shouldBe false
+            it.brukerHarOppgittForsikring shouldBe false
         }
     }
 }

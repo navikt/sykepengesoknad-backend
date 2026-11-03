@@ -1,11 +1,12 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 
@@ -40,7 +41,7 @@ class NyttArbeidsforholdInnenforAgpTest : FellesTestOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }.shouldBeNull()
 
-        soknaden.sporsmal.map { it.tag } `should be equal to`
+        soknaden.sporsmal.map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

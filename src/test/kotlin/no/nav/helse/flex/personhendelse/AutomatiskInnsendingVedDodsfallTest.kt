@@ -1,5 +1,7 @@
 package no.nav.helse.flex.personhendelse
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.mock.opprettNySoknad
@@ -11,8 +13,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.util.tilOsloZone
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,14 +42,14 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
 
     @Test
     fun `Tom database inkluderer ingen dødsfall å prosessere`() {
-        antallDodsmeldingerIDb().shouldBeEqualTo(0)
+        antallDodsmeldingerIDb().shouldBe(0)
 
-        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(0)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBe(0)
 
         verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
         verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(0)
+        antallDodsmeldingerIDb().shouldBe(0)
     }
 
     @Test
@@ -65,14 +65,14 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
             OffsetDateTime.now().minusDays(10),
         )
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(2)
+        antallDodsmeldingerIDb().shouldBe(2)
 
-        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(0)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBe(0)
 
         verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
         verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(2)
+        antallDodsmeldingerIDb().shouldBe(2)
     }
 
     @Test
@@ -98,15 +98,15 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
             OffsetDateTime.now().minusDays(16),
         )
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(4)
-        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(2)
+        antallDodsmeldingerIDb().shouldBe(4)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBe(2)
 
         verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
         verify(automatiskInnsendingVedDodsfall).automatiskInnsending("12345678902", LocalDate.now().minusDays(16))
         verify(automatiskInnsendingVedDodsfall).automatiskInnsending("12345678903", LocalDate.now().minusDays(17))
         verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(2)
+        antallDodsmeldingerIDb().shouldBe(2)
     }
 
     @Test
@@ -133,17 +133,17 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
                     .tilOsloZone(),
         )
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(1)
+        antallDodsmeldingerIDb().shouldBe(1)
 
-        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(1)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBe(1)
 
         verify(automatiskInnsendingVedDodsfall).automatiskInnsending("12345678900", soknad.tom.minusDays(1))
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
         soknader.shouldHaveSize(2)
-        soknader.first().status.shouldBeEqualTo(SoknadsstatusDTO.NY)
-        soknader.last().status.shouldBeEqualTo(SoknadsstatusDTO.SENDT)
+        soknader.first().status.shouldBe(SoknadsstatusDTO.NY)
+        soknader.last().status.shouldBe(SoknadsstatusDTO.SENDT)
 
-        antallDodsmeldingerIDb().shouldBeEqualTo(0)
+        antallDodsmeldingerIDb().shouldBe(0)
     }
 
     fun antallDodsmeldingerIDb(): Int =

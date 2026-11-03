@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
@@ -16,7 +17,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.lagSoknad
 import no.nav.syfo.sykmelding.kafka.model.STATUS_APEN
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -54,8 +54,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.size `should be equal to` 1
-                it.single() `should be equal to` sykmelding1
+                it.size shouldBe 1
+                it.single() shouldBe sykmelding1
             }
     }
 
@@ -92,8 +92,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.size `should be equal to` 1
-                it.single() `should be equal to` sykmelding1
+                it.size shouldBe 1
+                it.single() shouldBe sykmelding1
             }
     }
 
@@ -138,8 +138,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.size `should be equal to` 1
-                it.first() `should be equal to` sykmelding2
+                it.size shouldBe 1
+                it.first() shouldBe sykmelding2
             }
     }
 
@@ -180,8 +180,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding1.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.size `should be equal to` 1
-                it.first() `should be equal to` sykmelding
+                it.size shouldBe 1
+                it.first() shouldBe sykmelding
             }
     }
 
@@ -222,7 +222,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding1.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.size `should be equal to` 0
+                it.size shouldBe 0
             }
     }
 
@@ -295,7 +295,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding2.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.first() `should be equal to` sykmelding3
+                it.first() shouldBe sykmelding3
             }
     }
 
@@ -371,9 +371,9 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 arbeidssituasjon = sykmelding2.hentArbeidssituasjon()!!,
                 sykmeldingIder = sykmeldingIder,
             ).also {
-                it.size `should be equal to` 2
-                it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding.sykmelding.id } `should be equal to` sykmelding
-                it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding3.sykmelding.id } `should be equal to` sykmelding3
+                it.size shouldBe 2
+                it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding.sykmelding.id } shouldBe sykmelding
+                it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding3.sykmelding.id } shouldBe sykmelding3
             }
     }
 

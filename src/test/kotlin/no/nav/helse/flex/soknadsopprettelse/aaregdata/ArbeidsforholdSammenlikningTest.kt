@@ -1,7 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse.aaregdata
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import no.nav.helse.flex.client.aareg.*
-import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime

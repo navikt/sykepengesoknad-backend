@@ -1,14 +1,14 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.model.Merknad
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 
@@ -32,7 +32,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
             .first()
             .merknaderFraSykmelding!!
             .first()
-            .type `should be equal to` "UNDER_BEHANDLING"
+            .type shouldBe "UNDER_BEHANDLING"
     }
 
     @Test
@@ -49,7 +49,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
             .first()
             .merknaderFraSykmelding!!
             .first()
-            .type `should be equal to` "UGYLDIG_TILBAKEDATERING"
+            .type shouldBe "UGYLDIG_TILBAKEDATERING"
     }
 
     @Test
@@ -77,7 +77,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
             .first()
             .merknaderFraSykmelding!!
             .first()
-            .type `should be equal to` "UNDER_BEHANDLING"
+            .type shouldBe "UNDER_BEHANDLING"
     }
 
     @Test
@@ -95,7 +95,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
             .sendSoknad()
 
         val kafkasoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        kafkasoknad.merknaderFraSykmelding!!.first().type `should be equal to` "UNDER_BEHANDLING"
+        kafkasoknad.merknaderFraSykmelding!!.first().type shouldBe "UNDER_BEHANDLING"
     }
 
     @Test

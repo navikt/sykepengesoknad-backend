@@ -1,5 +1,11 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.soknadsopprettelse.*
@@ -8,7 +14,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -38,14 +43,14 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
 
-        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.SENDT
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
-        inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
-        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
-        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
+        inntektFraNyttArbeidsforhold.fom shouldBe LocalDate.of(2022, 9, 5)
+        inntektFraNyttArbeidsforhold.tom shouldBe basisdato
+        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer shouldBe "999888777"
+        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer shouldBe "11224455441"
     }
 
     @Test
@@ -72,8 +77,8 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm = soknaden.getSporsmalMedTag(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0")
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() shouldBe "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() shouldBe "Kiosken, avd Oslo AS"
     }
 
     @Test
@@ -97,11 +102,11 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
             .inntektFraNyttArbeidsforhold!!
             .first()
             .harJobbet
-            .`should be false`()
+            .shouldBeFalse()
         kafkaSoknader[0]
             .inntektFraNyttArbeidsforhold!!
             .first()
             .belop
-            .`should be null`()
+            .shouldBeNull()
     }
 }

@@ -1,5 +1,7 @@
 package no.nav.helse.flex.controller
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeResponse
@@ -17,7 +19,6 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testutil.lagSoknad
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -124,7 +125,7 @@ class FlexAPITest : FellesTestOppsett() {
             )
 
         val fraRest: FlexInternalSoknadResponse = objectMapper.readValue(result.response.contentAsString)
-        fraRest.sykepengesoknad.id.shouldBeEqualTo(id)
+        fraRest.sykepengesoknad.id.shouldBe(id)
 
         verifiserAuditLog(
             fnr = fnr,
@@ -226,7 +227,7 @@ class FlexAPITest : FellesTestOppsett() {
             )
 
         val fraRest: HentPensjonsgivendeInntektResponse = objectMapper.readValue(result.response.contentAsString)
-        fraRest.inntektsaar shouldBeEqualTo "2024"
+        fraRest.inntektsaar shouldBe "2024"
 
         verifiserAuditLog(
             fnr = testIdent,
@@ -275,7 +276,7 @@ class FlexAPITest : FellesTestOppsett() {
                     .contentType(MediaType.APPLICATION_JSON),
             )
 
-        result.response.contentAsString shouldBeEqualTo "[]"
+        result.response.contentAsString shouldBe "[]"
 
         verifiserAuditLog(
             fnr = testIdent,
@@ -328,7 +329,7 @@ class FlexAPITest : FellesTestOppsett() {
         slettSoknad(testFnr, nySoknad)
 
         sykepengesoknadDAO.finnSykepengesoknader(listOf(testFnr)).also {
-            it.single().id `should be equal to` sendtSoknad.id
+            it.single().id shouldBe sendtSoknad.id
         }
 
         verifiserAuditLog(
@@ -367,7 +368,7 @@ class FlexAPITest : FellesTestOppsett() {
         slettSoknad(testFnr, fremtidigSoknad)
 
         sykepengesoknadDAO.finnSykepengesoknader(listOf(testFnr)).also {
-            it.single().id `should be equal to` sendtSoknad.id
+            it.single().id shouldBe sendtSoknad.id
         }
 
         verifiserAuditLog(
@@ -396,8 +397,8 @@ class FlexAPITest : FellesTestOppsett() {
 
         val result = slettSoknad(testFnr, sendtSoknad)
 
-        result.response.status `should be equal to` 400
-        result.response.contentAsString `should be equal to` "Kan kun slette søknader med status NY eller FREMTIDIG."
+        result.response.status shouldBe 400
+        result.response.contentAsString shouldBe "Kan kun slette søknader med status NY eller FREMTIDIG."
     }
 
     @Test
@@ -418,8 +419,8 @@ class FlexAPITest : FellesTestOppsett() {
 
         val result = slettSoknad(otherFnr, nySoknad)
 
-        result.response.status `should be equal to` 404
-        result.response.contentAsString `should be equal to` "Fant ikke søknad med id: ${nySoknad.id} tilhørende den aktuelle brukeren."
+        result.response.status shouldBe 404
+        result.response.contentAsString shouldBe "Fant ikke søknad med id: ${nySoknad.id} tilhørende den aktuelle brukeren."
     }
 
     // ------- Helpers --------
@@ -454,14 +455,14 @@ class FlexAPITest : FellesTestOppsett() {
 
         val entry = objectMapper.readValue<AuditEntry>(records.single().value())
         with(entry) {
-            appNavn shouldBeEqualTo "flex-internal"
-            utførtAv shouldBeEqualTo utfortAv
-            oppslagPå shouldBeEqualTo fnr
-            this.eventType shouldBeEqualTo eventType
+            appNavn shouldBe "flex-internal"
+            utførtAv shouldBe utfortAv
+            oppslagPå shouldBe fnr
+            this.eventType shouldBe eventType
             forespørselTillatt shouldBe true
-            this.beskrivelse shouldBeEqualTo beskrivelse
-            this.requestUrl.path shouldBeEqualTo requestUrl.path
-            this.requestMethod shouldBeEqualTo requestMethod
+            this.beskrivelse shouldBe beskrivelse
+            this.requestUrl.path shouldBe requestUrl.path
+            this.requestMethod shouldBe requestMethod
         }
     }
 }

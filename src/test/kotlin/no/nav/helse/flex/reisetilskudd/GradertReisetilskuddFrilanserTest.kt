@@ -1,5 +1,7 @@
 package no.nav.helse.flex.reisetilskudd
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknad
@@ -18,8 +20,6 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -130,7 +130,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
             .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
-            .verdi shouldBeEqualTo "JA"
+            .verdi shouldBe "JA"
 
         assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(

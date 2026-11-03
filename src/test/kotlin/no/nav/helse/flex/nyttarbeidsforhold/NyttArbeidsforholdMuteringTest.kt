@@ -1,11 +1,13 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -27,13 +29,13 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+        nyttArbeidsforholdSpm.sporsmalstekst shouldBe
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").stringValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("fom").stringValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("tom").stringValue() `should be equal to` "2022-09-15"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() shouldBe "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() shouldBe "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").stringValue() shouldBe "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").stringValue() shouldBe "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").stringValue() shouldBe "2022-09-15"
     }
 
     @Test
@@ -94,13 +96,13 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+        nyttArbeidsforholdSpm.sporsmalstekst shouldBe
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 5. september 2022?"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").stringValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("fom").stringValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("tom").stringValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() shouldBe "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() shouldBe "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").stringValue() shouldBe "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").stringValue() shouldBe "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").stringValue() shouldBe "2022-09-05"
     }
 
     @Test
@@ -139,13 +141,13 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+        nyttArbeidsforholdSpm.sporsmalstekst shouldBe
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").stringValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("fom").stringValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("tom").stringValue() `should be equal to` "2022-09-15"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() shouldBe "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() shouldBe "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").stringValue() shouldBe "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").stringValue() shouldBe "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").stringValue() shouldBe "2022-09-15"
     }
 
     @Test
@@ -177,13 +179,13 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
 
-        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.SENDT
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom.toString() `should be equal to` "2022-09-05"
-        inntektFraNyttArbeidsforhold.tom.toString() `should be equal to` "2022-09-05"
-        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
-        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
+        inntektFraNyttArbeidsforhold.fom.toString() shouldBe "2022-09-05"
+        inntektFraNyttArbeidsforhold.tom.toString() shouldBe "2022-09-05"
+        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer shouldBe "999888777"
+        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer shouldBe "11224455441"
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain.mapper
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -17,7 +18,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.tilOsloLocalDateTime
-import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -512,7 +512,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                 hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad).first,
             ).soknadsperioder
 
-        soknadsperioder!!.size `should be equal to` 2
+        soknadsperioder!!.size shouldBe 2
 
         assertThat(soknadsperioder[0].fom).isEqualTo(sykepengesoknad.soknadPerioder!![0].fom)
         assertThat(soknadsperioder[0].tom).isEqualTo(sykepengesoknad.soknadPerioder[0].tom)
@@ -574,7 +574,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             periode,
             emptyList(),
             null,
-        )!! `should be equal to` 50
+        )!! shouldBe 50
     }
 
     @Test
@@ -595,7 +595,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             periode,
             emptyList(),
             null,
-        )!! `should be equal to` 75
+        )!! shouldBe 75
     }
 
     @Test
@@ -616,7 +616,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             periode,
             emptyList(),
             null,
-        ) `should be equal to` 25
+        ) shouldBe 25
     }
 
     @Test
@@ -645,7 +645,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             periode,
             emptyList(),
             null,
-        ) `should be equal to` 60
+        ) shouldBe 60
 
         beregnFaktiskGrad(
             timerJobbetIPerioden,
@@ -653,6 +653,6 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             periode,
             ferieOgPermisjon,
             null,
-        ) `should be equal to` 60
+        ) shouldBe 60
     }
 }

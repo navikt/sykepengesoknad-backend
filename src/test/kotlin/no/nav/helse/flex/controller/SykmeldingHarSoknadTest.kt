@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.RSHarSoknadForSykmeldingResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -13,7 +14,6 @@ import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.testutil.lagSoknad
 import no.nav.helse.flex.tokenxToken
 import no.nav.helse.flex.util.objectMapper
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -55,7 +55,7 @@ class SykmeldingHarSoknadTest : FakesTestOppsett() {
         )
 
         val response = hentHarSoknadForSykmeldingOgArbeidssituasjon(sykmeldingUuid, fnr)
-        response.harSoknad `should be equal to` true
+        response.harSoknad shouldBe true
     }
 
     @Test
@@ -77,7 +77,7 @@ class SykmeldingHarSoknadTest : FakesTestOppsett() {
         )
 
         val responseFoerKlipp = hentHarSoknadForSykmeldingOgArbeidssituasjon(sykmeldingUuid, fnr)
-        responseFoerKlipp.harSoknad `should be equal to` true
+        responseFoerKlipp.harSoknad shouldBe true
 
         val lagretSoknad = sykepengesoknadRepository.findBySykmeldingUuid(sykmeldingUuid).single()
         sykepengesoknadRepository.deleteById(lagretSoknad.id!!)
@@ -93,19 +93,19 @@ class SykmeldingHarSoknadTest : FakesTestOppsett() {
         )
 
         val responseEtterKlipp = hentHarSoknadForSykmeldingOgArbeidssituasjon(sykmeldingUuid, fnr)
-        responseEtterKlipp.harSoknad `should be equal to` true
+        responseEtterKlipp.harSoknad shouldBe true
 
         val lagretKlipp = klippetSykepengesoknadRepository.findBySykmeldingUuid(sykmeldingUuid)!!
         klippetSykepengesoknadRepository.deleteById(lagretKlipp.id!!)
 
         val responseEtterSlettingAvKlipp = hentHarSoknadForSykmeldingOgArbeidssituasjon(sykmeldingUuid, fnr)
-        responseEtterSlettingAvKlipp.harSoknad `should be equal to` false
+        responseEtterSlettingAvKlipp.harSoknad shouldBe false
     }
 
     @Test
     fun `returnerer harSoknad=false når ingen søknad finnes for sykmelding`() {
         val response = hentHarSoknadForSykmeldingOgArbeidssituasjon(UUID.randomUUID().toString(), fnr)
-        response.harSoknad `should be equal to` false
+        response.harSoknad shouldBe false
     }
 
     @Test
@@ -137,9 +137,9 @@ class SykmeldingHarSoknadTest : FakesTestOppsett() {
         )
 
         hentHarSoknadForSykmeldingOgArbeidssituasjon(sykmeldingUuid, fnr, Arbeidssituasjon.NAERINGSDRIVENDE)
-            .harSoknad `should be equal to` true
+            .harSoknad shouldBe true
         hentHarSoknadForSykmeldingOgArbeidssituasjon(sykmeldingUuid, fnr, Arbeidssituasjon.FRILANSER)
-            .harSoknad `should be equal to` false
+            .harSoknad shouldBe false
     }
 
     @Test

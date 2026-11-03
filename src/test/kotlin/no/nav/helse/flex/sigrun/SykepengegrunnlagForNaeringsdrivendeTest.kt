@@ -1,5 +1,7 @@
 package no.nav.helse.flex.sigrun
 
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
@@ -7,8 +9,6 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.service.finnFoersteAarISykepengegrunnlaget
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -84,12 +84,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe true
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2021
         }
     }
 
@@ -147,12 +147,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2021
         }
     }
 
@@ -199,12 +199,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2021
         }
     }
 
@@ -251,12 +251,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2021
         }
     }
 
@@ -323,12 +323,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2021
         }
     }
 
@@ -376,12 +376,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 5
+        SigrunMockDispatcher.antallKall() shouldBe 5
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2020
         }
     }
 
@@ -418,13 +418,13 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 5
+        SigrunMockDispatcher.antallKall() shouldBe 5
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.inntekter.size `should be equal to` 3
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
+            spg.inntekter.size shouldBe 3
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2020
         }
     }
 
@@ -452,13 +452,13 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
             sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(
                 lagSykepengesoknad(dato = LocalDate.of(2023, 10, 1)),
             )
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.inntekter.size `should be equal to` 3
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
+            spg.inntekter.size shouldBe 3
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2020
         }
     }
 
@@ -470,11 +470,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
             }
         }
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall() `should be equal to` 5
+        SigrunMockDispatcher.antallKall() shouldBe 5
 
-        sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
-        sykepengegrunnlag.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
+        sykepengegrunnlag shouldNotBe null
+        sykepengegrunnlag!!.harFunnetInntektFoerSykepengegrunnlaget shouldBe true
+        sykepengegrunnlag.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2020
     }
 
     @Test
@@ -520,12 +520,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad(LocalDate.of(2025, 3, 1)))
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag shouldNotBe null
         sykepengegrunnlag!!.let { spg ->
-            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2022
+            spg.harFunnetInntektFoerSykepengegrunnlaget shouldBe false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() shouldBe 2022
         }
     }
 
