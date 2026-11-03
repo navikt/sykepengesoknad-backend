@@ -8,6 +8,22 @@ import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+fun flereInntektskilderGhostEllerAndreInntekterV2(
+    fom: LocalDate,
+    tom: LocalDate,
+    ghostInntekter: List<KjentInntektskilde>,
+): Sporsmal =
+    if (ghostInntekter.isNotEmpty()) {
+        flereInntektskilderGhost(
+            andreKjenteInntektskilder = ghostInntekter,
+            fom = fom,
+            tom = tom,
+        )
+    } else {
+        andreInntektskilderV2()
+    }
 
 fun flereInntektskilderGhost(
     andreKjenteInntektskilder: List<KjentInntektskilde>,
@@ -29,6 +45,8 @@ fun flereInntektskilderGhost(
                 Sporsmal(
                     tag = FLERE_INNTEKTSKILDER_GHOST,
                     sporsmalstekst = skapSporsmal(fom, tom),
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                     svartype = Svartype.JA_NEI,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                     undersporsmal =
