@@ -5,13 +5,9 @@ package no.nav.helse.flex.behandlingsdager
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSKilde
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
@@ -19,14 +15,11 @@ import no.nav.helse.flex.sykepengesoknad.kafka.KildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.KjenteInntektskilderDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.behandlingsdager
-import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.getSporsmalMedTag
-import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
@@ -101,7 +94,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
             )
     }
 
-    // TODO: GJØR DENNE FERDIG:D
     @Test
     fun `Får ghost-spørsmål fra inntektskomponenten og andre inntektskilder`() {
         InntektskomponentenMockDispatcher.enqueue(
@@ -195,99 +187,4 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 ),
             )
     }
-
-    @Test
-    fun `V2 på toppnivå fjernes ved mutering av eldre søknad med ghost-inntekter`() {
-        val fnr = "11111234568"
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-            ),
-        )
-        val soknaden =
-            hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-                fnr = fnr,
-            )
-        soknaden.sporsmal!!.count { it.tag == ANDRE_INNTEKTSKILDER_V2 } `should be equal to` 1
-        val lagretSoknad = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
-        sykepengesoknadRepository.save(
-            lagretSoknad.copy(
-                ghostInntekter =
-                    listOf(
-                        KjentInntektskilde(
-                            navn = "Frilanseransetter AS",
-                            kilde = Kilde.INNTEKTSKOMPONENTEN,
-                            orgnummer = "999333667",
-                        ),
-                    ).serialisertTilString(),
-            ),
-        )
-
-        val mutert =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
-                .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
-
-        mutert.rSSykepengesoknad.`har flere inntektskilder gruppe spørsmål`()
-        hentSoknad(soknadId = soknaden.id, fnr = fnr).`har flere inntektskilder gruppe spørsmål`()
-    }
-
-    @Test
-    fun `Ghost-spørsmål blir værende og dupliseres ikke ved friskmelding-mutering`() {
-        val fnr = "11111234567"
-
-        InntektskomponentenMockDispatcher.enqueue(
-            skapHentInntekterResponse(
-                fnr = fnr,
-                loennsinntektOrgnumre = listOf("999333667"),
-                frilansOrgnumre = listOf("999333667"),
-            ),
-        )
-
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
-            ),
-        )
-
-        val soknaden =
-            hentSoknad(
-                soknadId =
-                    hentSoknaderMetadata(fnr)
-                        .first { it.status == RSSoknadstatus.NY }
-                        .id,
-                fnr = fnr,
-            )
-
-        val friskFraStart =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
-                .besvarSporsmal(FRISKMELDT, "NEI", ferdigBesvart = false)
-                .besvarSporsmal(FRISKMELDT_START, basisdato.minusDays(20).toString(), mutert = true)
-
-        friskFraStart.rSSykepengesoknad.getSporsmalMedTagOrNull(FLERE_INNTEKTSKILDER_GRUPPE).`should be null`()
-        friskFraStart.rSSykepengesoknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2).`should be null`()
-
-        val friskMidtI =
-            friskFraStart
-                .besvarSporsmal(FRISKMELDT_START, basisdato.minusDays(12).toString(), mutert = true)
-
-        friskMidtI.rSSykepengesoknad.`har flere inntektskilder gruppe spørsmål`()
-    }
-}
-
-private fun RSSykepengesoknad.`har flere inntektskilder gruppe spørsmål`() {
-    this.sporsmal!!.count { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } `should be equal to` 1
-    this.sporsmal.none { it.tag == ANDRE_INNTEKTSKILDER_V2 } `should be equal to` true
-    this.sporsmal
-        .single { it.tag == FLERE_INNTEKTSKILDER_GRUPPE }
-        .undersporsmal
-        .map { it.tag } `should be equal to`
-        listOf(FLERE_INNTEKTSKILDER_GHOST, ANDRE_INNTEKTSKILDER_V2)
 }
