@@ -2,18 +2,23 @@ package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Mottaker
+import no.nav.helse.flex.domain.Sporsmal
+import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.mock.opprettNySoknadAnnet
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
+import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
+import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.muterErstattGammelAndreInntektskilder
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class AndreInntektskilderKtTest : FellesTestOppsett() {
@@ -122,6 +127,22 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
         andreInntektskilder.shouldHaveSize(1)
 
         andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+    }
+
+    @Test
+    fun `Behandlingsdager muterer bort gammel ANDRE_INNTEKTSKILDER`() {
+        val soknad =
+            opprettBehandlingsdagsoknadTestadata()
+                .fjernSporsmal(ANDRE_INNTEKTSKILDER_V2)
+                .leggTilSporsmaal(Sporsmal(tag = ANDRE_INNTEKTSKILDER, svartype = Svartype.JA_NEI))
+
+        soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER).shouldNotBeNull()
+        soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2).shouldBeNull()
+
+        val mutertSoknad = soknad.muterErstattGammelAndreInntektskilder()
+
+        mutertSoknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER).shouldBeNull()
+        mutertSoknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2).shouldNotBeNull()
     }
 
     @Test

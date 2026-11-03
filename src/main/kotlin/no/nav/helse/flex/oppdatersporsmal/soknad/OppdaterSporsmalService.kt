@@ -11,6 +11,7 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.brukteDuReisetilskud
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.friskmeldtMuteringer
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.jobbaDuHundreGate
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.jobbsituasjonenDinMutering
+import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.muterErstattGammelAndreInntektskilder
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.naringsdrivendeErstattGamleSporsmalMutering
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.naringsdrivendeMutering
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtlandsopphold
@@ -75,6 +76,7 @@ class OppdaterSporsmalService(
                 .oppdaterMedSvarPaUtlandsopphold() // TODO: denne kan fjernes helt etterhvert
                 .naringsdrivendeErstattGamleSporsmalMutering() // TODO: denne kan fjernes 2027-01-28
                 .naringsdrivendeMutering()
+                .muterErstattGammelAndreInntektskilder() // TODO: denne kan fjernes 2027-11-04
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 
