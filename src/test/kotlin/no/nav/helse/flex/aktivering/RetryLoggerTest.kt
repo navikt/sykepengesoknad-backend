@@ -1,7 +1,7 @@
 package no.nav.helse.flex.aktivering
 
+import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.helse.flex.FellesTestOppsett
-import org.amshove.kluent.`should be instance of`
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,9 +21,9 @@ class RetryLoggerTest : FellesTestOppsett() {
     @Test
     fun `ErrorLogger skal returneres når antall kall overstiger MAX_WARNINGS med en gitt ID`() {
         repeat(MAX_RETRIES_BEFORE_ERROR) {
-            retryLogger.inkrementerRetriesOgReturnerLogger("id-1") `should be instance of` WarnLogger::class
+            retryLogger.inkrementerRetriesOgReturnerLogger("id-1").shouldBeInstanceOf<WarnLogger>()
         }
-        retryLogger.inkrementerRetriesOgReturnerLogger("id-1") `should be instance of` ErrorLogger::class
-        retryLogger.inkrementerRetriesOgReturnerLogger("id-2") `should be instance of` WarnLogger::class
+        retryLogger.inkrementerRetriesOgReturnerLogger("id-1").shouldBeInstanceOf<ErrorLogger>()
+        retryLogger.inkrementerRetriesOgReturnerLogger("id-2").shouldBeInstanceOf<WarnLogger>()
     }
 }

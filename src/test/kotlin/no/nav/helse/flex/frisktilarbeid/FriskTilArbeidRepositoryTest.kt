@@ -1,12 +1,12 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,18 +38,18 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         val dbRecord = dbRecords.first()
 
         dbRecord.id shouldNotBe null
-        dbRecord.vedtakUuid `should be equal to` verdierForLagring.uuid
-        dbRecord.key `should be equal to` verdierForLagring.key
-        dbRecord.fnr `should be equal to` verdierForLagring.vedtakStatus.personident
-        dbRecord.fom `should be equal to` verdierForLagring.vedtakStatus.fom
-        dbRecord.tom `should be equal to` verdierForLagring.vedtakStatus.tom
-        dbRecord.behandletStatus `should be equal to` BehandletStatus.NY
-        dbRecord.behandletTidspunkt `should be equal to` null
-        dbRecord.ignorerArbeidssokerregister `should be equal to` true
+        dbRecord.vedtakUuid shouldBe verdierForLagring.uuid
+        dbRecord.key shouldBe verdierForLagring.key
+        dbRecord.fnr shouldBe verdierForLagring.vedtakStatus.personident
+        dbRecord.fom shouldBe verdierForLagring.vedtakStatus.fom
+        dbRecord.tom shouldBe verdierForLagring.vedtakStatus.tom
+        dbRecord.behandletStatus shouldBe BehandletStatus.NY
+        dbRecord.behandletTidspunkt shouldBe null
+        dbRecord.ignorerArbeidssokerregister shouldBe true
 
         val lagretJson = objectMapper.readTree(dbRecord.vedtak!!.value)
         val vedtakStatusJson = objectMapper.readTree(verdierForLagring.vedtakStatus.serialisertTilString())
-        lagretJson `should be equal to` vedtakStatusJson
+        lagretJson shouldBe vedtakStatusJson
     }
 
     @Test
@@ -73,24 +73,24 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         }
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).also {
-            it.size `should be equal to` 1
-            it[0].fnr `should be equal to` "11111111111"
-            it[0].ignorerArbeidssokerregister `should be equal to` null
+            it.size shouldBe 1
+            it[0].fnr shouldBe "11111111111"
+            it[0].ignorerArbeidssokerregister shouldBe null
         }
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(2).also {
-            it.size `should be equal to` 2
-            it[0].fnr `should be equal to` "11111111111"
-            it[1].fnr `should be equal to` "22222222222"
-            it[1].ignorerArbeidssokerregister `should be equal to` true
+            it.size shouldBe 2
+            it[0].fnr shouldBe "11111111111"
+            it[1].fnr shouldBe "22222222222"
+            it[1].ignorerArbeidssokerregister shouldBe true
         }
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(3).also {
-            it.size `should be equal to` 3
-            it[0].fnr `should be equal to` "11111111111"
-            it[1].fnr `should be equal to` "22222222222"
-            it[2].fnr `should be equal to` "33333333333"
-            it[2].ignorerArbeidssokerregister `should be equal to` false
+            it.size shouldBe 3
+            it[0].fnr shouldBe "11111111111"
+            it[1].fnr shouldBe "22222222222"
+            it[2].fnr shouldBe "33333333333"
+            it[2].ignorerArbeidssokerregister shouldBe false
         }
     }
 

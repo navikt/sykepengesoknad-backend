@@ -1,5 +1,6 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.nulls.shouldBeNull
 import no.nav.helse.flex.*
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
@@ -7,7 +8,6 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 

@@ -1,5 +1,8 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Soknadstatus
@@ -10,9 +13,6 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.util.tilLocalDate
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldHaveSize
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -49,11 +49,11 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
     fun `Oppretter søknader med status NY og FREMTIDIG`() {
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
 
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
             }
 
         await().until {
@@ -70,8 +70,8 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
         }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size `should be equal to` 4
-            it.map { it.status } `should be equal to`
+            it.size shouldBe 4
+            it.map { it.status } shouldBe
                 listOf(
                     Soknadstatus.NY,
                     Soknadstatus.FREMTIDIG,
@@ -106,9 +106,9 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
     fun `resterende 2 søknader er de to første og fom er alltid før avsluttet tidsunkt`() {
         val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 2
         soknader[0].fom!! shouldBeLessThan avsluttetTidspunkt.tilLocalDate()
-        soknader[0].fom!! `should be equal to` vedtakFom
+        soknader[0].fom!! shouldBe vedtakFom
         soknader[1].fom!! shouldBeLessThan avsluttetTidspunkt.tilLocalDate()
-        soknader[1].fom!! `should be equal to` vedtakFom.plusDays(14)
+        soknader[1].fom!! shouldBe vedtakFom.plusDays(14)
     }
 
     @Test
@@ -117,7 +117,7 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
         friskTilArbeidRepository
             .findByFnrIn(listOf(fnr))
             .single()
-            .avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+            .avsluttetTidspunkt shouldBe avsluttetTidspunkt
     }
 
     @Test
@@ -125,7 +125,7 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
     fun `Tillatter nytt vedtak fom neste dag etter stopp tidspunktet`() {
         sendFriskTilArbeidVedtak(fnr, LocalDate.now().plusDays(1), LocalDate.now().plusDays(35))
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 1
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 1
     }
 
     @Test
@@ -133,16 +133,16 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
     fun `Oppretter nye søknader med status FREMTIDIG`() {
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
 
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().maxByOrNull { it.opprettet }!!.also {
-                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
             }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size `should be equal to` 3
-            it.map { it.status } `should be equal to`
+            it.size shouldBe 3
+            it.map { it.status } shouldBe
                 listOf(
                     Soknadstatus.FREMTIDIG,
                     Soknadstatus.FREMTIDIG,

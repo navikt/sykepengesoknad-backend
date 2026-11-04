@@ -1,5 +1,9 @@
 package no.nav.helse.flex.helsearbeidsgiver
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.HentSoknaderRequest
 import no.nav.helse.flex.domain.Soknadstatus
@@ -17,7 +21,6 @@ import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatusmelding
 import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatustype
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingSykepengesoknadRepository
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.*
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -135,7 +138,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             ),
         ).also {
             it.single().also { soknad ->
-                soknad.soknadstype `should be equal to` Soknadstype.BEHANDLINGSDAGER
+                soknad.soknadstype shouldBe Soknadstype.BEHANDLINGSDAGER
                 soknad.behandlingsdager shouldContainAll
                     listOf(
                         LocalDate.parse("2025-09-01"),
@@ -276,7 +279,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
                 orgnummer = orgnummer,
             ),
         ).also {
-            it.first { s -> s.sykepengesoknadUuid == soknader[0].sykepengesoknadUuid }.vedtaksperiodeId shouldBeEqualTo
+            it.first { s -> s.sykepengesoknadUuid == soknader[0].sykepengesoknadUuid }.vedtaksperiodeId shouldBe
                 behandlingstatusmelding.vedtaksperiodeId
             it.first { s -> s.sykepengesoknadUuid == soknader[1].sykepengesoknadUuid }.vedtaksperiodeId.shouldBeNull()
         }
@@ -327,13 +330,13 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             it.soknadsperioder shouldHaveSize 2
 
             it.soknadsperioder[0].also { periode ->
-                periode.grad shouldBeEqualTo 50
-                periode.faktiskGrad shouldBeEqualTo 75
+                periode.grad shouldBe 50
+                periode.faktiskGrad shouldBe 75
             }
 
             it.soknadsperioder[1].also { periode ->
-                periode.grad shouldBeEqualTo 100
-                periode.faktiskGrad shouldBeEqualTo 25
+                periode.grad shouldBe 100
+                periode.faktiskGrad shouldBe 25
             }
         }
     }
@@ -379,12 +382,12 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             it.soknadsperioder shouldHaveSize 2
 
             it.soknadsperioder[0].also { periode ->
-                periode.grad shouldBeEqualTo 50
-                periode.faktiskGrad shouldBeEqualTo 75
+                periode.grad shouldBe 50
+                periode.faktiskGrad shouldBe 75
             }
 
             it.soknadsperioder[1].also { periode ->
-                periode.grad shouldBeEqualTo 100
+                periode.grad shouldBe 100
                 periode.faktiskGrad shouldBe null
             }
         }

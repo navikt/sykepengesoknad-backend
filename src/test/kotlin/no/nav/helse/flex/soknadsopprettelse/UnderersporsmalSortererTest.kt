@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -14,7 +15,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -41,7 +41,7 @@ class UnderersporsmalSortererTest {
                 INNTEKTSKILDE_FOSTERHJEM,
                 INNTEKTSKILDE_STYREVERV,
             )
-        soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).undersporsmal.map { it.tag } shouldBe forventetSortering
     }
 
     @Test
@@ -61,7 +61,7 @@ class UnderersporsmalSortererTest {
         soknadSortert
             .getSporsmalMedTag(REISE_MED_BIL)
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
     }
 
     @Test
@@ -82,7 +82,7 @@ class UnderersporsmalSortererTest {
         soknadSortert
             .getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
     }
 
     // Tester sortering av opprinnelig spørsmål om oppholdstillatelse siden det fortsatt finnes i søknader som
@@ -111,12 +111,12 @@ class UnderersporsmalSortererTest {
         soknadSortert
             .getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
 
         soknadSortert
             .getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE)
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSorteringGruppe
+            .map { it.tag } shouldBe forventetSorteringGruppe
     }
 
     @Test
@@ -137,7 +137,7 @@ class UnderersporsmalSortererTest {
         soknadSortert
             .getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
     }
 
     @Test
@@ -179,17 +179,17 @@ class UnderersporsmalSortererTest {
         soknadSortert
             .getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
 
         soknadSortert
             .getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSorteringForstePeriode
+            .map { it.tag } shouldBe forventetSorteringForstePeriode
 
         soknadSortert
             .getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1))
             .undersporsmal
-            .map { it.tag } `should be equal to` forventetSorteringAndrePeriode
+            .map { it.tag } shouldBe forventetSorteringAndrePeriode
     }
 
     @Test
@@ -211,7 +211,7 @@ class UnderersporsmalSortererTest {
             .getSporsmalMedTag(
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0),
             ).undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
 
         val forventetSorteringBegrunnelse =
             listOf(
@@ -226,7 +226,7 @@ class UnderersporsmalSortererTest {
             .getSporsmalMedTag(
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
             ).undersporsmal
-            .map { it.tag } `should be equal to` forventetSorteringBegrunnelse
+            .map { it.tag } shouldBe forventetSorteringBegrunnelse
     }
 
     @Test
@@ -248,7 +248,7 @@ class UnderersporsmalSortererTest {
             .getSporsmalMedTag(
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, 0),
             ).undersporsmal
-            .map { it.tag } `should be equal to` forventetSortering
+            .map { it.tag } shouldBe forventetSortering
 
         val forventetSorteringBegrunnelse =
             listOf(
@@ -263,21 +263,21 @@ class UnderersporsmalSortererTest {
             .getSporsmalMedTag(
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0),
             ).undersporsmal
-            .map { it.tag } `should be equal to` forventetSorteringBegrunnelse
+            .map { it.tag } shouldBe forventetSorteringBegrunnelse
     }
 
     @Test
     fun `Tag blir returnert uten index uansett hvor stort tall index er`() {
-        fjernIndexFraTag("SPORSMAL_TAG_1") `should be equal to` "SPORSMAL_TAG_"
-        fjernIndexFraTag("SPORSMAL_TAG_11") `should be equal to` "SPORSMAL_TAG_"
-        fjernIndexFraTag("SPORSMAL_TAG_111") `should be equal to` "SPORSMAL_TAG_"
-        fjernIndexFraTag("SPORSMAL_TAG_1111") `should be equal to` "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_1") shouldBe "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_11") shouldBe "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_111") shouldBe "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_1111") shouldBe "SPORSMAL_TAG_"
     }
 
     @Test
     fun `Tag blir ikke fjernet fra hvis det ikke finnes en index`() {
-        fjernIndexFraTag("SPORSMAL_TAG") `should be equal to` "SPORSMAL_TAG"
-        fjernIndexFraTag("SPORSMAL_TAG_") `should be equal to` "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG") shouldBe "SPORSMAL_TAG"
+        fjernIndexFraTag("SPORSMAL_TAG_") shouldBe "SPORSMAL_TAG_"
     }
 
     @Test
@@ -286,7 +286,7 @@ class UnderersporsmalSortererTest {
             listOf(
                 lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now(), LocalDate.now()),
             ),
-        ) `should be equal to` 0
+        ) shouldBe 0
 
         finnHoyesteIndex(
             listOf(
@@ -294,7 +294,7 @@ class UnderersporsmalSortererTest {
                 lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111, LocalDate.now(), LocalDate.now()),
                 lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now(), LocalDate.now()),
             ),
-        ) `should be equal to` 111
+        ) shouldBe 111
     }
 
     private fun Sykepengesoknad.shuffleSporsmalRekursivt(): Sykepengesoknad = this.copy(sporsmal = shuffleRekursivt(sporsmal))

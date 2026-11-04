@@ -1,8 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.testutil.lagSoknad
-import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -32,7 +32,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -60,7 +60,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -88,7 +88,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -116,7 +116,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -144,7 +144,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -172,7 +172,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -200,7 +200,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -228,7 +228,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -256,7 +256,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -292,7 +292,7 @@ class SoknadGenereringTest {
                 arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             ).copy(arbeidsgiverOrgnummer = null)
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -320,7 +320,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -348,7 +348,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -376,7 +376,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -413,7 +413,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` true
+        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -441,7 +441,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
+        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -478,7 +478,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
+        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -495,7 +495,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(emptyList(), soknad) `should be` true
+        skalHaSporsmalOmMedlemskap(emptyList(), soknad) shouldBe true
     }
 
     @Test
@@ -523,7 +523,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -551,7 +551,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -588,7 +588,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe false
     }
 
     @Test
@@ -626,7 +626,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -662,7 +662,7 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -703,7 +703,7 @@ class SoknadGenereringTest {
                 status = Soknadstatus.NY,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe true
     }
 
     @Test
@@ -739,6 +739,6 @@ class SoknadGenereringTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) shouldBe true
     }
 }

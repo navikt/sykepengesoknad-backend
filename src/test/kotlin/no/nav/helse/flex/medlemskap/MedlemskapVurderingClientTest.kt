@@ -4,9 +4,9 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.shouldNotContain
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -59,10 +59,10 @@ class MedlemskapVurderingClientTest {
         ).thenReturn(ResponseEntity.ok(mockResponse))
 
         medlemskapVurderingClient.hentMedlemskapVurdering(request).also {
-            it.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+            it.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
             it.sporsmal shouldNotContain MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE
-            it.sporsmal `should contain same` listOf(MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE)
-            it.kjentOppholdstillatelse `should be equal to` null
+            it.sporsmal shouldContainExactlyInAnyOrder listOf(MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE)
+            it.kjentOppholdstillatelse shouldBe null
         }
 
         verify(medlemskapVurderingRepository).save(any())
@@ -104,13 +104,13 @@ class MedlemskapVurderingClientTest {
         ).thenReturn(ResponseEntity.ok(mockResponse))
 
         medlemskapVurderingClient.hentMedlemskapVurdering(request).also {
-            it.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-            it.sporsmal `should contain same`
+            it.svar shouldBe MedlemskapVurderingSvarType.UAVKLART
+            it.sporsmal shouldContainExactlyInAnyOrder
                 listOf(
                     MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
                     MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                 )
-            it.kjentOppholdstillatelse `should be equal to`
+            it.kjentOppholdstillatelse shouldBe
                 KjentOppholdstillatelse(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 31),

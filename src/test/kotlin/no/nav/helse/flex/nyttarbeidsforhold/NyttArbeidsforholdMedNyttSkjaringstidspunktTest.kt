@@ -1,5 +1,8 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.soknadsopprettelse.*
@@ -8,7 +11,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -39,14 +41,14 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
 
-        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].status shouldBe SoknadsstatusDTO.SENDT
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
-        inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato.minusDays(4)
-        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
-        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
+        inntektFraNyttArbeidsforhold.fom shouldBe LocalDate.of(2022, 9, 5)
+        inntektFraNyttArbeidsforhold.tom shouldBe basisdato.minusDays(4)
+        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer shouldBe "999888777"
+        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer shouldBe "11224455441"
     }
 
     @Test

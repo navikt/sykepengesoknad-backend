@@ -1,13 +1,12 @@
 package no.nav.helse.flex.julesoknad
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -89,6 +88,6 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         soknad.julesoknad shouldBe false
-        soknad.status shouldBeEqualTo FREMTIDIG
+        soknad.status shouldBe FREMTIDIG
     }
 }

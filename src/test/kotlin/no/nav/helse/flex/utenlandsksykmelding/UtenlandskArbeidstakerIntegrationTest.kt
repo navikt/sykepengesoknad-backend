@@ -1,5 +1,9 @@
 package no.nav.helse.flex.utenlandsksykmelding
 
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknad
@@ -18,11 +22,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be`
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -76,7 +75,7 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
                 .andExpect(status().isBadRequest)
                 .andReturn()
                 .response.contentAsString
-        response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
+        response shouldBe "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
     @Test
@@ -93,7 +92,7 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
                 .andExpect(status().isBadRequest)
                 .andReturn()
                 .response.contentAsString
-        response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
+        response shouldBe "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
     @Test
@@ -115,7 +114,7 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
                 .andExpect(status().isBadRequest)
                 .andReturn()
                 .response.contentAsString
-        response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
+        response shouldBe "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
     @Test
@@ -172,13 +171,13 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
             .getSporsmalMedTag("UTENLANDSK_SYKMELDING_VEGNAVN")
             .svar!!
             .first()
-            .verdi `should be equal to` "Downing Street"
+            .verdi shouldBe "Downing Street"
 
         Awaitility.await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
-            soknadFraDatabase.sendtArbeidsgiver `should not be` null
-            soknadFraDatabase.sendtNav `should be` null
-            soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+            soknadFraDatabase.sendtArbeidsgiver shouldNotBe null
+            soknadFraDatabase.sendtNav shouldBe null
+            soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
         }
     }
 }

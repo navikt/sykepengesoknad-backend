@@ -1,5 +1,9 @@
 package no.nav.helse.flex.frilanser
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -20,10 +24,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -267,7 +267,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
         )
         aktiveringJob.bestillAktivering(now = datoLangtIFremtiden.plusDays(61))
         val aktivertSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
-        aktivertSoknad.flereInntektskilderGhost.shouldNotBeNull().map { it.orgnummer } `should be equal to` listOf("999333667")
+        aktivertSoknad.flereInntektskilderGhost.shouldNotBeNull().map { it.orgnummer } shouldBe listOf("999333667")
 
         val soknad =
             hentSoknad(
@@ -275,7 +275,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 fnr = ghostFnr,
             )
         soknad.sporsmal!!.map { it.tag } shouldContain FLERE_INNTEKTSKILDER_GRUPPE
-        soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst `should be equal to` "Frilanseransetter AS"
+        soknad.getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0)).sporsmalstekst shouldBe "Frilanseransetter AS"
 
         SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = ghostFnr)
             .besvarSporsmal(tag = FLERE_INNTEKTSKILDER_GHOST, svar = "JA", ferdigBesvart = false)
@@ -290,7 +290,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
             ANDRE_INNTEKTSKILDER_V2 to "JA",
             INNTEKTSKILDE_STYREVERV to "CHECKED",
         ).forEach { (tag, forventetSvar) ->
-            besvartSoknad.getSporsmalMedTag(tag).svar.map { it.verdi } `should be equal to` listOf(forventetSvar)
+            besvartSoknad.getSporsmalMedTag(tag).svar.map { it.verdi } shouldBe listOf(forventetSvar)
         }
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -9,7 +10,6 @@ import no.nav.helse.flex.testutil.lagSoknad
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.kafka.NAV_CALLID
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -51,8 +51,8 @@ class InntektsmeldingControllerTest : FellesTestOppsett() {
             .andReturn()
             .let { objectMapper.readValue<List<HentSoknaderResponse>>(it.response.contentAsString) }
             .also {
-                it.size shouldBeEqualTo 1
-                it.single().sykepengesoknadUuid shouldBeEqualTo sykepengesoknadUuid
+                it.size shouldBe 1
+                it.single().sykepengesoknadUuid shouldBe sykepengesoknadUuid
             }
     }
 

@@ -1,5 +1,9 @@
 package no.nav.helse.flex.yrkesskade
 
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.yrkesskade.SakDto
 import no.nav.helse.flex.client.yrkesskade.SakerResponse
@@ -11,10 +15,6 @@ import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.getSporsmalMedTagOrNull
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should be true`
-import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 import java.util.*
@@ -120,15 +120,15 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
         kafkaSoknader
             .first()
             .getSporsmalMedTagOrNull("YRKESSKADE_V2")
-            .`should not be null`()
+            .shouldNotBeNull()
         kafkaSoknader
             .first()
             .getSporsmalMedTagOrNull("YRKESSKADE")
-            .`should be null`()
+            .shouldBeNull()
         kafkaSoknader
             .last()
             .getSporsmalMedTagOrNull("YRKESSKADE_V2")
-            .`should be null`()
+            .shouldBeNull()
 
         val spmTekster =
             kafkaSoknader
@@ -140,10 +140,10 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
                 }.map { it.sporsmalstekst }
                 .toList()
 
-        spmTekster[0] `should be equal to` "Skadedato 2. januar 1982 (Vedtaksdato 2. januar 1989)"
-        spmTekster[1] `should be equal to` "Vedtaksdato 9. mai 1987"
-        spmTekster[2] `should be equal to` "Skadedato 2. januar 2023 (Vedtaksdato 2. januar 2023)"
-        spmTekster[3] `should be equal to` "Nylig registrert skade"
+        spmTekster[0] shouldBe "Skadedato 2. januar 1982 (Vedtaksdato 2. januar 1989)"
+        spmTekster[1] shouldBe "Vedtaksdato 9. mai 1987"
+        spmTekster[2] shouldBe "Skadedato 2. januar 2023 (Vedtaksdato 2. januar 2023)"
+        spmTekster[3] shouldBe "Nylig registrert skade"
     }
 
     @Test
@@ -174,11 +174,11 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
         kafkaSoknader
             .first()
             .getSporsmalMedTagOrNull("YRKESSKADE_V2")
-            .`should be null`()
+            .shouldBeNull()
         kafkaSoknader
             .first()
             .getSporsmalMedTagOrNull("YRKESSKADE")
-            .`should be null`()
+            .shouldBeNull()
     }
 
     @Test
@@ -202,6 +202,6 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
             .sendSoknad()
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        kafkaSoknader.first().yrkesskade!!.`should be true`()
+        kafkaSoknader.first().yrkesskade!!.shouldBeTrue()
     }
 }

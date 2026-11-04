@@ -1,5 +1,10 @@
 package no.nav.helse.flex.arbeidstaker
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -13,7 +18,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.syfo.model.Merknad
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -77,8 +81,8 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         val dbSoknader = sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id })
         dbSoknader shouldHaveSize 2
 
-        dbSoknader.firstOrNull { it.forstegangssoknad == true }!!.fom `should be equal to` basisdato.minusDays(20)
-        dbSoknader.firstOrNull { it.forstegangssoknad == false }!!.fom `should be equal to` basisdato.minusDays(2)
+        dbSoknader.firstOrNull { it.forstegangssoknad == true }!!.fom shouldBe basisdato.minusDays(20)
+        dbSoknader.firstOrNull { it.forstegangssoknad == false }!!.fom shouldBe basisdato.minusDays(2)
     }
 
     @Test
@@ -149,7 +153,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
 
         val besvartSporsmalEtterAnnetSvar = hentAnsvarserklering(soknaden.id)
 
-        besvartSporsmalEtterAnnetSvar.svar.first().id `should be equal to` besvartSporsmal.svar.first().id
+        besvartSporsmalEtterAnnetSvar.svar.first().id shouldBe besvartSporsmal.svar.first().id
     }
 
     @Test
@@ -181,7 +185,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 .andExpect(status().isBadRequest)
                 .andReturn()
                 .response.contentAsString
-        res `should be equal to` "{\"reason\":\"FORSOK_PA_SENDING_AV_NYERE_SOKNAD\"}"
+        res shouldBe "{\"reason\":\"FORSOK_PA_SENDING_AV_NYERE_SOKNAD\"}"
     }
 
     @Test
@@ -215,9 +219,9 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
-        soknadFraDatabase.sendtArbeidsgiver `should not be` null
-        soknadFraDatabase.sendtNav `should be` null
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendtArbeidsgiver shouldNotBe null
+        soknadFraDatabase.sendtNav shouldBe null
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
     }
 
     @Test
@@ -249,7 +253,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknader[0].sendTilGosys).isNull()
         assertThat(kafkaSoknader[0].merknader).isNull()
-        kafkaSoknader[0].arbeidUtenforNorge.`should be null`()
+        kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
 
         assertThat(kafkaSoknader[0].merknaderFraSykmelding!!.first()).isEqualTo(
             MerknadDTO(
@@ -259,9 +263,9 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         )
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
-        soknadFraDatabase.sendtArbeidsgiver `should not be` null
-        soknadFraDatabase.sendtNav `should be` null
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendtArbeidsgiver shouldNotBe null
+        soknadFraDatabase.sendtNav shouldBe null
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
     }
 
     @Test
@@ -314,7 +318,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         val dbSoknader = sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id })
         dbSoknader shouldHaveSize 2
 
-        dbSoknader[0].forstegangssoknad!!.`should be false`()
-        dbSoknader[1].forstegangssoknad!!.`should be false`()
+        dbSoknader[0].forstegangssoknad!!.shouldBeFalse()
+        dbSoknader[1].forstegangssoknad!!.shouldBeFalse()
     }
 }

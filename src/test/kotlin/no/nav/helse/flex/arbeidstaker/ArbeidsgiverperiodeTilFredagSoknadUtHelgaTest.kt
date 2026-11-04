@@ -1,5 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
@@ -16,7 +17,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -87,12 +87,12 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
 
         val alleJuridiskeVurderinger = hentJuridiskeVurderinger(6)
         val vurderinger811 = alleJuridiskeVurderinger.filter { it.paragraf == "8-11" }
-        vurderinger811.size `should be equal to` 1
+        vurderinger811.size shouldBe 1
 
         vurderinger811.first().let {
-            it.paragraf `should be equal to` "8-11"
-            it.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-            it.input `should be equal to`
+            it.paragraf shouldBe "8-11"
+            it.utfall shouldBe Utfall.VILKAR_IKKE_OPPFYLT
+            it.input shouldBe
                 mapOf(
                     "versjon" to "2022-02-01",
                     "sykepengesoknadTom" to "2021-12-19",
@@ -102,7 +102,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
                             "tom" to "2021-12-17",
                         ),
                 )
-            it.output `should be equal to`
+            it.output shouldBe
                 mapOf(
                     "versjon" to "2022-02-01",
                     "kunHelgEtterArbeidsgiverperiode" to true,
@@ -162,6 +162,6 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
 
         val alleJuridiskeVurderinger = hentJuridiskeVurderinger(5)
         val vurderinger811 = alleJuridiskeVurderinger.filter { it.paragraf == "8-11" }
-        vurderinger811.size `should be equal to` 0
+        vurderinger811.size shouldBe 0
     }
 }

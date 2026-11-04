@@ -1,5 +1,9 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -29,11 +33,6 @@ import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -94,34 +93,34 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
 
         meldingerPaKafka.shouldHaveSize(3)
 
-        meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        meldingerPaKafka[0].type shouldBeEqualTo SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
-        meldingerPaKafka[0].fom shouldBeEqualTo basisdato.plusDays(5)
-        meldingerPaKafka[0].tom shouldBeEqualTo basisdato.plusDays(10)
+        meldingerPaKafka[0].status shouldBe SoknadsstatusDTO.FREMTIDIG
+        meldingerPaKafka[0].type shouldBe SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        meldingerPaKafka[0].fom shouldBe basisdato.plusDays(5)
+        meldingerPaKafka[0].tom shouldBe basisdato.plusDays(10)
 
-        meldingerPaKafka[1].status shouldBeEqualTo SoknadsstatusDTO.SLETTET
-        meldingerPaKafka[1].fom shouldBeEqualTo basisdato.plusDays(5)
-        meldingerPaKafka[1].tom shouldBeEqualTo basisdato.plusDays(10)
+        meldingerPaKafka[1].status shouldBe SoknadsstatusDTO.SLETTET
+        meldingerPaKafka[1].fom shouldBe basisdato.plusDays(5)
+        meldingerPaKafka[1].tom shouldBe basisdato.plusDays(10)
 
-        meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        meldingerPaKafka[2].type shouldBeEqualTo SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
-        meldingerPaKafka[2].fom shouldBeEqualTo basisdato.plusDays(5)
-        meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(10)
+        meldingerPaKafka[2].status shouldBe SoknadsstatusDTO.FREMTIDIG
+        meldingerPaKafka[2].type shouldBe SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        meldingerPaKafka[2].fom shouldBe basisdato.plusDays(5)
+        meldingerPaKafka[2].tom shouldBe basisdato.plusDays(10)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
-        hentetViaRest[0].soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
-        hentetViaRest[0].fom shouldBeEqualTo basisdato.plusDays(5)
-        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
-        hentSoknad(hentetViaRest[0].id, fnr).klippet shouldBeEqualTo false
+        hentetViaRest[0].soknadstype shouldBe RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+        hentetViaRest[0].fom shouldBe basisdato.plusDays(5)
+        hentetViaRest[0].tom shouldBe basisdato.plusDays(10)
+        hentSoknad(hentetViaRest[0].id, fnr).klippet shouldBe false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "FREMTIDIG"
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_FOR_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -158,16 +157,16 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
-        hentetViaRest.map { it.soknadstype } shouldContainSame
+        hentetViaRest.map { it.soknadstype } shouldContainExactlyInAnyOrder
             listOf(
                 RSSoknadstype.ARBEIDSTAKERE,
                 RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
             )
 
         hentetViaRest.forEach {
-            it.fom shouldBeEqualTo basisdato.plusDays(5)
-            it.tom shouldBeEqualTo basisdato.plusDays(10)
-            hentSoknad(it.id, fnr).klippet shouldBeEqualTo false
+            it.fom shouldBe basisdato.plusDays(5)
+            it.tom shouldBe basisdato.plusDays(10)
+            hentSoknad(it.id, fnr).klippet shouldBe false
         }
 
         klippMetrikkRepository.findAll().toList().shouldHaveSize(0)
@@ -230,19 +229,19 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
         val soknadA = soknader.first { it.sykmeldingId == sykmeldingA.sykmelding.id }
         val soknadB = soknader.first { it.sykmeldingId == sykmeldingB.sykmelding.id }
 
-        soknadA.ventetidSykmeldingUuid shouldBeEqualTo sykmeldingB.sykmelding.id
-        soknadA.fom shouldBeEqualTo dato
-        soknadA.tom shouldBeEqualTo dato.plusDays(4)
+        soknadA.ventetidSykmeldingUuid shouldBe sykmeldingB.sykmelding.id
+        soknadA.fom shouldBe dato
+        soknadA.tom shouldBe dato.plusDays(4)
 
         soknadB.ventetidSykmeldingUuid.shouldBeNull()
-        soknadB.fom shouldBeEqualTo dato.plusDays(5)
-        soknadB.tom shouldBeEqualTo dato.plusDays(15)
+        soknadB.fom shouldBe dato.plusDays(5)
+        soknadB.tom shouldBe dato.plusDays(15)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].variant shouldBe "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -288,18 +287,18 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
                 ),
             ).first()
 
-        klippetSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        klippetSoknad.type shouldBeEqualTo SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
-        klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(16)
-        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(20)
+        klippetSoknad.status shouldBe SoknadsstatusDTO.FREMTIDIG
+        klippetSoknad.type shouldBe SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        klippetSoknad.fom shouldBe basisdato.plusDays(16)
+        klippetSoknad.tom shouldBe basisdato.plusDays(20)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
-        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].soknadstatus shouldBe "SENDT"
+        klippmetrikker[0].variant shouldBe "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBe "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBe true
     }
 
     @Test
@@ -336,16 +335,16 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
-        hentetViaRest.map { it.soknadstype } shouldContainSame
+        hentetViaRest.map { it.soknadstype } shouldContainExactlyInAnyOrder
             listOf(
                 RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
                 RSSoknadstype.GRADERT_REISETILSKUDD,
             )
 
         hentetViaRest.forEach {
-            it.fom shouldBeEqualTo basisdato.plusDays(5)
-            it.tom shouldBeEqualTo basisdato.plusDays(10)
-            hentSoknad(it.id, fnr).klippet shouldBeEqualTo false
+            it.fom shouldBe basisdato.plusDays(5)
+            it.tom shouldBe basisdato.plusDays(10)
+            hentSoknad(it.id, fnr).klippet shouldBe false
         }
 
         klippMetrikkRepository.findAll().toList().shouldHaveSize(0)
@@ -385,16 +384,16 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
-        hentetViaRest.map { it.soknadstype } shouldContainSame
+        hentetViaRest.map { it.soknadstype } shouldContainExactlyInAnyOrder
             listOf(
                 RSSoknadstype.GRADERT_REISETILSKUDD,
                 RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
             )
 
         hentetViaRest.forEach {
-            it.fom shouldBeEqualTo basisdato.plusDays(5)
-            it.tom shouldBeEqualTo basisdato.plusDays(10)
-            hentSoknad(it.id, fnr).klippet shouldBeEqualTo false
+            it.fom shouldBe basisdato.plusDays(5)
+            it.tom shouldBe basisdato.plusDays(10)
+            hentSoknad(it.id, fnr).klippet shouldBe false
         }
 
         klippMetrikkRepository.findAll().toList().shouldHaveSize(0)

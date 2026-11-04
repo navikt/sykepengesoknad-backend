@@ -1,5 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid.sporsmal
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -7,8 +9,6 @@ import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
@@ -69,7 +69,7 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
         hentSoknader(fnr)
             .first { it.status == RSSoknadstatus.NY }
             .sporsmal!!
-            .map { it.tag } `should be equal to`
+            .map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
                 FTA_JOBBSITUASJONEN_DIN,
@@ -104,7 +104,7 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
                 .first { it.status == RSSoknadstatus.NY }
         soknaden
             .sporsmal!!
-            .map { it.tag } `should be equal to`
+            .map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
                 FTA_JOBBSITUASJONEN_DIN,
@@ -113,9 +113,9 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
                 TIL_SLUTT,
             )
 
-        soknaden.getSporsmalMedTag(FTA_INNTEKT_UNDERVEIS).sporsmalstekst `should be equal to`
+        soknaden.getSporsmalMedTag(FTA_INNTEKT_UNDERVEIS).sporsmalstekst shouldBe
             "Hadde du  inntekt i perioden 1. - 1. januar 2020?"
-        soknaden.getSporsmalMedTag(FTA_REISE_TIL_UTLANDET).sporsmalstekst `should be equal to`
+        soknaden.getSporsmalMedTag(FTA_REISE_TIL_UTLANDET).sporsmalstekst shouldBe
             "Var du på reise utenfor EU/EØS i perioden 1. - 1. januar 2020?"
     }
 

@@ -1,6 +1,6 @@
 package no.nav.helse.flex
 
-import org.amshove.kluent.shouldBeEqualTo
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.availability.ApplicationAvailability
@@ -21,7 +21,7 @@ class ApplicationHealthTest : FellesTestOppsett() {
     @Test
     fun liveness() {
         // App UP
-        applicationAvailability.livenessState shouldBeEqualTo LivenessState.CORRECT
+        applicationAvailability.livenessState shouldBe LivenessState.CORRECT
         mockMvc
             .perform(MockMvcRequestBuilders.get("/internal/health/liveness"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -35,7 +35,7 @@ class ApplicationHealthTest : FellesTestOppsett() {
         )
 
         // App DOWN
-        applicationAvailability.livenessState shouldBeEqualTo LivenessState.BROKEN
+        applicationAvailability.livenessState shouldBe LivenessState.BROKEN
         mockMvc
             .perform(MockMvcRequestBuilders.get("/internal/health/liveness"))
             .andExpect(MockMvcResultMatchers.status().isServiceUnavailable)
@@ -52,7 +52,7 @@ class ApplicationHealthTest : FellesTestOppsett() {
     @Test
     fun readiness() {
         // App UP
-        applicationAvailability.readinessState shouldBeEqualTo ReadinessState.ACCEPTING_TRAFFIC
+        applicationAvailability.readinessState shouldBe ReadinessState.ACCEPTING_TRAFFIC
         mockMvc
             .perform(MockMvcRequestBuilders.get("/internal/health/readiness"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -66,7 +66,7 @@ class ApplicationHealthTest : FellesTestOppsett() {
         )
 
         // App OUT_OF_SERVICE
-        applicationAvailability.readinessState shouldBeEqualTo ReadinessState.REFUSING_TRAFFIC
+        applicationAvailability.readinessState shouldBe ReadinessState.REFUSING_TRAFFIC
         mockMvc
             .perform(MockMvcRequestBuilders.get("/internal/health/readiness"))
             .andExpect(MockMvcResultMatchers.status().isServiceUnavailable)

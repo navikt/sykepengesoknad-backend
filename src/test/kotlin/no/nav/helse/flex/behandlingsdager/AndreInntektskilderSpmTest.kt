@@ -2,6 +2,9 @@
 
 package no.nav.helse.flex.behandlingsdager
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSKilde
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -19,9 +22,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.getSporsmalMedTag
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -60,9 +60,9 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         soknaden.ghostInntekter!!.shouldBeEmpty()
 
         val andreInntektskilderSpm = soknaden.getSporsmalMedTag("ANDRE_INNTEKTSKILDER_V2")
-        andreInntektskilderSpm.sporsmalstekst `should be equal to`
+        andreInntektskilderSpm.sporsmalstekst shouldBe
             "Har du annen inntekt eller oppdrag?"
-        andreInntektskilderSpm.metadata!!.isNull `should be equal to` true
+        andreInntektskilderSpm.metadata!!.isNull shouldBe true
 
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -85,7 +85,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
-        kafkaSoknader[0].andreInntektskilder `should be equal to`
+        kafkaSoknader[0].andreInntektskilder shouldBe
             listOf(
                 InntektskildeDTO(
                     type = InntektskildetypeDTO.STYREVERV,
@@ -124,13 +124,13 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
         soknaden.ghostInntekter!!.shouldHaveSize(1)
         soknaden.ghostInntekter[0].let {
-            it.navn `should be equal to` "Frilanseransetter AS"
-            it.orgnummer `should be equal to` "999333667"
-            it.kilde `should be equal to` RSKilde.INNTEKTSKOMPONENTEN
+            it.navn shouldBe "Frilanseransetter AS"
+            it.orgnummer shouldBe "999333667"
+            it.kilde shouldBe RSKilde.INNTEKTSKOMPONENTEN
         }
 
         val flereInntektskilderSpm = soknaden.getSporsmalMedTag("FLERE_INNTEKTSKILDER_GHOST")
-        flereInntektskilderSpm.sporsmalstekst `should be equal to`
+        flereInntektskilderSpm.sporsmalstekst shouldBe
             "Har du jobbet noe mer i disse enn du vanligvis gjør, mens du var sykmeldt i perioden 1. - 3. september 2021?"
 
         flexSyketilfelleMockRestServiceServer.reset()
@@ -167,19 +167,19 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
             .find { it.tag == FLERE_INNTEKTSKILDER_GHOST }!!
             .svar!!
             .first()
-            .verdi `should be equal to` "JA"
+            .verdi shouldBe "JA"
 
         kafkaSoknaderMedGhost[0]
             .getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0))
             .also { sporsmal ->
                 sporsmal.svar!!
                     .first()
-                    .verdi `should be equal to` "CHECKED"
+                    .verdi shouldBe "CHECKED"
 
-                sporsmal.sporsmalstekst `should be equal to` "Frilanseransetter AS"
+                sporsmal.sporsmalstekst shouldBe "Frilanseransetter AS"
             }
 
-        kafkaSoknaderMedGhost[0].andreInntektskilder `should be equal to`
+        kafkaSoknaderMedGhost[0].andreInntektskilder shouldBe
             listOf(
                 InntektskildeDTO(
                     type = InntektskildetypeDTO.STYREVERV,

@@ -1,8 +1,8 @@
 package no.nav.helse.flex.util
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.config.JacksonConfig
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.kotlinModule
@@ -15,8 +15,8 @@ class ObjectMapperTest {
     fun `objectMapper gir standardverdi for manglende primitive felter`() {
         val info = objectMapper.readValue<SelvstendigNaringsdrivendeInfo>(jsonUtenPrimitiveFelter)
 
-        info.erBarnepasser `should be equal to` false
-        info.brukerHarOppgittForsikring `should be equal to` false
+        info.erBarnepasser shouldBe false
+        info.brukerHarOppgittForsikring shouldBe false
     }
 
     @Test
@@ -26,6 +26,6 @@ class ObjectMapperTest {
 
         val info = builder.build().readValue<SelvstendigNaringsdrivendeInfo>(jsonUtenPrimitiveFelter)
 
-        info.erBarnepasser `should be equal to` false
+        info.erBarnepasser shouldBe false
     }
 }

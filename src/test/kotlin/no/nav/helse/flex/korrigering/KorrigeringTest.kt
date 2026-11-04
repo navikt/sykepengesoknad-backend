@@ -1,11 +1,12 @@
 package no.nav.helse.flex.korrigering
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -73,7 +74,7 @@ class KorrigeringTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         val soknadenEtter = hentSoknader(fnr).first()
-        soknadenEtter.korrigeringsfristUtlopt `should be` false
+        soknadenEtter.korrigeringsfristUtlopt shouldBe false
     }
 
     @Test
@@ -85,7 +86,7 @@ class KorrigeringTest : FellesTestOppsett() {
         }
 
         val soknadenEtter = hentSoknader(fnr).first()
-        soknadenEtter.korrigeringsfristUtlopt `should be` true
+        soknadenEtter.korrigeringsfristUtlopt shouldBe true
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)?.let {
             sykepengesoknadRepository.save(it.copy(sendt = Instant.now()))
@@ -114,7 +115,7 @@ class KorrigeringTest : FellesTestOppsett() {
     @Order(6)
     fun `Korrigeringsfristen er ikke utløpt på den vi sendte sist`() {
         val soknaden = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
-        soknaden.korrigeringsfristUtlopt `should be` false
+        soknaden.korrigeringsfristUtlopt shouldBe false
     }
 
     @Test
@@ -128,7 +129,7 @@ class KorrigeringTest : FellesTestOppsett() {
 
         val hentSoknader = hentSoknader(fnr)
         val soknaden = hentSoknader.first { it.status == RSSoknadstatus.SENDT }
-        soknaden.korrigeringsfristUtlopt `should be` true
+        soknaden.korrigeringsfristUtlopt shouldBe true
     }
 
     @Test
@@ -136,7 +137,7 @@ class KorrigeringTest : FellesTestOppsett() {
     fun `Backend returnerer 400 hvis vi prøver å korrigere en søknad som har utløpt frist`() {
         val hentSoknader = hentSoknader(fnr)
         val soknaden = hentSoknader.first { it.status == RSSoknadstatus.SENDT }
-        soknaden.korrigeringsfristUtlopt `should be` true
+        soknaden.korrigeringsfristUtlopt shouldBe true
 
         val contentAsString =
             korrigerSoknadMedResult(soknaden.id, fnr)
@@ -144,6 +145,6 @@ class KorrigeringTest : FellesTestOppsett() {
                 .andReturn()
                 .response.contentAsString
 
-        contentAsString `should be equal to` "{\"reason\":\"KORRIGERINGSFRIST_UTLOPT\"}"
+        contentAsString shouldBe "{\"reason\":\"KORRIGERINGSFRIST_UTLOPT\"}"
     }
 }

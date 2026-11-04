@@ -1,5 +1,12 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldStartWith
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
@@ -23,13 +30,6 @@ import no.nav.helse.flex.soknadsopprettelse.FTA_REISE_TIL_UTLANDET
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.osloZone
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be equal to`
-import org.amshove.kluent.`should start with`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -80,12 +80,12 @@ class StartMeldingTest : FakesTestOppsett() {
 
         // Assert
         hentVedtak().also {
-            it.behandletStatus `should be equal to` BEHANDLET
-            it.avsluttetTidspunkt `should be equal to` null
+            it.behandletStatus shouldBe BEHANDLET
+            it.avsluttetTidspunkt shouldBe null
         }
 
         val soknader = hentSoknader()
-        soknader.map { it.fom to it.status } `should be equal to`
+        soknader.map { it.fom to it.status } shouldBe
             listOf(
                 forsteSoknadFom to NY,
                 andreSoknadFom to FREMTIDIG,
@@ -110,10 +110,10 @@ class StartMeldingTest : FakesTestOppsett() {
         // Assert
         `Og søknader med passert tom er aktivert`()
 
-        hentVedtak().avsluttetTidspunkt `should be equal to` null
+        hentVedtak().avsluttetTidspunkt shouldBe null
 
         val soknader = hentSoknader()
-        soknader.map { it.fom to it.status } `should be equal to`
+        soknader.map { it.fom to it.status } shouldBe
             listOf(
                 forsteSoknadFom to NY,
                 andreSoknadFom to FREMTIDIG,
@@ -140,8 +140,8 @@ class StartMeldingTest : FakesTestOppsett() {
         val gjenopprettedeSoknadIder =
             hentSoknader().filter { it.fom!! > tidspunkt }.map { it.sykepengesoknadUuid }
 
-        gjenopprettedeSoknadIder.size `should be equal to` 2
-        andreSlettedeIder `should not be equal to` forsteSlettedeIder
+        gjenopprettedeSoknadIder.size shouldBe 2
+        andreSlettedeIder shouldNotBe forsteSlettedeIder
         gjenopprettedeSoknadIder.intersect((forsteSlettedeIder + andreSlettedeIder).toSet()).shouldBeEmpty()
     }
 
@@ -154,7 +154,7 @@ class StartMeldingTest : FakesTestOppsett() {
         val e = assertThrows<IllegalStateException> { `Motta og prosesser en start-melding`() }
 
         val vedtak = hentVedtak()
-        e.message!! `should start with` "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} når den aldri har blitt avsluttet."
+        e.message!! shouldStartWith "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} når den aldri har blitt avsluttet."
     }
 
     @Test
@@ -168,7 +168,7 @@ class StartMeldingTest : FakesTestOppsett() {
 
         // Assert
         val vedtak = hentVedtak()
-        e.message!! `should start with` "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} som har status ${vedtak.behandletStatus}."
+        e.message!! shouldStartWith "Kan ikke gjenopprette vedtaksperiode: ${vedtak.id} som har status ${vedtak.behandletStatus}."
     }
 
     @Test
@@ -183,10 +183,10 @@ class StartMeldingTest : FakesTestOppsett() {
 
         // Assert
         hentVedtak().also {
-            it.behandletStatus `should be equal to` BEHANDLET
-            it.avsluttetTidspunkt `should be equal to` stoppTidspunkt
+            it.behandletStatus shouldBe BEHANDLET
+            it.avsluttetTidspunkt shouldBe stoppTidspunkt
         }
-        hentSoknader().map { it.fom to it.status } `should be equal to` listOf(forsteSoknadFom to SENDT)
+        hentSoknader().map { it.fom to it.status } shouldBe listOf(forsteSoknadFom to SENDT)
     }
 
     @Test
@@ -205,10 +205,10 @@ class StartMeldingTest : FakesTestOppsett() {
         // Assert
         val avsluttetTidspunkt = hentVedtak().avsluttetTidspunkt.shouldNotBeNull()
         hentVedtak().also {
-            it.behandletStatus `should be equal to` BEHANDLET
-            it.avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+            it.behandletStatus shouldBe BEHANDLET
+            it.avsluttetTidspunkt shouldBe avsluttetTidspunkt
         }
-        hentSoknader() shouldContainSame soknader
+        hentSoknader() shouldContainExactlyInAnyOrder soknader
     }
 
     @Test
@@ -226,9 +226,9 @@ class StartMeldingTest : FakesTestOppsett() {
             }
 
         // Assert
-        e.message `should be equal to` "Fant ikke vedtak for START-melding med vedtaksperiode: $ukjentVedtaksperiodeId."
-        hentVedtak() `should be equal to` vedtak
-        hentSoknader() shouldContainSame soknader
+        e.message shouldBe "Fant ikke vedtak for START-melding med vedtaksperiode: $ukjentVedtaksperiodeId."
+        hentVedtak() shouldBe vedtak
+        hentSoknader() shouldContainExactlyInAnyOrder soknader
     }
 
     @Test
@@ -246,11 +246,11 @@ class StartMeldingTest : FakesTestOppsett() {
             }
 
         // Assert
-        e.message `should be equal to`
+        e.message shouldBe
             "Kan ikke behandle STOPP-melding for vedtaksperiode: ${vedtakFor.id} " +
             "siden vedtaket er satt til å ignorere arbeidssøkerregisteret."
-        hentVedtak() `should be equal to` vedtakFor
-        hentSoknader() shouldContainSame soknaderFor
+        hentVedtak() shouldBe vedtakFor
+        hentSoknader() shouldContainExactlyInAnyOrder soknaderFor
     }
 
     private fun `Gitt at et vedtak er mottatt og søknader opprettet`(

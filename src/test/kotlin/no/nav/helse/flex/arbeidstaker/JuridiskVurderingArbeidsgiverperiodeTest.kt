@@ -1,5 +1,7 @@
 package no.nav.helse.flex.arbeidstaker
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
@@ -14,8 +16,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 
@@ -45,11 +45,11 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         val alleJuridiskeVurderinger = hentJuridiskeVurderinger(3)
         val vurderinger817 = alleJuridiskeVurderinger.filter { it.paragraf == "8-17" }
 
-        vurderinger817.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-        vurderinger817.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
+        vurderinger817.first { it.bokstav == "a" }.utfall shouldBe Utfall.VILKAR_IKKE_OPPFYLT
+        vurderinger817.first { it.bokstav == "b" }.utfall shouldBe Utfall.VILKAR_OPPFYLT
 
         vurderinger817.let { vurderinger817 ->
-            vurderinger817.size `should be equal to` 2
+            vurderinger817.size shouldBe 2
 
             val forventetInput =
                 mapOf(
@@ -75,10 +75,10 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                 )
 
             vurderinger817.forEach { vurdering ->
-                vurdering.ledd `should be equal to` 1
-                vurdering.punktum.`should be null`()
-                vurdering.input `should be equal to` forventetInput
-                vurdering.output `should be equal to` forventetOutput
+                vurdering.ledd shouldBe 1
+                vurdering.punktum.shouldBeNull()
+                vurdering.input shouldBe forventetInput
+                vurdering.output shouldBe forventetOutput
             }
         }
     }
@@ -99,15 +99,15 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         vurderinger817
             .filter { it.paragraf == "8-17" }
             .let { vurderinger817 ->
-                vurderinger817.size `should be equal to` 2
+                vurderinger817.size shouldBe 2
 
-                vurderinger817.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
-                vurderinger817.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+                vurderinger817.first { it.bokstav == "a" }.utfall shouldBe Utfall.VILKAR_OPPFYLT
+                vurderinger817.first { it.bokstav == "b" }.utfall shouldBe Utfall.VILKAR_IKKE_OPPFYLT
 
                 vurderinger817.forEach { vurdering ->
-                    vurdering.ledd `should be equal to` 1
-                    vurdering.punktum.`should be null`()
-                    vurdering.input `should be equal to`
+                    vurdering.ledd shouldBe 1
+                    vurdering.punktum.shouldBeNull()
+                    vurdering.input shouldBe
                         mapOf(
                             "arbeidsgiverperiode" to
                                 mapOf(
@@ -119,7 +119,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                             "oppbruktArbeidsgiverperiode" to true,
                             "versjon" to "2022-02-01",
                         )
-                    vurdering.output `should be equal to`
+                    vurdering.output shouldBe
                         mapOf(
                             "periode" to
                                 mapOf(
@@ -148,18 +148,18 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         val vurderinger817Utafor = vurderinger817.drop(2)
 
         vurderinger817Innafor.let { vurderinger ->
-            vurderinger.size `should be equal to` 2
+            vurderinger.size shouldBe 2
 
-            vurderinger.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-            vurderinger.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
+            vurderinger.first { it.bokstav == "a" }.utfall shouldBe Utfall.VILKAR_IKKE_OPPFYLT
+            vurderinger.first { it.bokstav == "b" }.utfall shouldBe Utfall.VILKAR_OPPFYLT
 
             vurderinger.forEach { vurdering ->
-                vurdering.ledd `should be equal to` 1
-                vurdering.punktum.`should be null`()
-                vurdering.kilde `should be equal to` "sykepengesoknad-backend"
-                vurdering.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
+                vurdering.ledd shouldBe 1
+                vurdering.punktum.shouldBeNull()
+                vurdering.kilde shouldBe "sykepengesoknad-backend"
+                vurdering.versjonAvKode shouldBe "sykepengesoknad-backend-test-12432536"
 
-                vurdering.input `should be equal to`
+                vurdering.input shouldBe
                     mapOf(
                         "arbeidsgiverperiode" to
                             mapOf(
@@ -172,7 +172,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                         "versjon" to "2022-02-01",
                     )
 
-                vurdering.output `should be equal to`
+                vurdering.output shouldBe
                     mapOf(
                         "periode" to
                             mapOf(
@@ -185,18 +185,18 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         }
 
         vurderinger817Utafor.let { vurderinger ->
-            vurderinger.size `should be equal to` 2
+            vurderinger.size shouldBe 2
 
-            vurderinger.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
-            vurderinger.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+            vurderinger.first { it.bokstav == "a" }.utfall shouldBe Utfall.VILKAR_OPPFYLT
+            vurderinger.first { it.bokstav == "b" }.utfall shouldBe Utfall.VILKAR_IKKE_OPPFYLT
 
             vurderinger.forEach { vurdering ->
-                vurdering.ledd `should be equal to` 1
-                vurdering.punktum.`should be null`()
-                vurdering.kilde `should be equal to` "sykepengesoknad-backend"
-                vurdering.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
+                vurdering.ledd shouldBe 1
+                vurdering.punktum.shouldBeNull()
+                vurdering.kilde shouldBe "sykepengesoknad-backend"
+                vurdering.versjonAvKode shouldBe "sykepengesoknad-backend-test-12432536"
 
-                vurdering.input `should be equal to`
+                vurdering.input shouldBe
                     mapOf(
                         "arbeidsgiverperiode" to
                             mapOf(
@@ -209,7 +209,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                         "versjon" to "2022-02-01",
                     )
 
-                vurdering.output `should be equal to`
+                vurdering.output shouldBe
                     mapOf(
                         "periode" to
                             mapOf(
@@ -259,7 +259,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             )
 
         val sendtSoknad = besvarOgSendSoknad(soknaden)
-        sendtSoknad.status `should be equal to` RSSoknadstatus.SENDT
+        sendtSoknad.status shouldBe RSSoknadstatus.SENDT
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }

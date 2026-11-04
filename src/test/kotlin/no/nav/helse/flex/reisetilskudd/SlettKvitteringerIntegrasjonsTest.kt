@@ -1,5 +1,8 @@
 package no.nav.helse.flex.reisetilskudd
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
@@ -26,11 +29,6 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import tools.jackson.module.kotlin.readValue
@@ -109,7 +107,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
             .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
-            .verdi shouldBeEqualTo "JA"
+            .verdi shouldBe "JA"
 
         Assertions.assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -162,30 +160,30 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
         val lagretForsteSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, forsteSvar)
         lagretForsteSvar.oppdatertSporsmal.svar
             .first()
-            .id `should not be` null
+            .id shouldNotBe null
 
         val lagretAndreSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id, andreSvar)
         lagretAndreSvar.oppdatertSporsmal.svar
             .first()
-            .id `should not be` null
+            .id shouldNotBe null
 
         val (_, lagretSpm) = hentKvitteringSpm()
-        lagretSpm.svar.size `should be` 2
+        lagretSpm.svar.size shouldBe 2
 
         val forsteLagretSvar = lagretSpm.svar.first()
         val forsteKvittering: Kvittering = objectMapper.readValue(forsteLagretSvar.verdi)
-        forsteKvittering.typeUtgift.`should be equal to`(Utgiftstype.PARKERING)
+        forsteKvittering.typeUtgift.shouldBe(Utgiftstype.PARKERING)
 
         val andreLagretSvar = lagretSpm.svar.drop(1).first()
         val andreKvittering: Kvittering = objectMapper.readValue(andreLagretSvar.verdi)
-        andreKvittering.typeUtgift.`should be equal to`(Utgiftstype.TAXI)
+        andreKvittering.typeUtgift.shouldBe(Utgiftstype.TAXI)
     }
 
     @Test
     @Order(5)
     fun `Sletter begge kvitteringer uten å laste søknad på nytt`() {
         val (soknadId, lagretSpm) = hentKvitteringSpm()
-        lagretSpm.svar.size `should be` 2
+        lagretSpm.svar.size shouldBe 2
 
         val forsteSvar = lagretSpm.svar.first()
         val andreSvar = lagretSpm.svar.drop(1).first()

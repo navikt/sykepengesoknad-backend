@@ -1,5 +1,12 @@
 package no.nav.helse.flex.fiskere
 
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -21,11 +28,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.LottOgHyre
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Order
@@ -70,12 +72,12 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
                     ).let { it.copy(event = it.event.copy(arbeidsgiver = arbeidsgiver)) },
                 ).single()
 
-            soknad.type `should be equal to` SoknadstypeDTO.FISKERE
-            soknad.status `should be equal to` SoknadsstatusDTO.NY
-            soknad.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.FISKER
-            soknad.fiskerLottOgHyre `should be equal to` FiskerLottOgHyreDTO.HYRE
-            soknad.fiskerBlad `should be equal to` FiskerBladDTO.A
-            soknad.arbeidsgiver?.orgnummer `should be equal to` arbeidsgiver?.orgnummer
+            soknad.type shouldBe SoknadstypeDTO.FISKERE
+            soknad.status shouldBe SoknadsstatusDTO.NY
+            soknad.arbeidssituasjon shouldBe ArbeidssituasjonDTO.FISKER
+            soknad.fiskerLottOgHyre shouldBe FiskerLottOgHyreDTO.HYRE
+            soknad.fiskerBlad shouldBe FiskerBladDTO.A
+            soknad.arbeidsgiver?.orgnummer shouldBe arbeidsgiver?.orgnummer
             soknad.medlemskapVurdering.shouldBeNull()
         }
 
@@ -84,7 +86,7 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
         fun `Søknaden har arbeidstakerspørsmål`() {
             val soknad = hentSoknad(soknadId = hentSoknaderMetadata(fnr).single().id, fnr = fnr)
 
-            soknad.sporsmal!!.map { it.tag } `should be equal to`
+            soknad.sporsmal!!.map { it.tag } shouldBe
                 listOf(
                     ANSVARSERKLARING,
                     TILBAKE_I_ARBEID,
@@ -118,7 +120,7 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
         @Order(4)
         fun `Mottaker av søknaden er kun Nav`() {
             val soknadId = hentSoknaderMetadata(fnr).single().id
-            finnMottakerAvSoknad(soknadId, fnr).mottaker `should be equal to` RSMottaker.NAV
+            finnMottakerAvSoknad(soknadId, fnr).mottaker shouldBe RSMottaker.NAV
         }
 
         @Test
@@ -138,21 +140,21 @@ class FiskerHyreSoknadTest : FellesTestOppsett() {
                     .oppsummering()
                     .sendSoknad()
 
-            sendtSoknad.status `should be equal to` RSSoknadstatus.SENDT
+            sendtSoknad.status shouldBe RSSoknadstatus.SENDT
             sendtSoknad.sendtTilNAVDato.shouldNotBeNull()
             sendtSoknad.sendtTilArbeidsgiverDato.shouldBeNull()
 
             val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single()
-            kafkaSoknad.type `should be equal to` SoknadstypeDTO.FISKERE
-            kafkaSoknad.status `should be equal to` SoknadsstatusDTO.SENDT
-            kafkaSoknad.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.FISKER
-            kafkaSoknad.fiskerLottOgHyre `should be equal to` FiskerLottOgHyreDTO.HYRE
-            kafkaSoknad.arbeidsgiver?.orgnummer `should be equal to` arbeidsgiver?.orgnummer
+            kafkaSoknad.type shouldBe SoknadstypeDTO.FISKERE
+            kafkaSoknad.status shouldBe SoknadsstatusDTO.SENDT
+            kafkaSoknad.arbeidssituasjon shouldBe ArbeidssituasjonDTO.FISKER
+            kafkaSoknad.fiskerLottOgHyre shouldBe FiskerLottOgHyreDTO.HYRE
+            kafkaSoknad.arbeidsgiver?.orgnummer shouldBe arbeidsgiver?.orgnummer
             kafkaSoknad.sendtNav.shouldNotBeNull()
             kafkaSoknad.sendtArbeidsgiver.shouldBeNull()
             kafkaSoknad.medlemskapVurdering.shouldBeNull()
 
-            hentJuridiskeVurderinger(antall = 1).single().paragraf `should be equal to` "8-13"
+            hentJuridiskeVurderinger(antall = 1).single().paragraf shouldBe "8-13"
         }
     }
 }

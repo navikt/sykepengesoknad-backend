@@ -1,13 +1,13 @@
 package no.nav.helse.flex.forskuttering
 
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
@@ -103,7 +103,7 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
             .shouldBeFalse()
 
         val oppdaterNl = forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!
-        oppdaterNl.aktivTom `should be equal to` LocalDate.now()
+        oppdaterNl.aktivTom shouldBe LocalDate.now()
     }
 
     fun sendNarmesteLederLeesah(nl: NarmesteLederLeesah) {

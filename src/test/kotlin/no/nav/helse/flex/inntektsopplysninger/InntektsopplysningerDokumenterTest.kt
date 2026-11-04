@@ -1,5 +1,6 @@
 package no.nav.helse.flex.inntektsopplysninger
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -8,7 +9,6 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -58,7 +58,7 @@ class InntektsopplysningerDokumenterTest {
                 ),
             )
 
-        soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo true
+        soknad.inntektsopplysningerMaaDokumenteres() shouldBe true
     }
 
     private fun lagSoknad(sporsmalOgSvar: Map<String, String>): Sykepengesoknad =

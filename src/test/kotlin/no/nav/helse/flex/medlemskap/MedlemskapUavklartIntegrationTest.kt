@@ -1,5 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
@@ -12,8 +14,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -93,14 +93,14 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
                 soknadBesvarer
                     .oppsummering()
                     .sendSoknad()
-            sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+            sendtSoknad.status shouldBe RSSoknadstatus.SENDT
         }
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
         val kafkaSoknad = kafkaSoknader.first()
 
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.SENDT
         assertThat(kafkaSoknad.medlemskapVurdering).isNull()
     }
 

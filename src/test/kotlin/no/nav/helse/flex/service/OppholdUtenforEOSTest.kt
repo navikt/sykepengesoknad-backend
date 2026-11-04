@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -12,7 +13,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -83,15 +83,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     private fun verifiserKafkaSoknader(forventetAntallSoknader: Int = 1) {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventetAntallSoknader).tilSoknader().let { kafkaSoknader ->
-            kafkaSoknader.size `should be equal to` forventetAntallSoknader
-            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
-            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
-            kafkaSoknader.first().arbeidUtenforNorge `should be equal to` null
+            kafkaSoknader.size shouldBe forventetAntallSoknader
+            kafkaSoknader.first().status shouldBe SoknadsstatusDTO.SENDT
+            kafkaSoknader.first().type shouldBe SoknadstypeDTO.ARBEIDSTAKERE
+            kafkaSoknader.first().arbeidUtenforNorge shouldBe null
 
             // Sjekker at opphold_utland søknad er lagt på kafka
             if (forventetAntallSoknader == 2) {
-                kafkaSoknader[1].status `should be equal to` SoknadsstatusDTO.NY
-                kafkaSoknader[1].type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader[1].status shouldBe SoknadsstatusDTO.NY
+                kafkaSoknader[1].type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
             }
         }
     }
@@ -129,9 +129,9 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         opprettUtlandssoknad(fnr)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
-            kafkaSoknader.size `should be equal to` 1
-            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
-            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+            kafkaSoknader.size shouldBe 1
+            kafkaSoknader.first().type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status shouldBe SoknadsstatusDTO.NY
         }
 
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -158,9 +158,9 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
-            kafkaSoknader.size `should be equal to` 1
-            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
-            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
+            kafkaSoknader.size shouldBe 1
+            kafkaSoknader.first().type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status shouldBe SoknadsstatusDTO.SENDT
         }
 
         val soknaden =
@@ -180,16 +180,16 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 permisjonTom = null,
             ).sendSoknad()
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 1
-        oppholdUtlandSoknader.first().id `should be equal to` soknadOppholdUtenforEOS.id
+        oppholdUtlandSoknader.size shouldBe 1
+        oppholdUtlandSoknader.first().id shouldBe soknadOppholdUtenforEOS.id
     }
 
     @Test
@@ -218,15 +218,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 9        10        11        12        13       14       15
         // ---      ---       ---       ---       ---      Helg(OU) Helg(OU)
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 0
+        oppholdUtlandSoknader.size shouldBe 0
     }
 
     @Test
@@ -255,15 +255,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 9        10        11        12        13       14       15
         // Ferie    Ferie     Ferie     Ferie     Ferie    Helg     Helg
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 0
+        oppholdUtlandSoknader.size shouldBe 0
     }
 
     @Test
@@ -296,15 +296,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 23       24        25        26        27       28       29
         // Perm     Perm      Perm      ---       ---      ---      ---
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 0
+        oppholdUtlandSoknader.size shouldBe 0
     }
 
     @Test
@@ -337,15 +337,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 23       24        25        26        27       28       29
         // Ferie    Ferie    Ferie      ---       ---      ---      ---
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 0
+        oppholdUtlandSoknader.size shouldBe 0
     }
 
     @Test
@@ -378,16 +378,16 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 23       24        25        26        27       28       29
         // Ferie    Ferie    Ferie      ---       ---      ---      ---
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader(2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 1
-        oppholdUtlandSoknader.first().fnr `should be equal to` fnr
+        oppholdUtlandSoknader.size shouldBe 1
+        oppholdUtlandSoknader.first().fnr shouldBe fnr
     }
 
     @Test
@@ -420,16 +420,16 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 23       24        25
         // ---      ---       ---
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader(2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 1
-        oppholdUtlandSoknader.first().fnr `should be equal to` fnr
+        oppholdUtlandSoknader.size shouldBe 1
+        oppholdUtlandSoknader.first().fnr shouldBe fnr
     }
 
     @Test
@@ -462,15 +462,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 23       24        25        26        27       28       29
         // Perm     Perm      Perm      ---       ---      ---      ---
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 0
+        oppholdUtlandSoknader.size shouldBe 0
     }
 
     @Test
@@ -503,15 +503,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         // 23       24        25        26        27       28       29
         // ---      ---       ---       ---       ---      Helg     Helg
 
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        sendtSykepengeSoknad.status shouldBe sendtSykepengeSoknad.status
         verifiserKafkaSoknader(2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        soknadFraDatabase.sendt shouldBe soknadFraDatabase.sendtArbeidsgiver
 
         // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 1
-        oppholdUtlandSoknader.first().fnr `should be equal to` fnr
+        oppholdUtlandSoknader.size shouldBe 1
+        oppholdUtlandSoknader.first().fnr shouldBe fnr
     }
 }

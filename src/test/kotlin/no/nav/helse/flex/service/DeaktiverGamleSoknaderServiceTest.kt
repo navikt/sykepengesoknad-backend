@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -18,7 +19,6 @@ import no.nav.helse.flex.util.flattenSporsmal
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -55,8 +55,8 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
     @Test
     fun `Tom database inkluderer ingen søknader å deaktivere`() {
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 0
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
+        deaktiverGamleSoknaderService.deaktiverSoknader() shouldBe 0
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 0
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0, duration = Duration.ofSeconds(1))
     }
 
@@ -71,18 +71,18 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 .copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
                 .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+        deaktiverGamleSoknaderService.deaktiverSoknader() shouldBe 1
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 1
 
-        sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status `should be equal to` Soknadstatus.UTGATT
-        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
+        sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status shouldBe Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status shouldBe Soknadstatus.SENDT
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
-            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
-            it.sporsmal `should be equal to` emptyList()
+            it.status shouldBe SoknadsstatusDTO.UTGAATT
+            it.sporsmal shouldBe emptyList()
         }
 
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 0
     }
 
     @Test
@@ -94,18 +94,18 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 .copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
                 .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+        deaktiverGamleSoknaderService.deaktiverSoknader() shouldBe 1
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 1
 
-        sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status `should be equal to` Soknadstatus.UTGATT
-        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
+        sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status shouldBe Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status shouldBe Soknadstatus.SENDT
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
-            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
-            it.sporsmal `should be equal to` emptyList()
+            it.status shouldBe SoknadsstatusDTO.UTGAATT
+            it.sporsmal shouldBe emptyList()
         }
 
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 0
     }
 
     @Test
@@ -125,18 +125,18 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
         val sendtSoknad = soknadUtland.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
         sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
 
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+        deaktiverGamleSoknaderService.deaktiverSoknader() shouldBe 1
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 1
 
-        sykepengesoknadDAO.finnSykepengesoknad(soknadUtland.id).status `should be equal to` Soknadstatus.UTGATT
-        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
+        sykepengesoknadDAO.finnSykepengesoknad(soknadUtland.id).status shouldBe Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status shouldBe Soknadstatus.SENDT
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
-            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
-            it.sporsmal `should be equal to` emptyList()
+            it.status shouldBe SoknadsstatusDTO.UTGAATT
+            it.sporsmal shouldBe emptyList()
         }
 
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 0
     }
 
     @Test
@@ -145,18 +145,18 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
         val idPaaSporsmal = besvarStandardSporsmal(avbruttSoknad)
 
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+        deaktiverGamleSoknaderService.deaktiverSoknader() shouldBe 1
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 1
 
-        sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.size `should be equal to` 0
-        svarDao.finnSvar(idPaaSporsmal.toSet()).size `should be equal to` 0
+        sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.size shouldBe 0
+        svarDao.finnSvar(idPaaSporsmal.toSet()).size shouldBe 0
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
-            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
-            it.sporsmal `should be equal to` emptyList()
+            it.status shouldBe SoknadsstatusDTO.UTGAATT
+            it.sporsmal shouldBe emptyList()
         }
 
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() shouldBe 0
     }
 
     @Test
@@ -167,12 +167,12 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 lagreMedlemskapsVurdering(it)
             }
 
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
+        deaktiverGamleSoknaderService.deaktiverSoknader() shouldBe 1
         medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
             avbruttSoknad.id,
             avbruttSoknad.fom!!,
             avbruttSoknad.tom!!,
-        ) `should be equal to` null
+        ) shouldBe null
     }
 
     private fun opprettSoknad(soknadStatus: Soknadstatus): Sykepengesoknad =

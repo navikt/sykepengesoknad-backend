@@ -1,5 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -12,8 +14,6 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -63,7 +63,7 @@ class BehandlingsdagerKtTest {
         val sporsmalList = behandlingsdagerSporsmal(testSoknad)
         sporsmalList.shouldHaveSize(1)
 
-        sporsmalList[0] `should be equal to`
+        sporsmalList[0] shouldBe
             Sporsmal(
                 id = null,
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_0",
@@ -93,7 +93,7 @@ class BehandlingsdagerKtTest {
     fun `oppretter spørsmål for arbeidsledige`() {
         val sporsmalList = behandlingsdagerSporsmal(testSoknad.copy(arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG))
         sporsmalList.shouldHaveSize(1)
-        sporsmalList[0] `should be equal to`
+        sporsmalList[0] shouldBe
             Sporsmal(
                 id = null,
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_0",

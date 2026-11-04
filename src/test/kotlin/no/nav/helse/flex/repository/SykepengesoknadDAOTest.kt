@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus.KORRIGERT
@@ -15,7 +16,6 @@ import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS_NAR
-import org.amshove.kluent.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

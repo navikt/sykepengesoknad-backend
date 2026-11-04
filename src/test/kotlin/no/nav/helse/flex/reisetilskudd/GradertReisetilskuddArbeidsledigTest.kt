@@ -1,5 +1,7 @@
 package no.nav.helse.flex.reisetilskudd
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
@@ -12,8 +14,6 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer

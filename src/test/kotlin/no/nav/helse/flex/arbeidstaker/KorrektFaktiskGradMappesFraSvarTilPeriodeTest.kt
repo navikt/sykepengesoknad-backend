@@ -1,5 +1,7 @@
 package no.nav.helse.flex.arbeidstaker
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.juridiskvurdering.Utfall
@@ -11,9 +13,6 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -111,14 +110,14 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     fun `4 - vi sjekker at faktisk grad er riktig på jurdisk vurdering på kafka`() {
         val alleJuridiskeVurderinger = hentJuridiskeVurderinger(3)
         val vurderinger813 = alleJuridiskeVurderinger.filter { it.paragraf == "8-13" }
-        vurderinger813.size `should be equal to` 1
+        vurderinger813.size shouldBe 1
         vurderinger813.first().let {
-            it.ledd `should be equal to` 1
-            it.bokstav.`should be null`()
+            it.ledd shouldBe 1
+            it.bokstav.shouldBeNull()
             it.punktum shouldBe 2
-            it.eventName `should be equal to` "subsumsjon"
-            it.utfall `should be equal to` Utfall.VILKAR_BEREGNET
-            it.input `should be equal to`
+            it.eventName shouldBe "subsumsjon"
+            it.utfall shouldBe Utfall.VILKAR_BEREGNET
+            it.input shouldBe
                 """
                 {
                   "fravar": [],
@@ -176,7 +175,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
                 }
                 """.trimIndent().jsonTilHashMap()
 
-            it.output `should be equal to`
+            it.output shouldBe
                 """
                     {
                       "perioder": [

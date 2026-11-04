@@ -1,5 +1,7 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNySoknad
@@ -8,8 +10,6 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.testutil.besvarsporsmal
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory
 
@@ -44,7 +44,7 @@ class FriskmeldtMuteringTest {
                 val mutert = gammelSoknad.friskmeldtMuteringer()
 
                 mutert.`har kun ett V2 som underspørsmål i gruppen`()
-                mutert.friskmeldtMuteringer() `should be equal to` mutert
+                mutert.friskmeldtMuteringer() shouldBe mutert
             }
         }
 
@@ -64,9 +64,9 @@ class FriskmeldtMuteringTest {
                 val mutert = besvart.friskmeldtMuteringer()
 
                 mutert.`har kun ett V2 som underspørsmål i gruppen`()
-                mutert.getSporsmalMedTag(FLERE_INNTEKTSKILDER_GRUPPE) `should be equal to`
+                mutert.getSporsmalMedTag(FLERE_INNTEKTSKILDER_GRUPPE) shouldBe
                     besvart.getSporsmalMedTag(FLERE_INNTEKTSKILDER_GRUPPE)
-                mutert.friskmeldtMuteringer() `should be equal to` mutert
+                mutert.friskmeldtMuteringer() shouldBe mutert
             }
         }
 
@@ -83,19 +83,19 @@ class FriskmeldtMuteringTest {
 
                     val mutert = besvart.friskmeldtMuteringer()
 
-                    mutert.sporsmal.single { it.tag == ANDRE_INNTEKTSKILDER_V2 } `should be equal to`
+                    mutert.sporsmal.single { it.tag == ANDRE_INNTEKTSKILDER_V2 } shouldBe
                         besvart.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2)
-                    mutert.sporsmal.none { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } `should be equal to` true
+                    mutert.sporsmal.none { it.tag == FLERE_INNTEKTSKILDER_GRUPPE } shouldBe true
                     mutert.alleSporsmalOgUndersporsmal().filter { it.tag == ANDRE_INNTEKTSKILDER_V2 }.shouldHaveSize(1)
-                    mutert.friskmeldtMuteringer() `should be equal to` mutert
+                    mutert.friskmeldtMuteringer() shouldBe mutert
                 }
             }
         }
 
     private fun Sykepengesoknad.`har kun ett V2 som underspørsmål i gruppen`() {
-        sporsmal.none { it.tag == ANDRE_INNTEKTSKILDER_V2 } `should be equal to` true
+        sporsmal.none { it.tag == ANDRE_INNTEKTSKILDER_V2 } shouldBe true
         val gruppe = sporsmal.single { it.tag == FLERE_INNTEKTSKILDER_GRUPPE }
-        gruppe.undersporsmal.map { it.tag } `should be equal to`
+        gruppe.undersporsmal.map { it.tag } shouldBe
             listOf(FLERE_INNTEKTSKILDER_GHOST, ANDRE_INNTEKTSKILDER_V2)
         alleSporsmalOgUndersporsmal().filter { it.tag == ANDRE_INNTEKTSKILDER_V2 }.shouldHaveSize(1)
     }

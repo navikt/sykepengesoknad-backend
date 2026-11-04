@@ -1,5 +1,9 @@
 package no.nav.helse.flex.aktivering
 
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.exception.AdvisoryLockConflictException
@@ -13,9 +17,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldHaveSize
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -76,7 +77,7 @@ class ConcurrentAktiveringTest : FellesTestOppsett() {
 
         val soknader = sykepengesoknadRepository.findByFnrIn(listOf(fnr))
         soknader shouldHaveSize 1
-        soknader.first().status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        soknader.first().status shouldBe Soknadstatus.FREMTIDIG
         soknadId = soknader.first().sykepengesoknadUuid
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -93,7 +94,7 @@ class ConcurrentAktiveringTest : FellesTestOppsett() {
             exception.message!! shouldContain "Det finnes allerede en advisory lock for soknad $soknadId"
         }
 
-        sykepengesoknadRepository.findBySykepengesoknadUuid(soknadId)!!.status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        sykepengesoknadRepository.findBySykepengesoknadUuid(soknadId)!!.status shouldBe Soknadstatus.FREMTIDIG
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
     }
 
@@ -106,11 +107,11 @@ class ConcurrentAktiveringTest : FellesTestOppsett() {
             aktiveringConsumer.listen(aktiveringRecord(), acknowledgment)
         }
 
-        acknowledgment.antallNack shouldBeEqualTo 1
-        acknowledgment.antallAck shouldBeEqualTo 0
-        acknowledgment.sisteNackSleep shouldBeEqualTo Duration.ofSeconds(1)
+        acknowledgment.antallNack shouldBe 1
+        acknowledgment.antallAck shouldBe 0
+        acknowledgment.sisteNackSleep shouldBe Duration.ofSeconds(1)
 
-        sykepengesoknadRepository.findBySykepengesoknadUuid(soknadId)!!.status shouldBeEqualTo Soknadstatus.FREMTIDIG
+        sykepengesoknadRepository.findBySykepengesoknadUuid(soknadId)!!.status shouldBe Soknadstatus.FREMTIDIG
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
     }
 
@@ -121,13 +122,13 @@ class ConcurrentAktiveringTest : FellesTestOppsett() {
 
         aktiveringConsumer.listen(aktiveringRecord(), acknowledgment)
 
-        acknowledgment.antallAck shouldBeEqualTo 1
-        acknowledgment.antallNack shouldBeEqualTo 0
+        acknowledgment.antallAck shouldBe 1
+        acknowledgment.antallNack shouldBe 0
 
-        sykepengesoknadRepository.findBySykepengesoknadUuid(soknadId)!!.status shouldBeEqualTo Soknadstatus.NY
+        sykepengesoknadRepository.findBySykepengesoknadUuid(soknadId)!!.status shouldBe Soknadstatus.NY
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        kafkaSoknader.first().status shouldBeEqualTo SoknadsstatusDTO.NY
+        kafkaSoknader.first().status shouldBe SoknadsstatusDTO.NY
     }
 
     private fun aktiveringRecord(): ConsumerRecord<String, String> =
@@ -148,7 +149,7 @@ class ConcurrentAktiveringTest : FellesTestOppsett() {
             thread {
                 runCatching {
                     TransactionTemplate(transactionManager).execute {
-                        lockRepository.settAdvisoryLock(fnr.toLong()) shouldBeEqualTo true
+                        lockRepository.settAdvisoryLock(fnr.toLong()) shouldBe true
                         låsErSatt.complete(Any())
                         slippLåsen.get()
                     }
@@ -162,7 +163,7 @@ class ConcurrentAktiveringTest : FellesTestOppsett() {
             slippLåsen.complete(Any())
             låsetråd.join()
         }
-        trådfeil shouldBeEqualTo null
+        trådfeil shouldBe null
     }
 
     private class TestAcknowledgment : Acknowledgment {

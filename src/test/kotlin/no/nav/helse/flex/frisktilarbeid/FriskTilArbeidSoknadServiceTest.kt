@@ -1,6 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import org.amshove.kluent.`should be equal to`
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -175,9 +175,9 @@ class FriskTilArbeidSoknadServiceTest {
             tellAntallDager(
                 generertePerioder[i].first,
                 generertePerioder[i].second,
-            ) `should be equal to` forventetPeriode.antallDager
-            generertePerioder[i].first `should be equal to` forventetPeriode.fom
-            generertePerioder[i].second `should be equal to` forventetPeriode.tom
+            ) shouldBe forventetPeriode.antallDager
+            generertePerioder[i].first shouldBe forventetPeriode.fom
+            generertePerioder[i].second shouldBe forventetPeriode.tom
         }
     }
 

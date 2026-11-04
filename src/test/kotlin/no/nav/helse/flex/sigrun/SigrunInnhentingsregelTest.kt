@@ -1,5 +1,7 @@
 package no.nav.helse.flex.sigrun
 
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import mockwebserver3.MockResponse
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
@@ -7,10 +9,6 @@ import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be`
-import org.amshove.kluent.`should not be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -37,17 +35,17 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
-        SigrunMockDispatcher.antallKall() `should be equal to` 3
+        SigrunMockDispatcher.antallKall() shouldBe 3
 
-        response `should not be equal to` null
-        response!!.size `should be equal to` 3
+        response shouldNotBe null
+        response!!.size shouldBe 3
         response.let {
-            it[0].pensjonsgivendeInntekt.first() `should not be` null
-            it[0].inntektsaar `should be equal to` "2023"
-            it[1].pensjonsgivendeInntekt.first() `should not be` null
-            it[1].inntektsaar `should be equal to` "2022"
-            it[2].pensjonsgivendeInntekt.first() `should not be` null
-            it[2].inntektsaar `should be equal to` "2021"
+            it[0].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[0].inntektsaar shouldBe "2023"
+            it[1].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[1].inntektsaar shouldBe "2022"
+            it[2].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[2].inntektsaar shouldBe "2021"
         }
     }
 
@@ -61,17 +59,17 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        response `should not be equal to` null
-        response!!.size `should be equal to` 3
+        response shouldNotBe null
+        response!!.size shouldBe 3
         response.let {
-            it[0].pensjonsgivendeInntekt.first() `should not be` null
-            it[0].inntektsaar `should be equal to` "2022"
-            it[1].pensjonsgivendeInntekt.first() `should not be` null
-            it[1].inntektsaar `should be equal to` "2021"
-            it[2].pensjonsgivendeInntekt.first() `should not be` null
-            it[2].inntektsaar `should be equal to` "2020"
+            it[0].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[0].inntektsaar shouldBe "2022"
+            it[1].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[1].inntektsaar shouldBe "2021"
+            it[2].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[2].inntektsaar shouldBe "2020"
         }
     }
 
@@ -85,17 +83,17 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2025)
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        response `should not be equal to` null
-        response!!.size `should be equal to` 3
+        response shouldNotBe null
+        response!!.size shouldBe 3
         response.let {
-            it[0].pensjonsgivendeInntekt.first() `should not be` null
-            it[0].inntektsaar `should be equal to` "2023"
-            it[1].pensjonsgivendeInntekt.first() `should not be` null
-            it[1].inntektsaar `should be equal to` "2022"
-            it[2].pensjonsgivendeInntekt.first() `should not be` null
-            it[2].inntektsaar `should be equal to` "2021"
+            it[0].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[0].inntektsaar shouldBe "2023"
+            it[1].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[1].inntektsaar shouldBe "2022"
+            it[2].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[2].inntektsaar shouldBe "2021"
         }
     }
 
@@ -110,17 +108,17 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        response `should not be equal to` null
-        response!!.size `should be equal to` 3
+        response shouldNotBe null
+        response!!.size shouldBe 3
         response.let {
-            it[0].pensjonsgivendeInntekt `should be` emptyList()
-            it[0].inntektsaar `should be equal to` "2022"
-            it[1].pensjonsgivendeInntekt.first() `should not be` null
-            it[1].inntektsaar `should be equal to` "2021"
-            it[2].pensjonsgivendeInntekt.first() `should not be` null
-            it[2].inntektsaar `should be equal to` "2020"
+            it[0].pensjonsgivendeInntekt shouldBe emptyList()
+            it[0].inntektsaar shouldBe "2022"
+            it[1].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[1].inntektsaar shouldBe "2021"
+            it[2].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[2].inntektsaar shouldBe "2020"
         }
     }
 
@@ -134,17 +132,17 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
-        SigrunMockDispatcher.antallKall() `should be equal to` 4
+        SigrunMockDispatcher.antallKall() shouldBe 4
 
-        response `should not be equal to` null
-        response!!.size `should be equal to` 3
+        response shouldNotBe null
+        response!!.size shouldBe 3
         response.let {
-            it[0].pensjonsgivendeInntekt `should be` emptyList()
-            it[0].inntektsaar `should be equal to` "2022"
-            it[1].pensjonsgivendeInntekt `should be` emptyList()
-            it[1].inntektsaar `should be equal to` "2021"
-            it[2].pensjonsgivendeInntekt.first() `should not be` null
-            it[2].inntektsaar `should be equal to` "2020"
+            it[0].pensjonsgivendeInntekt shouldBe emptyList()
+            it[0].inntektsaar shouldBe "2022"
+            it[1].pensjonsgivendeInntekt shouldBe emptyList()
+            it[1].inntektsaar shouldBe "2021"
+            it[2].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[2].inntektsaar shouldBe "2020"
         }
     }
 
@@ -157,24 +155,24 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
-        SigrunMockDispatcher.antallKall() `should be equal to` 3
+        SigrunMockDispatcher.antallKall() shouldBe 3
 
-        response `should not be equal to` null
-        response!!.size `should be equal to` 3
+        response shouldNotBe null
+        response!!.size shouldBe 3
         response.let {
-            it[0].pensjonsgivendeInntekt.first() `should not be` null
-            it[0].inntektsaar `should be equal to` "2023"
-            it[1].pensjonsgivendeInntekt.first() `should not be` null
-            it[1].inntektsaar `should be equal to` "2022"
-            it[2].pensjonsgivendeInntekt `should be` emptyList()
-            it[2].inntektsaar `should be equal to` "2021"
+            it[0].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[0].inntektsaar shouldBe "2023"
+            it[1].pensjonsgivendeInntekt.first() shouldNotBe null
+            it[1].inntektsaar shouldBe "2022"
+            it[2].pensjonsgivendeInntekt shouldBe emptyList()
+            it[2].inntektsaar shouldBe "2021"
         }
     }
 
     @Test
     fun `Avbryter henting og returnerer null når tidligste år er før 2017`() {
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2019) `should be` null
-        SigrunMockDispatcher.antallKall() `should be equal to` 0
+        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2019) shouldBe null
+        SigrunMockDispatcher.antallKall() shouldBe 0
     }
 
     @Test
@@ -185,8 +183,8 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             enqueueMockResponse(FNR, "2018")
         }
 
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2020) `should be` null
-        SigrunMockDispatcher.antallKall() `should be equal to` 3
+        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2020) shouldBe null
+        SigrunMockDispatcher.antallKall() shouldBe 3
     }
 
     @Test
@@ -202,7 +200,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
         }
 
-        SigrunMockDispatcher.antallKall() `should be equal to` 1
+        SigrunMockDispatcher.antallKall() shouldBe 1
     }
 
     @Test
@@ -218,7 +216,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         // @Retryable(maxRetries = 2), altså 1 initielt kall + 2 forsøk.
-        SigrunMockDispatcher.antallKall() `should be equal to` 3
+        SigrunMockDispatcher.antallKall() shouldBe 3
     }
 
     @Test
@@ -228,9 +226,9 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.finnesPensjonsgivendeInntektForAar(FNR, 2020)
-        SigrunMockDispatcher.antallKall() `should be equal to` 1
+        SigrunMockDispatcher.antallKall() shouldBe 1
 
-        response `should be equal to` true
+        response shouldBe true
     }
 
     @Test
@@ -240,9 +238,9 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.finnesPensjonsgivendeInntektForAar(FNR, 2020)
-        SigrunMockDispatcher.antallKall() `should be equal to` 1
+        SigrunMockDispatcher.antallKall() shouldBe 1
 
-        response `should be equal to` false
+        response shouldBe false
     }
 
     @Test
@@ -268,8 +266,8 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.finnesPensjonsgivendeInntektForAar(FNR, 2020)
-        SigrunMockDispatcher.antallKall() `should be equal to` 1
+        SigrunMockDispatcher.antallKall() shouldBe 1
 
-        response `should be equal to` false
+        response shouldBe false
     }
 }

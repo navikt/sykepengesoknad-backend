@@ -1,12 +1,12 @@
 package no.nav.helse.flex.oppholdutland
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.byttSvar
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -21,9 +21,9 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
 
     private fun verifiserKafkaSoknader() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
-            kafkaSoknader.size `should be equal to` 1
-            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
-            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+            kafkaSoknader.size shouldBe 1
+            kafkaSoknader.first().type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status shouldBe SoknadsstatusDTO.NY
         }
     }
 
@@ -32,27 +32,27 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         opprettUtlandssoknad(fnr)
         verifiserKafkaSoknader()
 
-        hentSoknader(fnr).size `should be equal to` 1
+        hentSoknader(fnr).size shouldBe 1
     }
 
     @Test
     fun `02 - utlandssøknad opprettes ikke når det allerede finnes en`() {
         opprettUtlandssoknad(fnr)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
-        hentSoknaderMetadata(fnr).size `should be equal to` 1
+        hentSoknaderMetadata(fnr).size shouldBe 1
     }
 
     @Test
     fun `03 - søknaden har forventa spørsmål`() {
         val soknader = hentSoknaderMetadata(fnr)
-        soknader.size `should be equal to` 1
+        soknader.size shouldBe 1
 
         val soknad =
             hentSoknad(
                 soknadId = soknader.first().id,
                 fnr = fnr,
             )
-        soknad.sporsmal!!.map { it.tag } `should be equal to`
+        soknad.sporsmal!!.map { it.tag } shouldBe
             listOf(
                 LAND,
                 PERIODEUTLAND,
@@ -77,17 +77,17 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         oppdaterSporsmalMedResult(fnr, originalSpm, soknaden.id)
             .andExpect(status().isBadRequest)
             .andReturn()
-            .response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+            .response.contentAsString shouldBe """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
 
         oppdaterSporsmalMedResult(fnr, originalSpm.byttSvar(AVKLART_MED_SYKMELDER, "JA"), soknaden.id)
             .andExpect(status().isBadRequest)
             .andReturn()
-            .response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+            .response.contentAsString shouldBe """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
 
         oppdaterSporsmalMedResult(fnr, originalSpm.byttSvar(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, "JA"), soknaden.id)
             .andExpect(status().isBadRequest)
             .andReturn()
-            .response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+            .response.contentAsString shouldBe """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
     }
 
     @Test
@@ -105,7 +105,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        soknadEtter.getSporsmalMedTag("LAND").svar.map { it.verdi } `should be equal to`
+        soknadEtter.getSporsmalMedTag("LAND").svar.map { it.verdi } shouldBe
             listOf(
                 "Syden",
                 "Kina",
@@ -167,8 +167,8 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         SoknadBesvarer(soknad, this, fnr).sendSoknad()
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        soknadPaKafka.type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
-        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.SENDT
+        soknadPaKafka.type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
+        soknadPaKafka.status shouldBe SoknadsstatusDTO.SENDT
     }
 
     @Test
@@ -185,40 +185,40 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `11 - utlandssøknad opprettes når det allerede finnes en som er sendt`() {
-        hentSoknaderMetadata(fnr).size `should be equal to` 1
+        hentSoknaderMetadata(fnr).size shouldBe 1
 
         opprettUtlandssoknad(fnr)
         verifiserKafkaSoknader()
 
-        hentSoknaderMetadata(fnr).size `should be equal to` 2
+        hentSoknaderMetadata(fnr).size shouldBe 2
     }
 
     @Test
     fun `12 - utlandssøknad som avbrytes blir publisert på kafka, og ikke slettet fra db`() {
         hentSoknaderMetadata(fnr).let {
-            it.size `should be equal to` 2
+            it.size shouldBe 2
             avbrytSoknad(it.last().id, fnr)
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
-                kafkaSoknader.size `should be equal to` 1
-                kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
-                kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.AVBRUTT
+                kafkaSoknader.size shouldBe 1
+                kafkaSoknader.first().type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader.first().status shouldBe SoknadsstatusDTO.AVBRUTT
             }
         }
 
-        hentSoknaderMetadata(fnr).size `should be equal to` 2
+        hentSoknaderMetadata(fnr).size shouldBe 2
     }
 
     @Test
     fun `13 - utlandssøknad kan gjenåpnes`() {
         hentSoknaderMetadata(fnr).let {
-            it.size `should be equal to` 2
+            it.size shouldBe 2
             gjenapneSoknad(it.last().id, fnr)
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
-                kafkaSoknader.size `should be equal to` 1
-                kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
-                kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+                kafkaSoknader.size shouldBe 1
+                kafkaSoknader.first().type shouldBe SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader.first().status shouldBe SoknadsstatusDTO.NY
             }
         }
-        hentSoknaderMetadata(fnr).size `should be equal to` 2
+        hentSoknaderMetadata(fnr).size shouldBe 2
     }
 }

@@ -32,7 +32,7 @@ val mockitoKotlinVersion = "2.2.0"
 val avroVersion = "1.12.2"
 val logstashLogbackEncoderVersion = "9.0"
 val testContainersVersion = "2.0.5"
-val kluentVersion = "1.73"
+val kotestVersion = "6.2.6"
 val jsonSchemaValidatorVersion = "3.0.8"
 val unleashVersion = "12.3.1"
 val opentelemetryApiVersion = "1.67.0"
@@ -83,7 +83,7 @@ dependencies {
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("com.networknt:json-schema-validator:$jsonSchemaValidatorVersion")
-    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("commons-codec:commons-codec")
 }
 

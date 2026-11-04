@@ -1,5 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -18,9 +20,6 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.getSporsmalMedTagOrNull
 import no.nav.helse.flex.util.periodeTilJson
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -83,9 +82,9 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             )
 
         soknader.single().also {
-            it.type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
-            it.status `should be equal to` SoknadsstatusDTO.NY
-            it.medlemskapVurdering `should be equal to` "UAVKLART"
+            it.type shouldBe SoknadstypeDTO.ARBEIDSTAKERE
+            it.status shouldBe SoknadsstatusDTO.NY
+            it.medlemskapVurdering shouldBe "UAVKLART"
         }
     }
 
@@ -147,9 +146,9 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 2
 
         medlemskapVurderingDbRecords.first().also {
-            it.fnr `should be equal to` fnr
-            it.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
-            it.sporsmal!!.value `should be equal to`
+            it.fnr shouldBe fnr
+            it.svartype shouldBe MedlemskapVurderingSvarType.UAVKLART.toString()
+            it.sporsmal!!.value shouldBe
                 listOf(
                     MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                     MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
@@ -158,16 +157,16 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 ).serialisertTilString()
 
             it.tilKjentOppholdstillatelse()!!.also {
-                it.fom `should be equal to` fom.minusMonths(2)
-                it.tom `should be equal to` tom.plusMonths(2)
+                it.fom shouldBe fom.minusMonths(2)
+                it.tom shouldBe tom.plusMonths(2)
             }
         }
 
         medlemskapVurderingDbRecords.drop(1).first().also {
-            it.fnr `should be equal to` fnr
+            it.fnr shouldBe fnr
             it.tilKjentOppholdstillatelse()!!.also {
-                it.fom `should be equal to` fom.minusMonths(1)
-                it.tom `should be equal to` tom.plusMonths(1)
+                it.fom shouldBe fom.minusMonths(1)
+                it.tom shouldBe tom.plusMonths(1)
             }
         }
     }
@@ -182,8 +181,8 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             )
 
         soknad.kjentOppholdstillatelse!!.also {
-            it.fom `should be equal to` fom.minusMonths(2)
-            it.tom `should be equal to` tom.plusMonths(2)
+            it.fom shouldBe fom.minusMonths(2)
+            it.tom shouldBe tom.plusMonths(2)
         }
     }
 
@@ -193,22 +192,22 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val soknad = hentSoknadMedStatusNy()
 
         val index = soknad.sporsmal!!.indexOfFirst { it.tag == ANDRE_INNTEKTSKILDER_V2 }
-        index shouldBeEqualTo 5
+        index shouldBe 5
 
-        soknad.sporsmal[index].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
-        soknad.sporsmal[index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-        soknad.sporsmal[index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-        soknad.sporsmal[index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal[index + 4].tag shouldBeEqualTo OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal[index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
-        soknad.sporsmal[index + 6].tag shouldBeEqualTo TIL_SLUTT
+        soknad.sporsmal[index].tag shouldBe ANDRE_INNTEKTSKILDER_V2
+        soknad.sporsmal[index + 1].tag shouldBe MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+        soknad.sporsmal[index + 2].tag shouldBe MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+        soknad.sporsmal[index + 3].tag shouldBe MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+        soknad.sporsmal[index + 4].tag shouldBe OPPHOLD_UTENFOR_EOS
+        soknad.sporsmal[index + 5].tag shouldBe MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
+        soknad.sporsmal[index + 6].tag shouldBe TIL_SLUTT
     }
 
     @Test
     @Order(3)
     fun `Spørsmål om oppholdstillatelse har riktig informasjon om kjent oppholdstillatelse fra UDI`() {
         val soknad = hentSoknadMedStatusNy()
-        soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2).sporsmalstekst shouldBeEqualTo
+        soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2).sporsmalstekst shouldBe
             "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før 1. november 2022?"
     }
 
@@ -341,34 +340,34 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val soknad = hentSoknadMedStatusNy()
 
         soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO").also {
-            it.min shouldBeEqualTo formaterDato(tom.minusYears(10))
-            it.max shouldBeEqualTo formaterDato(tom)
+            it.min shouldBe formaterDato(tom.minusYears(10))
+            it.max shouldBe formaterDato(tom)
         }
         soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE").also {
-            it.min shouldBeEqualTo formaterDato(fom.minusYears(10))
-            it.max shouldBeEqualTo formaterDato(tom.plusYears(10))
+            it.min shouldBe formaterDato(fom.minusYears(10))
+            it.max shouldBe formaterDato(tom.plusYears(10))
         }
 
         val arbeidUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0")
         val arbeidUtenforNorgePeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_1")
-        arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo formaterDato(fom.minusYears(1))
-        arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo formaterDato(tom)
-        arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo arbeidUtenforNorgePeriodeTo.min
-        arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo arbeidUtenforNorgePeriodeTo.max
+        arbeidUtenforNorgePeriodeEn.min shouldBe formaterDato(fom.minusYears(1))
+        arbeidUtenforNorgePeriodeEn.max shouldBe formaterDato(tom)
+        arbeidUtenforNorgePeriodeEn.min shouldBe arbeidUtenforNorgePeriodeTo.min
+        arbeidUtenforNorgePeriodeEn.max shouldBe arbeidUtenforNorgePeriodeTo.max
 
         val oppholdUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR_0")
         val oppholdUtenforNorgePeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR_1")
-        oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo formaterDato(fom.minusYears(1))
-        oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo formaterDato(tom)
-        oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo oppholdUtenforNorgePeriodeTo.min
-        oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo oppholdUtenforNorgePeriodeTo.max
+        oppholdUtenforNorgePeriodeEn.min shouldBe formaterDato(fom.minusYears(1))
+        oppholdUtenforNorgePeriodeEn.max shouldBe formaterDato(tom)
+        oppholdUtenforNorgePeriodeEn.min shouldBe oppholdUtenforNorgePeriodeTo.min
+        oppholdUtenforNorgePeriodeEn.max shouldBe oppholdUtenforNorgePeriodeTo.max
 
         val oppholdUtenforEOSPeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR_0")
         val oppholdUtenforEOSPeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR_1")
-        oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo formaterDato(fom.minusYears(1))
-        oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo formaterDato(tom)
-        oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo oppholdUtenforEOSPeriodeTo.min
-        oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo oppholdUtenforEOSPeriodeTo.max
+        oppholdUtenforEOSPeriodeEn.min shouldBe formaterDato(fom.minusYears(1))
+        oppholdUtenforEOSPeriodeEn.max shouldBe formaterDato(tom)
+        oppholdUtenforEOSPeriodeEn.min shouldBe oppholdUtenforEOSPeriodeTo.min
+        oppholdUtenforEOSPeriodeEn.max shouldBe oppholdUtenforEOSPeriodeTo.max
     }
 
     @Test
@@ -388,10 +387,10 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val hovedsporsmalEtter =
             hentSoknad(soknadId, fnr).getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
-        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBe hovedsporsmalFor.undersporsmal[0].tag
 
         val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
-        utenIdEtter shouldBeEqualTo utenIdFor
+        utenIdEtter shouldBe utenIdFor
     }
 
     @Test
@@ -411,10 +410,10 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val hovedsporsmalEtter =
             hentSoknad(soknadId, fnr).getSporsmalMedTag(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE)
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
-        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBe hovedsporsmalFor.undersporsmal[0].tag
 
         val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
-        utenIdEtter shouldBeEqualTo utenIdFor
+        utenIdEtter shouldBe utenIdFor
     }
 
     @Test
@@ -434,10 +433,10 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val hovedsporsmalEtter =
             hentSoknad(soknadId, fnr).getSporsmalMedTag(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS)
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
-        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBe hovedsporsmalFor.undersporsmal[0].tag
 
         val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
-        utenIdEtter shouldBeEqualTo utenIdFor
+        utenIdEtter shouldBe utenIdFor
     }
 
     @Test
@@ -453,13 +452,13 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadBesvarer
                     .oppsummering()
                     .sendSoknad()
-            sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+            sendtSoknad.status shouldBe RSSoknadstatus.SENDT
         }
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
         val kafkaSoknad = kafkaSoknader.single()
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        kafkaSoknad.status shouldBe SoknadsstatusDTO.SENDT
 
         // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
         // bare å sjekke at spørsmålene er med.
@@ -468,7 +467,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         assertThat(kafkaSoknad.getSporsmalMedTagOrNull(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)).isNotNull()
         assertThat(kafkaSoknad.getSporsmalMedTagOrNull(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE)).isNotNull()
         assertThat(kafkaSoknad.getSporsmalMedTagOrNull(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS)).isNotNull()
-        kafkaSoknad.medlemskapVurdering shouldBeEqualTo "UAVKLART"
+        kafkaSoknad.medlemskapVurdering shouldBe "UAVKLART"
     }
 
     @Test
@@ -487,9 +486,9 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single().also {
-            it.id shouldBeEqualTo sendtSoknad.id
-            it.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-            it.medlemskapVurdering shouldBeEqualTo "UAVKLART"
+            it.id shouldBe sendtSoknad.id
+            it.status shouldBe SoknadsstatusDTO.SENDT
+            it.medlemskapVurdering shouldBe "UAVKLART"
         }
 
         assertThat(

@@ -1,12 +1,12 @@
 package no.nav.helse.flex.arbeidsledig
 
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -43,10 +43,10 @@ class ArbeidsledigGapTest : FellesTestOppsett() {
             )
 
         with(andreSoknader.first()) {
-            type `should be equal to` SoknadstypeDTO.ARBEIDSLEDIG
+            type shouldBe SoknadstypeDTO.ARBEIDSLEDIG
             tidligereArbeidsgiverOrgnummer.shouldNotBeNull()
-            tidligereArbeidsgiverOrgnummer `should be equal to` TIDLIGERE_ARBEIDSGIVER_ORGNR
-            forstegangssoknad `should be equal to` false
+            tidligereArbeidsgiverOrgnummer shouldBe TIDLIGERE_ARBEIDSGIVER_ORGNR
+            forstegangssoknad shouldBe false
         }
     }
 }

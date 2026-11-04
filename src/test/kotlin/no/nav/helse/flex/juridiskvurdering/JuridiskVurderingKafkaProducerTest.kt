@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.`should be instance of`
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.apache.kafka.clients.producer.*
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -32,7 +32,7 @@ class JuridiskVurderingKafkaProducerTest {
                 jurifiskVurderingKafkaProducer.produserMelding(juridiskVurdering)
             }
 
-        kastetException.cause `should be instance of` ExecutionException::class
+        kastetException.cause.shouldBeInstanceOf<ExecutionException>()
     }
 
     val juridiskVurdering =

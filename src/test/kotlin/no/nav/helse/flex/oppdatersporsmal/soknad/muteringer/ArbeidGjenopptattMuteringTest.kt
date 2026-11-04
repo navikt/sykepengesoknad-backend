@@ -1,5 +1,10 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -13,11 +18,6 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.fiskerLottOpprettholdtInntekt100Prosent
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.formatterPeriode
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should not be equal to`
-import org.amshove.kluent.`should not be null`
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Nested
@@ -45,12 +45,12 @@ class ArbeidGjenopptattMuteringTest {
                         .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
                         .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
 
-                soknadUtenOppholdUtenforEOS.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
+                soknadUtenOppholdUtenforEOS.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).shouldBeNull()
                 soknadUtenOppholdUtenforEOS.sporsmal.shouldHaveSize(8)
 
                 val mutertSoknad = soknadUtenOppholdUtenforEOS.arbeidGjenopptattMutering()
 
-                mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+                mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).shouldNotBeNull()
                 mutertSoknad.sporsmal.shouldHaveSize(9)
             }
 
@@ -58,7 +58,7 @@ class ArbeidGjenopptattMuteringTest {
         fun `mutering av spørsmål om perioder som kommer etter svar på tilbake i arbeid`() =
             forHverSoknadstype { soknad ->
                 soknad.sporsmal.shouldHaveSize(9)
-                soknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_0").`should not be null`()
+                soknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_0").shouldNotBeNull()
 
                 val mutertSoknadUtenSpm =
                     soknad
@@ -67,7 +67,7 @@ class ArbeidGjenopptattMuteringTest {
                         .arbeidGjenopptattMutering()
 
                 mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
-                mutertSoknadUtenSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should be null`()
+                mutertSoknadUtenSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").shouldBeNull()
 
                 val mutertSoknadMedSpm =
                     mutertSoknadUtenSpm
@@ -75,7 +75,7 @@ class ArbeidGjenopptattMuteringTest {
                         .arbeidGjenopptattMutering()
 
                 mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
-                mutertSoknadMedSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").`should not be null`()
+                mutertSoknadMedSpm.getSporsmalMedTagOrNull("JOBBET_DU_GRADERT_1").shouldNotBeNull()
             }
 
         @TestFactory
@@ -108,7 +108,7 @@ class ArbeidGjenopptattMuteringTest {
                     )
 
                 val arbeidGjenopptattMutering = soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
-                soknadMedEgenPermisjonSpmTekst `should be equal to` arbeidGjenopptattMutering
+                soknadMedEgenPermisjonSpmTekst shouldBe arbeidGjenopptattMutering
             }
     }
 
@@ -122,20 +122,20 @@ class ArbeidGjenopptattMuteringTest {
             ).map { arbeidssituasjon ->
                 dynamicTest(arbeidssituasjon.name) {
                     val soknad = opprettNyNaeringsdrivendeSoknad100Prosent().copy(arbeidssituasjon = arbeidssituasjon)
-                    soknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+                    soknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).shouldNotBeNull()
 
                     val tilbakeIArbeidFraFom =
                         soknad
                             .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
                             .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
                             .arbeidGjenopptattMutering()
-                    tilbakeIArbeidFraFom.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
+                    tilbakeIArbeidFraFom.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).shouldBeNull()
 
                     val ikkeTilbakeIArbeid =
                         tilbakeIArbeidFraFom
                             .besvarsporsmal(TILBAKE_I_ARBEID, "NEI")
                             .arbeidGjenopptattMutering()
-                    ikkeTilbakeIArbeid.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
+                    ikkeTilbakeIArbeid.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).shouldNotBeNull()
                 }
             }
 
@@ -152,8 +152,8 @@ class ArbeidGjenopptattMuteringTest {
                     .arbeidGjenopptattMutering()
 
             mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT).let {
-                it `should not be equal to` null
-                it.sporsmalstekst `should be equal to` "Hadde du inntekt i virksomheten din mens du var sykmeldt " +
+                it shouldNotBe null
+                it.sporsmalstekst shouldBe "Hadde du inntekt i virksomheten din mens du var sykmeldt " +
                     "${formatterPeriode(soknad.fom, nyTom)}, som ikke var et resultat av at du selv jobbet?"
             }
         }
@@ -172,10 +172,10 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
                     .arbeidGjenopptattMutering()
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldBe null
             mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT).let {
-                it `should not be equal to` null
-                it.sporsmalstekst `should be equal to` "Hadde du inntekt i virksomheten din mens du var sykmeldt " +
+                it shouldNotBe null
+                it.sporsmalstekst shouldBe "Hadde du inntekt i virksomheten din mens du var sykmeldt " +
                     "${formatterPeriode(soknad.fom, nyTom)}, som ikke var et resultat av at du selv jobbet?"
             }
         }
@@ -190,8 +190,8 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
                     .arbeidGjenopptattMutering()
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should not be equal to` null
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldNotBe null
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldBe null
         }
 
         @Test
@@ -207,10 +207,10 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
                     .arbeidGjenopptattMutering()
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldBe null
             mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).let {
-                it `should not be equal to` null
-                it.sporsmalstekst `should be equal to`
+                it shouldNotBe null
+                it.sporsmalstekst shouldBe
                     "Hadde du inntekt i virksomheten din selv om du var 100 % sykmeldt og ikke jobbet selv?"
             }
         }
@@ -225,8 +225,8 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
                     .arbeidGjenopptattMutering()
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldNotBe null
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldBe null
         }
 
         @Test
@@ -238,11 +238,11 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
                     .arbeidGjenopptattMutering()
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldNotBe null
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldNotBe null
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldBe null
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldBe null
         }
 
         @Test
@@ -254,11 +254,11 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "JA")
                     .arbeidGjenopptattMutering()
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldNotBe null
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) shouldBe null
 
-            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should not be equal to` null
+            soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldBe null
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) shouldNotBe null
         }
     }
 
@@ -273,8 +273,8 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
                     .arbeidGjenopptattMutering()
 
-            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT).`should not be null`()
-            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT).`should be null`()
+            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT).shouldNotBeNull()
+            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT).shouldBeNull()
         }
 
         @Test
@@ -286,10 +286,10 @@ class ArbeidGjenopptattMuteringTest {
                     .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "JA")
                     .arbeidGjenopptattMutering()
 
-            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT).`should be null`()
-            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT).`should not be null`()
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).`should be null`()
-            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT).`should be null`()
+            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT).shouldBeNull()
+            mutertSoknad.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT).shouldNotBeNull()
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).shouldBeNull()
+            mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT).shouldBeNull()
         }
 
         private fun opprettFiskerLottOgHyreSoknad100Prosent(): Sykepengesoknad {
@@ -313,8 +313,8 @@ class ArbeidGjenopptattMuteringTest {
                 .copy(
                     sporsmal = soknad.sporsmal + fiskerLottOpprettholdtInntekt100Prosent(soknad.fom!!, soknad.tom!!),
                 ).also {
-                    it.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT).`should not be null`()
-                    it.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT).`should be null`()
+                    it.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT).shouldNotBeNull()
+                    it.getSporsmalMedTagOrNull(FISKER_LOTT_OPPRETTHOLDT_INNTEKT_GRADERT).shouldBeNull()
                 }
         }
 
@@ -341,7 +341,7 @@ class ArbeidGjenopptattMuteringTest {
         }
 
         private fun sammenlignFiskerLottOgHyreSporsmal(soknad: Sykepengesoknad) {
-            soknad.sporsmal.map { it.tag } `should be equal to`
+            soknad.sporsmal.map { it.tag } shouldBe
                 listOf(
                     ANSVARSERKLARING,
                     TILBAKE_I_ARBEID,

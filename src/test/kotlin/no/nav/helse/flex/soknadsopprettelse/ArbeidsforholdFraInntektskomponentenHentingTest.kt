@@ -1,12 +1,12 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidstakerOgFrilanserInntekter
 import no.nav.helse.flex.mockdispatcher.skapHentInntekterResponse
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -27,7 +27,7 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 arbeidsgiverOrgnummer = "999333666",
                 startSykeforlop = LocalDate.now(),
             ).filter { it.arbeidsforholdstype == Arbeidsforholdstype.ARBEIDSTAKER }
-            .`should be empty`()
+            .shouldBeEmpty()
     }
 
     @Test
@@ -42,7 +42,7 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                     startSykeforlop = LocalDate.now(),
                 ).filter { it.arbeidsforholdstype == Arbeidsforholdstype.FRILANSER }
         frilanserArbeidsforholdet.shouldHaveSize(1)
-        frilanserArbeidsforholdet.first().orgnummer `should be equal to` "999333667"
+        frilanserArbeidsforholdet.first().orgnummer shouldBe "999333667"
     }
 
     @Test
@@ -54,7 +54,7 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 fnr = FNR,
                 arbeidsgiverOrgnummer = "123454543",
                 startSykeforlop = LocalDate.now(),
-            ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS", "Frilanseransetter AS")
+            ).map { it.navn } shouldBe listOf("Bensinstasjonen AS", "Frilanseransetter AS")
     }
 
     @Test
@@ -72,7 +72,7 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 fnr = fnr,
                 arbeidsgiverOrgnummer = "999333667",
                 startSykeforlop = LocalDate.now(),
-            ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS", "Kiosken, avd Oslo AS")
+            ).map { it.navn } shouldBe listOf("Bensinstasjonen AS", "Kiosken, avd Oslo AS")
     }
 
     @Test
@@ -91,7 +91,7 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                 fnr = fnr,
                 arbeidsgiverOrgnummer = "99944736",
                 startSykeforlop = LocalDate.now(),
-            ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS")
+            ).map { it.navn } shouldBe listOf("Bensinstasjonen AS")
     }
 
     @Test
@@ -113,7 +113,7 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
                     startSykeforlop = LocalDate.now(),
                 )
         arbeidsforhold.shouldHaveSize(1)
-        arbeidsforhold.first().orgnummer `should be equal to` "999333667"
-        arbeidsforhold.first().arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
+        arbeidsforhold.first().orgnummer shouldBe "999333667"
+        arbeidsforhold.first().arbeidsforholdstype shouldBe Arbeidsforholdstype.ARBEIDSTAKER
     }
 }

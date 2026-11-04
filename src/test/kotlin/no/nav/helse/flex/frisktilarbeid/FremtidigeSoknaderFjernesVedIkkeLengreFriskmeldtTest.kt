@@ -1,5 +1,8 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Soknadstatus
@@ -11,9 +14,6 @@ import no.nav.helse.flex.`should be within seconds of`
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -50,11 +50,11 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
     fun `Oppretter søknader med status NY og FREMTIDIG`() {
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
 
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
             }
 
         await().until {
@@ -71,8 +71,8 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
         }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size `should be equal to` 4
-            it.map { it.status } `should be equal to`
+            it.size shouldBe 4
+            it.map { it.status } shouldBe
                 listOf(
                     Soknadstatus.NY,
                     Soknadstatus.FREMTIDIG,
@@ -115,8 +115,8 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
     @Order(6)
     fun `resterende 1 søknader er den første sendte`() {
         val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 1
-        soknader[0].status `should be equal to` RSSoknadstatus.SENDT
-        soknader[0].fom!! `should be equal to` vedtakFom
+        soknader[0].status shouldBe RSSoknadstatus.SENDT
+        soknader[0].fom!! shouldBe vedtakFom
     }
 
     @Test

@@ -8,6 +8,9 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidssituasjon
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -22,9 +25,6 @@ import no.nav.helse.flex.mockStandardSyketilfelle
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.*
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,7 +72,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                 topic = SYKMELDINGSENDT_TOPIC,
             )
 
-            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size `should be equal to` 2
+            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size shouldBe 2
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         }
 
@@ -122,7 +122,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         hentSoknaderMetadata(fnr).shouldHaveSize(1)
-        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSLEDIG
+        hentSoknader(fnr).single().arbeidssituasjon shouldBe RSArbeidssituasjon.ARBEIDSLEDIG
 
         val sykmeldingKafkaMessageAnnet =
             sykmeldingKafkaMessage(
@@ -143,7 +143,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         hentSoknaderMetadata(fnr).shouldHaveSize(1)
-        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ANNET
+        hentSoknader(fnr).single().arbeidssituasjon shouldBe RSArbeidssituasjon.ANNET
     }
 
     @Nested
@@ -159,7 +159,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                 topic = SYKMELDINGSENDT_TOPIC,
             )
 
-            hentSoknaderMetadata(fnr).`should be empty`()
+            hentSoknaderMetadata(fnr).shouldBeEmpty()
         }
 
         @Test
@@ -188,7 +188,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
             hentSoknaderMetadata(fnr)
                 .shouldHaveSize(12)
-                .count { it.soknadstype == RSSoknadstype.BEHANDLINGSDAGER } `should be equal to` 11
+                .count { it.soknadstype == RSSoknadstype.BEHANDLINGSDAGER } shouldBe 11
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 12)
         }
 
@@ -237,7 +237,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                 topic = SYKMELDINGSENDT_TOPIC,
             )
 
-            hentSoknaderMetadata(fnr).`should be empty`()
+            hentSoknaderMetadata(fnr).shouldBeEmpty()
         }
 
         @Test
@@ -262,7 +262,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
             hentSoknaderMetadata(fnr).shouldHaveSize(1)
-            hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
+            hentSoknader(fnr).single().arbeidssituasjon shouldBe RSArbeidssituasjon.ARBEIDSTAKER
 
             val sykmeldingKafkaMessageNaringsdrivende =
                 sykmeldingKafkaMessage(
@@ -290,14 +290,14 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
             )
 
             hentSoknaderMetadata(fnr).shouldHaveSize(1)
-            hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
+            hentSoknader(fnr).single().arbeidssituasjon shouldBe RSArbeidssituasjon.ARBEIDSTAKER
 
             logger.detachAppender(listAppender)
 
             val forventetMelding =
                 "Oppretter ikke søknader for sykmelding: ${sykmeldingKafkaMessageNaringsdrivende.sykmelding.id} med arbeidssituasjon NAERINGSDRIVENDE siden det finnes allerede en arbeidstaker søknad. Kan skje ved kafkalag."
             listAppender.list
-                .any { it.level == Level.ERROR && it.formattedMessage.contains(forventetMelding) } `should be equal to` true
+                .any { it.level == Level.ERROR && it.formattedMessage.contains(forventetMelding) } shouldBe true
         }
     }
 
@@ -347,7 +347,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                 topic = SYKMELDINGSENDT_TOPIC,
             )
 
-            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size `should be equal to` 0
+            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size shouldBe 0
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         }
 

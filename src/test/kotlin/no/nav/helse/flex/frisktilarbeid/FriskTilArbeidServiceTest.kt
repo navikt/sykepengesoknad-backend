@@ -1,5 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import mockwebserver3.MockResponse
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Periode
@@ -8,8 +10,6 @@ import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidssokerperiodeResponse
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.tilOsloInstant
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,7 +46,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         )
 
         fakeFriskTilArbeidRepository.findAll().toList().single().also {
-            it.ignorerArbeidssokerregister `should be equal to` null
+            it.ignorerArbeidssokerregister shouldBe null
         }
     }
 
@@ -61,7 +61,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         )
 
         fakeFriskTilArbeidRepository.findAll().toList().single().also {
-            it.ignorerArbeidssokerregister `should be equal to` true
+            it.ignorerArbeidssokerregister shouldBe true
         }
     }
 
@@ -172,7 +172,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -195,7 +195,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -218,7 +218,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -241,7 +241,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -264,7 +264,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -283,7 +283,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 1
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(INGEN_ARBEIDSSOKERPERIODE)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(INGEN_ARBEIDSSOKERPERIODE)
     }
 
     @Test
@@ -302,7 +302,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 1
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET)
+        vedtakFraDb.map { it.behandletStatus }.toSet() shouldBe setOf(SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET)
     }
 
     @Test
@@ -324,8 +324,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
         fakeFriskTilArbeidRepository.findAll().toList().also {
-            it.find { it.fnr == "11111111111" }?.behandletStatus `should be equal to` BEHANDLET
-            it.find { it.fnr == "22222222222" }?.behandletStatus `should be equal to` NY
+            it.find { it.fnr == "11111111111" }?.behandletStatus shouldBe BEHANDLET
+            it.find { it.fnr == "22222222222" }?.behandletStatus shouldBe NY
         }
     }
 
@@ -345,10 +345,10 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).sortedBy { it.fom }.also {
             it shouldHaveSize 2
-            it[0].fom `should be equal to` LocalDate.of(2025, 4, 7)
-            it[0].tom `should be equal to` LocalDate.of(2025, 4, 20)
-            it[1].fom `should be equal to` LocalDate.of(2025, 4, 21)
-            it[1].tom `should be equal to` LocalDate.of(2025, 5, 4)
+            it[0].fom shouldBe LocalDate.of(2025, 4, 7)
+            it[0].tom shouldBe LocalDate.of(2025, 4, 20)
+            it[1].fom shouldBe LocalDate.of(2025, 4, 21)
+            it[1].tom shouldBe LocalDate.of(2025, 5, 4)
         }
 
         // Utvider vedtaket med én dag og setter status tilbake til NY for å få generert søknaden som mangler.
@@ -357,9 +357,9 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         }
 
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).also {
-            it.size `should be equal to` 1
-            it.first().fom `should be equal to` LocalDate.of(2025, 5, 5)
-            it.first().tom `should be equal to` LocalDate.of(2025, 5, 5)
+            it.size shouldBe 1
+            it.first().fom shouldBe LocalDate.of(2025, 5, 5)
+            it.first().tom shouldBe LocalDate.of(2025, 5, 5)
         }
     }
 
@@ -403,9 +403,9 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         }
 
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).also {
-            it.size `should be equal to` 1
-            it.first().fom `should be equal to` LocalDate.of(2025, 6, 2)
-            it.first().tom `should be equal to` LocalDate.of(2025, 6, 2)
+            it.size shouldBe 1
+            it.first().fom shouldBe LocalDate.of(2025, 6, 2)
+            it.first().tom shouldBe LocalDate.of(2025, 6, 2)
         }
     }
 
@@ -454,8 +454,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         fakeFriskTilArbeidRepository.findAll().toList().sortedBy { it.fom }.also {
             it shouldHaveSize 2
-            it.first().behandletStatus `should be equal to` BEHANDLET
-            it.drop(1).first().behandletStatus `should be equal to` BEHANDLET
+            it.first().behandletStatus shouldBe BEHANDLET
+            it.drop(1).first().behandletStatus shouldBe BEHANDLET
         }
     }
 
@@ -487,8 +487,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         fakeFriskTilArbeidRepository.findAll().toList().sortedBy { it.fom }.also {
             it shouldHaveSize 2
-            it.first().behandletStatus `should be equal to` BEHANDLET
-            it.drop(1).first().behandletStatus `should be equal to` BEHANDLET
+            it.first().behandletStatus shouldBe BEHANDLET
+            it.drop(1).first().behandletStatus shouldBe BEHANDLET
         }
     }
 
@@ -520,8 +520,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         fakeFriskTilArbeidRepository.findAll().toList().sortedBy { it.fom }.also {
             it shouldHaveSize 2
-            it.first().behandletStatus `should be equal to` BEHANDLET
-            it.drop(1).first().behandletStatus `should be equal to` OVERLAPP
+            it.first().behandletStatus shouldBe BEHANDLET
+            it.drop(1).first().behandletStatus shouldBe OVERLAPP
         }
     }
 }

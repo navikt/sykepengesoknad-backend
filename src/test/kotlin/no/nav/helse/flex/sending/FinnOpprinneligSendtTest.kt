@@ -1,13 +1,13 @@
 package no.nav.helse.flex.sending
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Opprinnelse
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -23,7 +23,7 @@ class FinnOpprinneligSendtTest {
         listOf(
             denViSender,
             skapDbRecord(sendt = lengesiden),
-        ).finnOpprinneligSendt(denViSender) `should be equal to` lengesiden
+        ).finnOpprinneligSendt(denViSender) shouldBe lengesiden
     }
 
     @Test
@@ -33,7 +33,7 @@ class FinnOpprinneligSendtTest {
             denViSender,
             skapDbRecord(sendt = lengesiden),
             skapDbRecord(sendt = endaLengreSiden),
-        ).finnOpprinneligSendt(denViSender) `should be equal to` endaLengreSiden
+        ).finnOpprinneligSendt(denViSender) shouldBe endaLengreSiden
     }
 
     @Test

@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -11,7 +12,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
@@ -76,7 +76,7 @@ class FriskTilArbeidIntegrationTest : FellesTestOppsett() {
             ).get()
 
         friskTilArbeidKafkaConsumer.ventPåRecords(1, Duration.ofSeconds(1)).first().also {
-            it.value() `should be equal to` friskTilArbeidVedtakStatus.serialisertTilString()
+            it.value() shouldBe friskTilArbeidVedtakStatus.serialisertTilString()
         }
 
         val vedtakSomSkalBehandles =
@@ -86,12 +86,12 @@ class FriskTilArbeidIntegrationTest : FellesTestOppsett() {
             )
 
         vedtakSomSkalBehandles.first().also {
-            it.fnr `should be equal to` fnr
-            it.behandletStatus `should be equal to` BehandletStatus.NY
-            it.behandletTidspunkt `should be equal to` null
-            it.fom `should be equal to` vedtaksperiode.fom
-            it.tom `should be equal to` vedtaksperiode.tom
-            it.ignorerArbeidssokerregister `should be equal to` null
+            it.fnr shouldBe fnr
+            it.behandletStatus shouldBe BehandletStatus.NY
+            it.behandletTidspunkt shouldBe null
+            it.fom shouldBe vedtaksperiode.fom
+            it.tom shouldBe vedtaksperiode.tom
+            it.ignorerArbeidssokerregister shouldBe null
         }
     }
 
@@ -100,36 +100,36 @@ class FriskTilArbeidIntegrationTest : FellesTestOppsett() {
     fun `Oppretter søknad fra med status FREMTIDIG`() {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
 
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
                 it.behandletTidspunkt!! `should be within seconds of` (1 to Instant.now())
             }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).also {
-            it.size `should be equal to` 3
+            it.size shouldBe 3
             it.forEach {
-                it.status `should be equal to` Soknadstatus.FREMTIDIG
-                it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
+                it.status shouldBe Soknadstatus.FREMTIDIG
+                it.friskTilArbeidVedtakId shouldBe friskTilArbeidDbRecord.id
             }
         }
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
-            soknader.size `should be equal to` 3
+            soknader.size shouldBe 3
             soknader.forEach {
-                it.fnr `should be equal to` "11111111111"
-                it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
-                it.type `should be equal to` SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+                it.fnr shouldBe "11111111111"
+                it.status shouldBe SoknadsstatusDTO.FREMTIDIG
+                it.type shouldBe SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
 
-                it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
-                it.friskTilArbeidVedtakPeriode `should be equal to`
+                it.friskTilArbeidVedtakId shouldBe friskTilArbeidDbRecord.id
+                it.friskTilArbeidVedtakPeriode shouldBe
                     Periode(
                         fom = friskTilArbeidDbRecord.fom,
                         tom = friskTilArbeidDbRecord.tom,
                     ).serialisertTilString()
-                it.ignorerArbeidssokerregister `should be equal to` null
+                it.ignorerArbeidssokerregister shouldBe null
             }
         }
     }
@@ -151,19 +151,19 @@ class FriskTilArbeidIntegrationTest : FellesTestOppsett() {
         )
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
 
         friskTilArbeidRepository.findAll().first { it -> it.fnr == fnr }.also {
-            it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+            it.behandletStatus shouldBe BehandletStatus.BEHANDLET
         }
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
-            soknader.size `should be equal to` 1
+            soknader.size shouldBe 1
             soknader.forEach {
-                it.fnr `should be equal to` fnr
-                it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
-                it.type `should be equal to` SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
-                it.ignorerArbeidssokerregister `should be equal to` true
+                it.fnr shouldBe fnr
+                it.status shouldBe SoknadsstatusDTO.FREMTIDIG
+                it.type shouldBe SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+                it.ignorerArbeidssokerregister shouldBe true
             }
         }
     }

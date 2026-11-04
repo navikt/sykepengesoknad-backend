@@ -1,8 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.testutil.lagSoknad
-import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -30,7 +30,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) `should be` true
+        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) shouldBe true
     }
 
     @Test
@@ -54,7 +54,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) `should be` false
+        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) shouldBe false
     }
 
     @Test
@@ -69,7 +69,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(emptyList(), aktuell.fom!!) `should be` false
+        harGapTilForrigeSoknad(emptyList(), aktuell.fom!!) shouldBe false
     }
 
     @Test
@@ -93,7 +93,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) `should be` false
+        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) shouldBe false
     }
 
     @Test
@@ -117,7 +117,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) `should be` true
+        harGapTilForrigeSoknad(listOf(forrige), aktuell.fom!!) shouldBe true
     }
 
     @Test
@@ -142,7 +142,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(avbrutt), aktuellBackToBack.fom!!) `should be` false
+        harGapTilForrigeSoknad(listOf(avbrutt), aktuellBackToBack.fom!!) shouldBe false
     }
 
     @Test
@@ -176,7 +176,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(gyldig, avbrutt), aktuell.fom!!) `should be` false
+        harGapTilForrigeSoknad(listOf(gyldig, avbrutt), aktuell.fom!!) shouldBe false
     }
 
     @Test
@@ -201,7 +201,7 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(slettet), aktuell.fom!!) `should be` false
+        harGapTilForrigeSoknad(listOf(slettet), aktuell.fom!!) shouldBe false
     }
 
     @Test
@@ -225,6 +225,6 @@ class HarGapTilForrigeSoknadTest {
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
-        harGapTilForrigeSoknad(listOf(arbeidstaker), aktuell.fom!!) `should be` true
+        harGapTilForrigeSoknad(listOf(arbeidstaker), aktuell.fom!!) shouldBe true
     }
 }

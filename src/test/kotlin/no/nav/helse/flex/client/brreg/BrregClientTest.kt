@@ -1,13 +1,12 @@
 package no.nav.helse.flex.client.brreg
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import mockwebserver3.MockResponse
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.invoking
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.client.HttpServerErrorException
@@ -25,7 +24,7 @@ class BrregClientTest : FellesTestOppsett() {
         )
 
         val roller = brregClient.hentRoller("fnr", listOf(Rolletype.INNH))
-        roller.size `should be equal to` 0
+        roller.size shouldBe 0
     }
 
     @Test
@@ -36,7 +35,7 @@ class BrregClientTest : FellesTestOppsett() {
             )
         }
 
-        invoking { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }.shouldThrow(HttpServerErrorException::class)
+        shouldThrow<HttpServerErrorException> { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }
     }
 
     @Test
@@ -47,7 +46,7 @@ class BrregClientTest : FellesTestOppsett() {
             )
         }
 
-        brregClient.hentRoller("fnr", listOf(Rolletype.INNH)).size `should be equal to` 1
+        brregClient.hentRoller("fnr", listOf(Rolletype.INNH)).size shouldBe 1
     }
 
     @Test
@@ -57,7 +56,7 @@ class BrregClientTest : FellesTestOppsett() {
         )
 
         val roller = brregClient.hentRoller("fnr", listOf(Rolletype.INNH))
-        roller.size `should be equal to` 0
+        roller.size shouldBe 0
     }
 
     private fun response(

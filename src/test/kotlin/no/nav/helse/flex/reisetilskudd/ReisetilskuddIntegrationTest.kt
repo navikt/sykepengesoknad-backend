@@ -1,5 +1,7 @@
 package no.nav.helse.flex.reisetilskudd
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -31,9 +33,6 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -136,7 +135,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         avbrytSoknad(fnr = fnr, soknadId = reisetilskudd.first().id)
 
         val avbruttSøknad = hentSoknaderMetadata(fnr).first()
-        avbruttSøknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
+        avbruttSøknad.status shouldBe RSSoknadstatus.AVBRUTT
     }
 
     @Test
@@ -146,7 +145,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         gjenapneSoknad(fnr = fnr, soknadId = reisetilskudd.first().id)
 
         val gjenåpnet = hentSoknaderMetadata(fnr).first()
-        gjenåpnet.status shouldBeEqualTo RSSoknadstatus.NY
+        gjenåpnet.status shouldBe RSSoknadstatus.NY
     }
 
     @Test
@@ -165,7 +164,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             ).getSporsmalMedTag(ANSVARSERKLARING).svar.first()
-        svaret.verdi shouldBeEqualTo "CHECKED"
+        svaret.verdi shouldBe "CHECKED"
     }
 
     @Test
@@ -194,7 +193,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         val returnertSvar = spmSomBleSvart.svar.first()
 
         val returnertKvittering: Kvittering = objectMapper.readValue(returnertSvar.verdi)
-        returnertKvittering.typeUtgift.`should be equal to`(Utgiftstype.PARKERING)
+        returnertKvittering.typeUtgift.shouldBe(Utgiftstype.PARKERING)
     }
 
     @Test
@@ -206,13 +205,13 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
-        kvitteringSpm.svar.size `should be equal to` 1
+        kvitteringSpm.svar.size shouldBe 1
 
         val returnertSvar = kvitteringSpm.svar.first()
         val returnertKvittering: Kvittering = objectMapper.readValue(returnertSvar.verdi)
 
-        returnertKvittering.blobId.`should be equal to`("9a186e3c-aeeb-4566-a865-15aa9139d364")
-        returnertKvittering.belop.`should be equal to`(133700)
+        returnertKvittering.blobId.shouldBe("9a186e3c-aeeb-4566-a865-15aa9139d364")
+        returnertKvittering.belop.shouldBe(133700)
     }
 
     @Test
@@ -224,7 +223,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
-        kvitteringSpm.svar.size `should be equal to` 1
+        kvitteringSpm.svar.size shouldBe 1
 
         val svaret = kvitteringSpm.svar.first()
 
@@ -236,7 +235,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val kvitteringSpmEtter = reisetilskuddSoknadEtter.getSporsmalMedTag(KVITTERINGER)
-        kvitteringSpmEtter.svar.size `should be equal to` 0
+        kvitteringSpmEtter.svar.size shouldBe 0
     }
 
     @Test
@@ -286,7 +285,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
                 .andReturn()
                 .response.contentAsString
-        json shouldBeEqualTo "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
+        json shouldBe "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
     @Test
@@ -316,7 +315,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         val sendtSoknad =
             SoknadBesvarer(reisetilskudd, this, fnr)
                 .sendSoknad()
-        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+        sendtSoknad.status shouldBe RSSoknadstatus.SENDT
     }
 
     @Test

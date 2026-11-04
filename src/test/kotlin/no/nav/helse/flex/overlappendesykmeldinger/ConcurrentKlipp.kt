@@ -1,5 +1,11 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.date.shouldBeBefore
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -11,11 +17,6 @@ import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
-import org.amshove.kluent.shouldBeBefore
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -130,15 +131,15 @@ class ConcurrentKlipp : FellesTestOppsett() {
 
         forsteTransactionStart shouldBeBefore andreTransactionStart
 
-        forsteAdvisoryLockResponse shouldBeEqualTo true
-        andreAdvisoryLockResponse shouldBeEqualTo false
+        forsteAdvisoryLockResponse shouldBe true
+        andreAdvisoryLockResponse shouldBe false
 
-        forsteTransactionException shouldBeEqualTo null
-        andreTransactionException shouldBeEqualTo null
+        forsteTransactionException shouldBe null
+        andreTransactionException shouldBe null
 
         // Sjekker at låsen nå er ledig
         doInTransaction {
-            lockRepository.settAdvisoryLock(fnr.toLong()) shouldBeEqualTo true
+            lockRepository.settAdvisoryLock(fnr.toLong()) shouldBe true
         }
     }
 
@@ -152,8 +153,8 @@ class ConcurrentKlipp : FellesTestOppsett() {
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
-        hentetViaRest[0].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        hentetViaRest[0].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        hentetViaRest[0].soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        hentetViaRest[0].status shouldBe RSSoknadstatus.FREMTIDIG
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
@@ -191,7 +192,7 @@ class ConcurrentKlipp : FellesTestOppsett() {
 
         holdAdvisoryLock.complete(Any())
         advisoryThread.join()
-        threadException shouldBeEqualTo null
+        threadException shouldBe null
 
         hentSoknaderMetadata(fnr) shouldHaveSize 1
     }
@@ -214,19 +215,19 @@ class ConcurrentKlipp : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
-        forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        forsteSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        forsteSoknad.status shouldBe RSSoknadstatus.NY
+        forsteSoknad.fom shouldBe basisdato.minusDays(1)
+        forsteSoknad.tom shouldBe basisdato.minusDays(1)
 
         val fremtidigSoknad =
             hentSoknad(
                 soknadId = soknaderMetadata.last().id,
                 fnr = fnr,
             )
-        fremtidigSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        fremtidigSoknad.status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
-        fremtidigSoknad.fom shouldBeEqualTo basisdato
-        fremtidigSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
+        fremtidigSoknad.soknadstype shouldBe RSSoknadstype.ARBEIDSTAKERE
+        fremtidigSoknad.status shouldBe RSSoknadstatus.FREMTIDIG
+        fremtidigSoknad.fom shouldBe basisdato
+        fremtidigSoknad.tom shouldBe basisdato.plusDays(15)
     }
 }
