@@ -6,9 +6,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.format.TextStyle
-import java.time.temporal.ChronoUnit
 import java.util.Locale
-import java.util.stream.LongStream
 
 fun max(
     a: LocalDate,
@@ -96,26 +94,6 @@ fun formatterDato(dato: LocalDate): String =
 fun formatterDatoUtenÅr(dato: LocalDate): String =
     dato.dayOfMonth.toString() + ". " +
         mnd(dato)
-
-fun periodeErUtenforHelg(periode: Periode): Boolean =
-    ChronoUnit.DAYS.between(periode.fom, periode.tom) > 1 ||
-        !periode.fom.erHelg() ||
-        !periode.tom.erHelg()
-
-fun periodeHarDagerUtenforAndrePerioder(
-    periode: Periode,
-    andrePerioder: List<Periode>,
-): Boolean =
-    LongStream
-        .rangeClosed(0, ChronoUnit.DAYS.between(periode.fom, periode.tom))
-        .mapToObj { i: Long -> periode.fom.plusDays(i) }
-        .anyMatch { dagIPeriode: LocalDate? ->
-            andrePerioder
-                .stream()
-                .noneMatch { annenPeriode: Periode ->
-                    annenPeriode.erIPeriode(dagIPeriode!!)
-                }
-        }
 
 fun periodeTilJson(
     fom: LocalDate,

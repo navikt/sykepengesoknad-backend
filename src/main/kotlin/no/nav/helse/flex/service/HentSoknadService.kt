@@ -37,7 +37,6 @@ class HentSoknadService(
     private fun patchSoknad(soknad: Sykepengesoknad): Boolean {
         val patchetSoknad =
             soknad
-                .handterUtland(log)
                 .patchSvartypeOppsummering(log)
                 .fjernBekreftOpplysninger(log)
         if (soknad != patchetSoknad) {
@@ -51,20 +50,6 @@ class HentSoknadService(
         identer: FolkeregisterIdenter,
         fom: LocalDate?,
     ): String? = sykepengesoknadRepository.findEldsteSoknaden(identer.alle(), fom)
-}
-
-private fun Sykepengesoknad.handterUtland(log: Logger): Sykepengesoknad {
-    if (this.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS) != null &&
-        (
-            this.getSporsmalMedTagOrNull(UTLAND_V2) != null ||
-                this.getSporsmalMedTagOrNull(UTLAND) != null ||
-                this.getSporsmalMedTagOrNull(ARBEIDSLEDIG_UTLAND) != null
-        )
-    ) {
-        log.info("Fjernet nytt spørsmål med tag OPPHOLD_UTENFOR_EOS fra søknad med id ${this.id}")
-        return this.fjernSporsmal(OPPHOLD_UTENFOR_EOS)
-    }
-    return this
 }
 
 private fun Sykepengesoknad.fjernBekreftOpplysninger(log: Logger): Sykepengesoknad {
