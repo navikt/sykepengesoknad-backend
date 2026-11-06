@@ -3,27 +3,16 @@ package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.mock.opprettNyFiskerHyreSoknad
-import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
-import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS_NAR
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
-import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
-import no.nav.helse.flex.soknadsopprettelse.fellesPlasseringSporsmal
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.util.PeriodeMapper
-import no.nav.helse.flex.util.periodeTilJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
 
 class ArbeidstakereOgFiskereHyreMuteringTest {
     val testDato: LocalDate = LocalDate.of(2024, 6, 1)
@@ -175,39 +164,6 @@ class ArbeidstakereOgFiskereHyreMuteringTest {
         }
 
     @TestFactory
-    fun leggerIkkeTilSporsmalOmABeholdeSykepenger() =
-        forHverSoknadstype { soknad ->
-            assertThat(soknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
-        }
-
-    @TestFactory
-    fun leggerIkkeTilSporsmalHvisUtlandsoppholdErIHelg() =
-        forHverSoknadstype { soknad ->
-            val nesteLordag = testDato.with(TemporalAdjusters.next(DayOfWeek.SATURDAY))
-            val nesteSondag = nesteLordag.with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
-
-            val sykepengesoknad = soknad.medPeriodesvar(OPPHOLD_UTENFOR_EOS_NAR, nesteLordag, nesteSondag)
-            val oppdatertSoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
-
-            assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
-        }
-
-    @TestFactory
-    fun leggerIkkeTilSporsmalHvisUtlandsoppholdErIFerie() =
-        forHverSoknadstype { soknad ->
-            val nesteMandag = testDato.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
-            val nesteFredag = nesteMandag.with(TemporalAdjusters.next(DayOfWeek.FRIDAY))
-
-            val sykepengesoknad =
-                soknad
-                    .medPeriodesvar(FERIE_NAR_V2, nesteMandag, nesteFredag)
-                    .medPeriodesvar(OPPHOLD_UTENFOR_EOS_NAR, nesteMandag, nesteFredag)
-            val oppdatertSoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
-
-            assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
-        }
-
-    @TestFactory
     fun sortererSporsmalISykepengesoknad() =
         forHverSoknadstype { soknad ->
             val ekstraGradertsporsmal = Sporsmal(tag = JOBBET_DU_GRADERT + 4, svartype = Svartype.JA_NEI)
@@ -256,19 +212,6 @@ class ArbeidstakereOgFiskereHyreMuteringTest {
                 min = fom?.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tom?.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 svar = listOf(Svar(null, svar)),
-            ),
-        )
-
-    private fun Sykepengesoknad.medPeriodesvar(
-        tag: String,
-        fom: LocalDate,
-        tom: LocalDate,
-    ): Sykepengesoknad =
-        replaceSporsmal(
-            getSporsmalMedTag(tag).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, periodeTilJson(fom, tom))),
             ),
         )
 

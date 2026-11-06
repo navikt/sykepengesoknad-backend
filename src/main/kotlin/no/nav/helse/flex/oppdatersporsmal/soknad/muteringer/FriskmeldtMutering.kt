@@ -29,7 +29,6 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
                     sporsmal
                         .asSequence()
                         .filterNot { (_, tag) -> tag == UTDANNING }
-                        .filterNot { (_, tag) -> tag == ARBEIDSLEDIG_UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER }
                         .filterNot { (_, tag) -> tag == FLERE_INNTEKTSKILDER_GRUPPE }
@@ -47,15 +46,8 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             friskmeldtDato.minusDays(1)
         }
 
-    val skalStilleNyEOSSporsmal =
-        if (this.sporsmal.any { it.tag == ARBEIDSLEDIG_UTLAND }) {
-            gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!)
-        } else {
-            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
-        }
-
     return this
-        .leggTilSporsmaal(skalStilleNyEOSSporsmal)
+        .leggTilSporsmaal(oppholdUtenforEOSSporsmal(fom!!, oppdatertTom!!))
         .muterAndreInntekter(oppdatertTom)
         .let {
             if (arbeidssituasjon == ANNET) {

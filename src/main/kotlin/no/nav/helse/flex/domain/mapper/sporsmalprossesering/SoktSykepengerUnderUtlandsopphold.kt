@@ -7,6 +7,7 @@ import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 
+// TODO Vurdere om dette kan slettes hvis vi ikke skal støtte ettersending etterhvert. Virker som det er masse bugs her også..
 fun harSoktSykepengerUnderUtlandsopphold(sykepengesoknad: Sykepengesoknad): Boolean =
     if (!harSvartJaPaUtland(sykepengesoknad)) {
         false

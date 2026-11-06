@@ -42,8 +42,6 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }
                         .filterNot { (_, tag) -> tag == FERIE_V2 }
                         .filterNot { (_, tag) -> tag == PERMISJON_V2 }
-                        .filterNot { (_, tag) -> tag == UTLAND_V2 }
-                        .filterNot { (_, tag) -> tag == UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
                         .filterNot { (_, tag) -> tag in OPPRETTHOLDT_INNTEKT_TAGS }
@@ -79,19 +77,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             ).toMutableList()
         }
 
-    val utlandArbeidstaker =
-        if (this.sporsmal.any { it.tag == UTLAND_V2 }) {
-            gammeltUtenlandsoppholdArbeidstakerSporsmal(this.fom!!, oppdatertTom)
-        } else {
-            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom)
-        }
-
-    val utlandNaringsdrivende =
-        if (this.sporsmal.any { it.tag == UTLAND }) {
-            gammeltUtenlandsoppholdSelvstendigSporsmal(this.fom, oppdatertTom)
-        } else {
-            oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
-        }
+    oppdaterteSporsmal.add(oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom))
 
     val sporsmalSomSkalFjernes = mutableListOf<String>()
 
@@ -109,7 +95,6 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (this.erTilsvarendeArbeidstaker()) {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
-        oppdaterteSporsmal.add(utlandArbeidstaker)
 
         val arbeidsforholdSporsmal =
             nyttArbeidsforholdSporsmal(
@@ -123,8 +108,6 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         } else {
             sporsmalSomSkalFjernes.add(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }
-    } else if (this.erTilsvarendeSelvstendig() || arbeidssituasjon == FRILANSER) {
-        oppdaterteSporsmal.add(utlandNaringsdrivende)
     }
 
     return this
