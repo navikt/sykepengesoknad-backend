@@ -8,8 +8,8 @@ db_highAvailability: false
 db_pointInTimeRecovery: false
 cpu: 100m
 memory: 1000Mi
-replicas_min: 0
-replicas_max: 0
+replicas_min: 1
+replicas_max: 2
 external-host:
   - pdl-api.dev-fss-pub.nais.io
   - ereg-services.dev-fss-pub.nais.io
