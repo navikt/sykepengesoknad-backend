@@ -37,7 +37,7 @@ val jsonSchemaValidatorVersion = "3.0.8"
 val unleashVersion = "12.3.1"
 val opentelemetryApiVersion = "1.67.0"
 val opentelemetryInstrumentationVersion = "2.33.1"
-val mockWebServerVersion = "5.5.0"
+val mockWebServerVersion = "5.5.1"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
