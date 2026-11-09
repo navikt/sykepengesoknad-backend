@@ -5,6 +5,7 @@ import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.helse.flex.aktivering.AktiveringBestilling
+import no.nav.helse.flex.forskuttering.EsyfoKafkaErrorHandler
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.avro.generic.GenericRecord
@@ -132,6 +133,31 @@ class AivenKafkaConfig(
         factory.setCommonErrorHandler(aivenKafkaErrorHandler)
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         return factory
+    }
+
+    @Bean
+    fun esyfoKafkaListenerContainerFactory(
+        esyfoKafkaErrorHandler: EsyfoKafkaErrorHandler,
+        @Value("\${FORSKUTTERING_ESYFO_CONSUMER_GRUPPE:sykepengesoknad-backend-forskuttering-esyfo-bootstrap-v1}") gruppe: String,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> {
+        require(gruppe.isNotBlank() && gruppe != "syfosoknad-consumer") { "ESYFO krever egen consumergruppe" }
+        val config =
+            commonConfig() +
+                mapOf(
+                    ConsumerConfig.GROUP_ID_CONFIG to gruppe,
+                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+                    ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+                    ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
+                )
+        return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            setConsumerFactory(DefaultKafkaConsumerFactory(config))
+            setCommonErrorHandler(esyfoKafkaErrorHandler)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+            setConcurrency(1)
+        }
     }
 
     @Bean

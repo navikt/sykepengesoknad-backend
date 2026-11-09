@@ -1,6 +1,7 @@
 package no.nav.helse.flex.forskuttering
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Component
 class NarmestelederListener(
     private val oppdateringAvForskuttering: OppdateringAvForskuttering,
 ) {
+    private val log = logger()
+
     @WithSpan
     @KafkaListener(
         topics = [NARMESTELEDER_LEESAH_TOPIC],
@@ -19,12 +22,23 @@ class NarmestelederListener(
         idIsGroup = false,
     )
     fun listen(
-        cr: ConsumerRecord<String, String>,
+        cr: ConsumerRecord<String, String?>,
+        acknowledgment: Acknowledgment,
+    ) = behandle(cr, acknowledgment)
+
+    private fun behandle(
+        cr: ConsumerRecord<String, String?>,
         acknowledgment: Acknowledgment,
     ) {
-        oppdateringAvForskuttering.behandleMeldingFraKafka(cr.value())
+        val melding = cr.value()
+        if (melding == null) {
+            log.info("Ignorerer tombstone på gammelt topic")
+        } else {
+            oppdateringAvForskuttering.behandleMeldingFraKafka(melding)
+        }
         acknowledgment.acknowledge()
     }
 }
 
 const val NARMESTELEDER_LEESAH_TOPIC = "teamsykmelding.syfo-narmesteleder-leesah"
+const val NARMESTELEDER_ESYFO_LEESAH_TOPIC = "team-esyfo.syfo-narmesteleder-leesah"

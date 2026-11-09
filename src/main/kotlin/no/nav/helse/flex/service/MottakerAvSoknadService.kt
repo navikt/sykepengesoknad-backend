@@ -11,7 +11,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
+import no.nav.helse.flex.forskuttering.ForskutteringLeser
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.juridiskvurdering.SporingType.ORGANISASJONSNUMMER
@@ -34,7 +34,7 @@ class MottakerAvSoknadService(
     val flexSyketilfelleClient: FlexSyketilfelleClient,
     val identService: IdentService,
     val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    val forskutteringRepository: ForskutteringRepository,
+    val forskutteringLeser: ForskutteringLeser,
 ) {
     val log = logger()
 
@@ -101,11 +101,11 @@ class MottakerAvSoknadService(
         }
 
         val forskuttering =
-            forskutteringRepository
+            forskutteringLeser
                 .finnForskuttering(
                     brukerFnr = sykepengesoknad.fnr,
                     orgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
-                )?.arbeidsgiverForskutterer
+                )
 
         if (forskuttering == null) {
             // Ukjent telles som forskuttering

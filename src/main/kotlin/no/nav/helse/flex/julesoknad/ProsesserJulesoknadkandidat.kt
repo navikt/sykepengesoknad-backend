@@ -4,7 +4,7 @@ import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
+import no.nav.helse.flex.forskuttering.ForskutteringLeser
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO.Julesoknadkandidat
@@ -20,7 +20,7 @@ class ProsesserJulesoknadkandidat(
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
-    private val forskutteringRepository: ForskutteringRepository,
+    private val forskutteringLeser: ForskutteringLeser,
     private val aktiveringProducer: AktiveringProducer,
     private val identService: IdentService,
 ) {
@@ -78,11 +78,11 @@ class ProsesserJulesoknadkandidat(
             val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
 
             val forskuttering =
-                forskutteringRepository
+                forskutteringLeser
                     .finnForskuttering(
                         brukerFnr = this.fnr,
                         orgnummer = orgnummer,
-                    )?.arbeidsgiverForskutterer
+                    )
             if (forskuttering == true) {
                 log.info("Arbeidsgiver forskutterer for sykepengesoknad: $sykepengesoknadUuid")
                 return false
