@@ -426,7 +426,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     @Nested
     inner class MeldingTilNavDager {
         @Test
-        fun `Melding til NAV dager`() {
+        fun `Melding til Nav dager`() {
             val fom = LocalDate.of(2021, 2, 1)
             val tom = LocalDate.of(2021, 2, 14)
             val testdata = opprettTestdata()

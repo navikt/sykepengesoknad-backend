@@ -138,7 +138,7 @@ fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal =
         undertekst =
             "<ul>\n" +
                 "    <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>\n" +
-                "    <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>\n" +
+                "    <li>Reisen hindrer ikke planlagt behandling eller avtaler med Nav</li>\n" +
                 (if (harArbeidsgiver) "<li>Reisen er avklart med arbeidsgiveren min</li>" else "") +
                 "</ul>",
     )
