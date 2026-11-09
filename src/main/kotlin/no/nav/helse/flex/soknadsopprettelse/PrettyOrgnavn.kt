@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 val uppercaseNavn =
-    setOf("SFO", "AS", "ASA", "NAV", "SA", "HF", "BUP", "VVS", "KF", "IKS", "DNB", "DNV", "A/S", "DA", "DPS")
+    setOf("SFO", "AS", "ASA", "SA", "HF", "BUP", "VVS", "KF", "IKS", "DNB", "DNV", "A/S", "DA", "DPS")
 val lowercaseNavn =
     setOf(
         "skole",

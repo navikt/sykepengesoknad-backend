@@ -111,7 +111,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
+    fun `Søknad som går til arbeidsgiver og Nav siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
