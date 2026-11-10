@@ -35,7 +35,7 @@ val testContainersVersion = "2.0.5"
 val kotestVersion = "6.2.6"
 val jsonSchemaValidatorVersion = "3.0.8"
 val unleashVersion = "12.3.2"
-val opentelemetryApiVersion = "1.67.0"
+val opentelemetryApiVersion = "1.68.0"
 val opentelemetryInstrumentationVersion = "2.33.1"
 val mockWebServerVersion = "5.5.1"
 
