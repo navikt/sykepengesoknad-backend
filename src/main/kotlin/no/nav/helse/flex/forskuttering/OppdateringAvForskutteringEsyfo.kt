@@ -31,6 +31,12 @@ class OppdateringAvForskutteringEsyfo(
     private val repository: ForskutteringEsyfoRepository,
     private val jdbcTemplate: JdbcTemplate,
 ) {
+    @Transactional(rollbackFor = [Throwable::class])
+    fun behandleBatch(records: List<ConsumerRecord<String, String?>>) {
+        // Fast låserekkefølge mellom partisjoner; sorteringen bevarer record-rekkefølgen innen hver partisjon.
+        records.sortedBy { it.partition() }.forEach { behandle(it) }
+    }
+
     // Kalles synkront av én Kafka-listenertråd per tildelt partisjon. Låsen serialiserer
     // transaksjoner ved rebalance, men kan ikke sortere om records på ulike tråder.
     @Transactional(rollbackFor = [Throwable::class])

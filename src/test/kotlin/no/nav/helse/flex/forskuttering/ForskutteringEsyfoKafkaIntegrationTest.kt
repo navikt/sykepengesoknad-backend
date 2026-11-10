@@ -34,6 +34,10 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
     @Qualifier("esyfoKafkaListenerContainerFactory")
     lateinit var factory: ConcurrentKafkaListenerContainerFactory<String, String>
 
+    @Autowired
+    @Qualifier("aivenKafkaListenerContainerFactory")
+    lateinit var eksisterendeFactory: ConcurrentKafkaListenerContainerFactory<String, String>
+
     private val gruppe = "sykepengesoknad-backend-forskuttering-esyfo-bootstrap-v1"
 
     private fun checkpoint(): Long? =
@@ -52,10 +56,15 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
         config[ConsumerConfig.GROUP_ID_CONFIG] shouldBe gruppe
         config[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] shouldBe "earliest"
         config[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] shouldBe false
+        config[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] shouldBe "500"
+        factory.isBatchListener shouldBe true
+        (eksisterendeFactory.isBatchListener == true) shouldBe false
+        checkNotNull(eksisterendeFactory.consumerFactory).configurationProperties[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] shouldBe "1"
 
         val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678945", orgnummer = "999999994")
         val key = melding.narmesteLederId.toString()
         kafkaProducer.send(ProducerRecord(NARMESTELEDER_LEESAH_TOPIC, 0, key, melding.serialisertTilString())).get()
+        kafkaProducer.send(ProducerRecord(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 0, key, melding.serialisertTilString())).get()
         val historisk =
             kafkaProducer
                 .send(

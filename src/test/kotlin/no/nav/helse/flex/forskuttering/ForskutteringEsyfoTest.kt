@@ -54,6 +54,67 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
             ).firstOrNull()
 
     @Test
+    fun `batch lagres atomisk med én kvittering og bevarer rekkefølge og tombstones`() {
+        val første = getNarmesteLederLeesah(UUID.randomUUID())
+        val andre = getNarmesteLederLeesah(UUID.randomUUID())
+        val førsteKey = første.narmesteLederId.toString()
+        val andreKey = andre.narmesteLederId.toString()
+        val batch =
+            listOf(
+                record(0, førsteKey, første.serialisertTilString(), 21),
+                record(0, andreKey, andre.serialisertTilString(), 20),
+                record(1, førsteKey, null, 21),
+            )
+        var kvitteringer = 0
+        esyfoListener.listen(batch) {
+            esyfo.findByNarmesteLederId(første.narmesteLederId).shouldBeNull()
+            esyfo.findByNarmesteLederId(andre.narmesteLederId)?.narmesteLederId shouldBe andre.narmesteLederId
+            checkpoint(20) shouldBe 0L
+            checkpoint(21) shouldBe 1L
+            kvitteringer++
+        }
+        kvitteringer shouldBe 1
+        val lagret = esyfo.findByNarmesteLederId(andre.narmesteLederId)
+        esyfoListener.listen(batch) { kvitteringer++ }
+        kvitteringer shouldBe 2
+        esyfo.findByNarmesteLederId(andre.narmesteLederId) shouldBe lagret
+    }
+
+    @Test
+    fun `feil i batch ruller tilbake alle partisjoner uten kvittering og kan forsøkes igjen`() {
+        val første = getNarmesteLederLeesah(UUID.randomUUID())
+        val andre = getNarmesteLederLeesah(UUID.randomUUID())
+        val førsteKey = første.narmesteLederId.toString()
+        val andreKey = andre.narmesteLederId.toString()
+        var kvitteringer = 0
+        val feil =
+            assertThrows<IllegalStateException> {
+                esyfoListener.listen(
+                    listOf(record(0, andreKey, "{", 23), record(0, førsteKey, første.serialisertTilString(), 22)),
+                ) { kvitteringer++ }
+            }
+        feil.cause.shouldBeNull()
+        kvitteringer shouldBe 0
+        esyfo.findByNarmesteLederId(første.narmesteLederId).shouldBeNull()
+        checkpoint(22).shouldBeNull()
+        checkpoint(23).shouldBeNull()
+
+        esyfoListener.listen(
+            listOf(record(0, andreKey, andre.serialisertTilString(), 23), record(0, førsteKey, første.serialisertTilString(), 22)),
+        ) { kvitteringer++ }
+        kvitteringer shouldBe 1
+        checkpoint(22) shouldBe 0L
+        checkpoint(23) shouldBe 0L
+    }
+
+    @Test
+    fun `tom batch kvitteres ikke`() {
+        var kvitteringer = 0
+        esyfoListener.listen(emptyList()) { kvitteringer++ }
+        kvitteringer shouldBe 0
+    }
+
+    @Test
     fun `ny tabell er isolert og kildevalg gir bare én tabell`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678942", orgnummer = "999999991")
         val key = melding.narmesteLederId.toString()
@@ -156,11 +217,11 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
             }
             """.trimIndent()
         var kvittert = false
-        esyfoListener.listen(record(1, melding.narmesteLederId.toString(), json, 13)) { kvittert = true }
+        esyfoListener.listen(listOf(record(1, melding.narmesteLederId.toString(), json, 13))) { kvittert = true }
         kvittert shouldBe true
         kvittert = false
         assertThrows<IllegalStateException> {
-            esyfoListener.listen(record(2, UUID.randomUUID().toString(), json, 13)) { kvittert = true }
+            esyfoListener.listen(listOf(record(2, UUID.randomUUID().toString(), json, 13))) { kvittert = true }
         }
         kvittert shouldBe false
         checkpoint(13) shouldBe 1L
@@ -181,9 +242,9 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         checkpoint(14).shouldBeNull()
         var kvittert = false
-        esyfoListener.listen(rec) { kvittert = true }
+        esyfoListener.listen(listOf(rec)) { kvittert = true }
         kvittert shouldBe true
-        esyfoListener.listen(rec) { kvittert = true }
+        esyfoListener.listen(listOf(rec)) { kvittert = true }
         checkpoint(14) shouldBe 1L
     }
 
@@ -210,7 +271,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         )
         var kvittert = false
         try {
-            assertThrows<IllegalStateException> { esyfoListener.listen(rec) { kvittert = true } }
+            assertThrows<IllegalStateException> { esyfoListener.listen(listOf(rec)) { kvittert = true } }
             kvittert shouldBe false
             esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
             checkpoint(18).shouldBeNull()
@@ -218,7 +279,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
             jdbc.execute("DROP TRIGGER test_forskuttering_esyfo_checkpoint_feil ON forskuttering_esyfo_checkpoint")
             jdbc.execute("DROP FUNCTION test_forskuttering_esyfo_checkpoint_feil()")
         }
-        esyfoListener.listen(rec) { kvittert = true }
+        esyfoListener.listen(listOf(rec)) { kvittert = true }
         kvittert shouldBe true
         checkpoint(18) shouldBe 1L
         esyfo.findByNarmesteLederId(melding.narmesteLederId)?.narmesteLederId shouldBe melding.narmesteLederId
@@ -229,13 +290,13 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val rec = record(1, melding.narmesteLederId.toString(), melding.serialisertTilString(), 17)
         assertThrows<IllegalStateException> {
-            esyfoListener.listen(rec) { error("Simulerer manglende Kafka-ack") }
+            esyfoListener.listen(listOf(rec)) { error("Simulerer manglende Kafka-ack") }
         }
         val lagret = esyfo.findByNarmesteLederId(melding.narmesteLederId)
         checkpoint(17) shouldBe 1L
 
         var kvittert = false
-        esyfoListener.listen(rec) { kvittert = true }
+        esyfoListener.listen(listOf(rec)) { kvittert = true }
         kvittert shouldBe true
         esyfo.findByNarmesteLederId(melding.narmesteLederId) shouldBe lagret
     }

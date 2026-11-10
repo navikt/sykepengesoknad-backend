@@ -25,15 +25,16 @@ class NarmestelederEsyfoListener(
         idIsGroup = false,
     )
     fun listen(
-        cr: ConsumerRecord<String, String?>,
+        records: List<ConsumerRecord<String, String?>>,
         acknowledgment: Acknowledgment,
     ) {
+        if (records.isEmpty()) return
         try {
-            oppdatering.behandle(cr)
+            oppdatering.behandleBatch(records)
             acknowledgment.acknowledge()
         } catch (_: Exception) {
-            log.error("Feil i ESYFO-projeksjon, partition={}, offset={}", cr.partition(), cr.offset())
-            throw IllegalStateException("ESYFO-record kan ikke behandles")
+            log.error("Feil i ESYFO-projeksjon ved behandling av batch")
+            throw IllegalStateException("ESYFO-batch kan ikke behandles")
         }
     }
 }
