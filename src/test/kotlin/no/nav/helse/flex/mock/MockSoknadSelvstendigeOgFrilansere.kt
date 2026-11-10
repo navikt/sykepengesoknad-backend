@@ -89,7 +89,6 @@ fun opprettNyNaeringsdrivendeSoknadGradert(): Sykepengesoknad {
         ).leggSvarPaSoknad()
         .besvarsporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
-        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
 }
 
 fun opprettNyNaeringsdrivendeSoknad100Prosent(): Sykepengesoknad {
@@ -151,7 +150,6 @@ fun opprettNyNaeringsdrivendeSoknad100Prosent(): Sykepengesoknad {
         ).leggSvarPaSoknad100Prosent()
         .besvarsporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
-        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {

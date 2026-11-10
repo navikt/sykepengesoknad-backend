@@ -9,6 +9,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.arbeidGjenopptattMutering
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.brukteDuReisetilskuddetMutering
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.erstattGammelAndreInntektskilderMutering
+import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.fjernFravaerFoerSykmeldingenV2
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.friskmeldtMuteringer
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.jobbaDuHundreGate
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.jobbsituasjonenDinMutering
@@ -75,6 +76,7 @@ class OppdaterSporsmalService(
                 .naringsdrivendeErstattGamleSporsmalMutering() // TODO: denne kan fjernes 2027-01-28
                 .naringsdrivendeMutering()
                 .erstattGammelAndreInntektskilderMutering() // TODO: denne kan fjernes 2027-11-04
+                .fjernFravaerFoerSykmeldingenV2() // TODO: denne kan fjernes 2027-11-11
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 

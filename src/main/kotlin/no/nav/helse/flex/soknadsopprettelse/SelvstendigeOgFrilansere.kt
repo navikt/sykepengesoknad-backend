@@ -63,9 +63,6 @@ fun settOppSoknadSelvstendigOgFrilanser(
                         erTilsvarendeSelvstendig = sykepengesoknad.erTilsvarendeSelvstendig(),
                     ),
                 )
-                if (erForsteSoknadISykeforlop) {
-                    add(fravaerForSykmeldingSporsmal(sykepengesoknad)) // TODO fjerne
-                }
             } else if (erForsteSoknadISykeforlop) {
                 add(arbeidUtenforNorge())
             }
@@ -158,20 +155,6 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                     max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
                 ),
             ),
-    )
-
-private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
-    Sporsmal(
-        tag = FRAVAR_FOR_SYKMELDINGEN_V2,
-        sporsmalstekst = "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt ${
-            soknadMetadata.startSykeforlop?.let {
-                formatterDato(
-                    it,
-                )
-            }
-        }?",
-        svartype = JA_NEI,
-        undertekst = "Gjelder sammenhengende fravær gjennom alle fire ukene.",
     )
 
 private fun naringsdrivendeOppholdIUtlandet(fom: LocalDate): Sporsmal =

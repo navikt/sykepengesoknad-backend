@@ -119,7 +119,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
         soknad.sporsmal!!.map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
-                FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
@@ -156,8 +155,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                             FERIE_V2,
                             PERMISJON_V2,
                         ),
-                ).besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
-                .besvarSporsmal(tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, svar = "NEI")
+                ).besvarSporsmal(tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, svar = "NEI")
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
                 .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
                 .besvarSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA", ferdigBesvart = false)
@@ -328,7 +326,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
             val sendtSoknad =
                 besvarGhostSporsmal(soknad, ghostFnr)
                     .standardSvar(ekskludert = listOf(ANDRE_INNTEKTSKILDER_V2))
-                    .besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
                     .besvarSporsmal(tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, svar = "NEI")
                     .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
                     .besvarSporsmal(tag = NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, svar = "NEI")
