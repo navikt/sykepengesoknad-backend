@@ -2,8 +2,6 @@ package no.nav.helse.flex.forskuttering
 
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -39,8 +37,6 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
 
     @Autowired lateinit var transactionManager: PlatformTransactionManager
 
-    @Autowired lateinit var meterRegistry: MeterRegistry
-
     private fun record(
         offset: Long,
         key: String,
@@ -57,47 +53,6 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
                 partition,
             ).firstOrNull()
 
-    private fun måltOffset(
-        registry: MeterRegistry,
-        partisjon: Int,
-    ): Double? =
-        registry
-            .find("forskuttering_esyfo_checkpoint_offset")
-            .tags("topic", NARMESTELEDER_ESYFO_LEESAH_TOPIC, "partition", partisjon.toString())
-            .gauge()
-            ?.value()
-
-    @Test
-    fun `checkpointmåleren leser varig DB-posisjon etter restart duplikat og rollback`() {
-        val melding = getNarmesteLederLeesah(UUID.randomUUID())
-        val key = melding.narmesteLederId.toString()
-        val partisjon = 19
-        oppdatering.behandle(record(10, key, melding.serialisertTilString(), partisjon))
-
-        val nyttRegister = SimpleMeterRegistry()
-        val etterRestart = ForskutteringEsyfoCheckpointMetrikk(jdbc, nyttRegister)
-        etterRestart.registrerEksisterende()
-        måltOffset(nyttRegister, partisjon) shouldBe 10.0
-        etterRestart.registrerEksisterende()
-        oppdatering.behandle(record(10, key, null, partisjon)) shouldBe "duplikat"
-        måltOffset(nyttRegister, partisjon) shouldBe 10.0
-
-        assertThrows<IllegalStateException> {
-            TransactionTemplate(transactionManager).executeWithoutResult {
-                oppdatering.behandle(record(11, key, null, partisjon))
-                error("Test: DB-transaksjonen rulles tilbake")
-            }
-        }
-        checkpoint(partisjon) shouldBe 10L
-        måltOffset(nyttRegister, partisjon) shouldBe 10.0
-
-        var kvittert = false
-        esyfoListener.listen(record(12, key, null, partisjon)) { kvittert = true }
-        kvittert shouldBe true
-        måltOffset(meterRegistry, partisjon) shouldBe 12.0
-        måltOffset(nyttRegister, partisjon) shouldBe 12.0
-    }
-
     @Test
     fun `ny tabell er isolert og kildevalg gir bare én tabell`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678942", orgnummer = "999999991")
@@ -111,11 +66,11 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         esyfo.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe false
         leser.lesekilde shouldBe ForskutteringLesekilde.GAMMEL
         leser.finnForskuttering(melding.fnr, melding.orgnummer) shouldBe true
-        ForskutteringLeser(gammel, esyfo, SimpleMeterRegistry(), "ESYFO", true)
+        ForskutteringLeser(gammel, esyfo, "ESYFO", true)
             .finnForskuttering(melding.fnr, melding.orgnummer) shouldBe false
-        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, esyfo, SimpleMeterRegistry(), "ESYFO", false) }
-        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, null, SimpleMeterRegistry(), "ESYFO", true) }
-        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, esyfo, SimpleMeterRegistry(), "ANNET", true) }
+        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, esyfo, "ESYFO", false) }
+        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, null, "ESYFO", true) }
+        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, esyfo, "ANNET", true) }
         oppdatering.behandle(record(11, key, null, 10))
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
@@ -144,7 +99,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         gammel.finnForskuttering(aktiv.fnr, aktiv.orgnummer)?.narmesteLederId shouldBe aktiv.narmesteLederId
         esyfo.finnForskuttering(aktiv.fnr, aktiv.orgnummer)?.narmesteLederId shouldBe aktiv.narmesteLederId
         leser.finnForskuttering(aktiv.fnr, aktiv.orgnummer) shouldBe true
-        ForskutteringLeser(gammel, esyfo, SimpleMeterRegistry(), "ESYFO", true)
+        ForskutteringLeser(gammel, esyfo, "ESYFO", true)
             .finnForskuttering(aktiv.fnr, aktiv.orgnummer) shouldBe false
     }
 

@@ -1,7 +1,6 @@
 package no.nav.helse.flex.forskuttering
 
 import io.kotest.matchers.shouldBe
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
@@ -64,8 +63,8 @@ class ForskutteringLesereTest : FellesTestOppsett() {
             ),
         )
 
-        val gammelLeser = ForskutteringLeser(gammel, esyfo, SimpleMeterRegistry(), "GAMMEL", false)
-        val nyLeser = ForskutteringLeser(gammel, esyfo, SimpleMeterRegistry(), "ESYFO", true)
+        val gammelLeser = ForskutteringLeser(gammel, esyfo, "GAMMEL", false)
+        val nyLeser = ForskutteringLeser(gammel, esyfo, "ESYFO", true)
         val soknad =
             Sykepengesoknad(
                 id = UUID.randomUUID().toString(),

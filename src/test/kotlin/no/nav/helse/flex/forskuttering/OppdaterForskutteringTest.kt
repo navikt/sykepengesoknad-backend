@@ -30,7 +30,7 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
     lateinit var narmestelederListener: NarmestelederListener
 
     @Test
-    fun `likt og eldre tidsstempel oppdaterer gammel bane som før`() {
+    fun `like og eldre tidsstempler oppdaterer eksisterende forskutteringstabell`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID()).copy(timestamp = OffsetDateTime.parse("2025-01-02T12:00:00Z"))
         oppdateringAvForskuttering.behandleMeldingFraKafka(melding.serialisertTilString())
         val lagret = forskutteringRepository.findByNarmesteLederId(melding.narmesteLederId)!!

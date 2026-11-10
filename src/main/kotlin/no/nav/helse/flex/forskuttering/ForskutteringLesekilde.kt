@@ -1,9 +1,7 @@
 package no.nav.helse.flex.forskuttering
 
-import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.util.concurrent.atomic.AtomicInteger
 
 enum class ForskutteringLesekilde { GAMMEL, ESYFO }
 
@@ -11,12 +9,10 @@ enum class ForskutteringLesekilde { GAMMEL, ESYFO }
 class ForskutteringLeser(
     private val gammel: ForskutteringRepository,
     private val esyfo: ForskutteringEsyfoRepository?,
-    meterRegistry: MeterRegistry,
     @Value("\${FORSKUTTERING_LESEKILDE:GAMMEL}") kilde: String,
     @Value("\${FORSKUTTERING_ESYFO_CONSUMER_AKTIV:false}") consumerAktiv: Boolean,
 ) {
     val lesekilde = ForskutteringLesekilde.valueOf(kilde)
-    private val aktivKilde = AtomicInteger(if (lesekilde == ForskutteringLesekilde.ESYFO) 1 else 0)
 
     init {
         require(lesekilde != ForskutteringLesekilde.ESYFO || consumerAktiv) {
@@ -25,7 +21,6 @@ class ForskutteringLeser(
         require(lesekilde != ForskutteringLesekilde.ESYFO || esyfo != null) {
             "ESYFO-lesing krever ESYFO-repository"
         }
-        meterRegistry.gauge("forskuttering_esyfo_lesekilde_aktiv", aktivKilde)
     }
 
     fun finnForskuttering(
