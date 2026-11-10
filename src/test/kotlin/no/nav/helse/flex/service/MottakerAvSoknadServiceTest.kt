@@ -11,7 +11,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.forskuttering.ForskutteringLeser
+import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -41,7 +41,7 @@ class MottakerAvSoknadServiceTest {
     private lateinit var identService: IdentService
 
     @Mock
-    private lateinit var forskutteringLeser: ForskutteringLeser
+    private lateinit var forskutteringRepository: ForskutteringRepository
 
     private val fnr = "11111111111"
     private val folkeregisterIdenter = FolkeregisterIdenter(fnr, emptyList())
@@ -196,7 +196,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(forskutteringJa.arbeidsgiverForskutterer)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringJa)
 
         val soknad =
             Sykepengesoknad(
@@ -229,7 +229,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(forskutteringNei.arbeidsgiverForskutterer)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         val soknad =
             Sykepengesoknad(
@@ -263,7 +263,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(null)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
         val soknad =
             Sykepengesoknad(
@@ -297,7 +297,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn(Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(null)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
         val soknad =
             Sykepengesoknad(
@@ -330,7 +330,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(null)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
         val soknad =
             Sykepengesoknad(
@@ -364,7 +364,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(null)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
         val soknad =
             Sykepengesoknad(
@@ -466,7 +466,7 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(forskutteringNei.arbeidsgiverForskutterer)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         val soknad =
             Sykepengesoknad(
@@ -635,7 +635,7 @@ class MottakerAvSoknadServiceTest {
                 forstegangssoknad = false,
             )
 
-        whenever(forskutteringLeser.finnForskuttering(any(), any())).thenReturn(forskutteringNei.arbeidsgiverForskutterer)
+        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.ARBEIDSGIVER)

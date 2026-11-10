@@ -31,8 +31,6 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
 
     @Autowired lateinit var esyfoListener: NarmestelederEsyfoListener
 
-    @Autowired lateinit var leser: ForskutteringLeser
-
     @Autowired lateinit var jdbc: JdbcTemplate
 
     @Autowired lateinit var transactionManager: PlatformTransactionManager
@@ -115,7 +113,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `ny tabell er isolert og kildevalg gir bare én tabell`() {
+    fun `eSyfo lagres i separat tabell uten å endre eksisterende forskuttering`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678942", orgnummer = "999999991")
         val key = melding.narmesteLederId.toString()
         listener.listen(
@@ -125,20 +123,13 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
 
         gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
         esyfo.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe false
-        leser.lesekilde shouldBe ForskutteringLesekilde.GAMMEL
-        leser.finnForskuttering(melding.fnr, melding.orgnummer) shouldBe true
-        ForskutteringLeser(gammel, esyfo, "ESYFO", true)
-            .finnForskuttering(melding.fnr, melding.orgnummer) shouldBe false
-        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, esyfo, "ESYFO", false) }
-        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, null, "ESYFO", true) }
-        assertThrows<IllegalArgumentException> { ForskutteringLeser(gammel, esyfo, "ANNET", true) }
         oppdatering.behandle(record(11, key, null, 10))
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
     }
 
     @Test
-    fun `begge kilder prioriterer null aktiv tom ved flere relasjoner`() {
+    fun `eSyfo lagrer aktive og avsluttede relasjoner uten å endre eksisterende oppslag`() {
         val aktiv = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678943", orgnummer = "999999992")
         val avsluttet =
             getNarmesteLederLeesah(
@@ -158,10 +149,9 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         )
 
         gammel.finnForskuttering(aktiv.fnr, aktiv.orgnummer)?.narmesteLederId shouldBe aktiv.narmesteLederId
-        esyfo.finnForskuttering(aktiv.fnr, aktiv.orgnummer)?.narmesteLederId shouldBe aktiv.narmesteLederId
-        leser.finnForskuttering(aktiv.fnr, aktiv.orgnummer) shouldBe true
-        ForskutteringLeser(gammel, esyfo, "ESYFO", true)
-            .finnForskuttering(aktiv.fnr, aktiv.orgnummer) shouldBe false
+        esyfo.findByNarmesteLederId(aktiv.narmesteLederId)?.arbeidsgiverForskutterer shouldBe false
+        esyfo.findByNarmesteLederId(avsluttet.narmesteLederId)?.aktivTom shouldBe avsluttet.aktivTom
+        gammel.finnForskuttering(aktiv.fnr, aktiv.orgnummer)?.arbeidsgiverForskutterer shouldBe true
     }
 
     @Test

@@ -38,12 +38,4 @@ interface ForskutteringEsyfoRepository : CrudRepository<ForskutteringEsyfo, Stri
     fun slett(narmesteLederId: UUID): Int
 
     fun findByNarmesteLederId(narmesteLederId: UUID): ForskutteringEsyfo?
-
-    @Query(
-        "SELECT * FROM forskuttering_esyfo WHERE bruker_fnr = :brukerFnr AND orgnummer = :orgnummer ORDER BY aktiv_tom DESC NULLS FIRST LIMIT 1",
-    )
-    fun finnForskuttering(
-        brukerFnr: String,
-        orgnummer: String,
-    ): ForskutteringEsyfo?
 }

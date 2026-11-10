@@ -32,7 +32,7 @@ class ForskutteringLesereTest : FellesTestOppsett() {
     @Autowired lateinit var esyfo: ForskutteringEsyfoRepository
 
     @Test
-    fun `begge produksjonslesere bruker valgt tabell med ulike nullregler`() {
+    fun `begge produksjonslesere bruker eksisterende tabell selv om eSyfo har andre data`() {
         val fnr = "12345678946"
         val orgnummer = "999999995"
         val lederId = UUID.randomUUID()
@@ -63,8 +63,6 @@ class ForskutteringLesereTest : FellesTestOppsett() {
             ),
         )
 
-        val gammelLeser = ForskutteringLeser(gammel, esyfo, "GAMMEL", false)
-        val nyLeser = ForskutteringLeser(gammel, esyfo, "ESYFO", true)
         val soknad =
             Sykepengesoknad(
                 id = UUID.randomUUID().toString(),
@@ -79,16 +77,15 @@ class ForskutteringLesereTest : FellesTestOppsett() {
                 utenlandskSykmelding = false,
             )
 
-        fun mottaker(leser: ForskutteringLeser) =
+        val mottaker =
             MottakerAvSoknadService(
                 Mockito.mock(SykepengesoknadDAO::class.java),
                 Mockito.mock(FlexSyketilfelleClient::class.java),
                 Mockito.mock(IdentService::class.java),
                 Mockito.mock(JuridiskVurderingKafkaProducer::class.java),
-                leser,
+                gammel,
             )
-        mottaker(gammelLeser).arbeidsgiverForskutterer(soknad) shouldBe true
-        mottaker(nyLeser).arbeidsgiverForskutterer(soknad) shouldBe false
+        mottaker.arbeidsgiverForskutterer(soknad) shouldBe true
 
         val julesoknadDAO = Mockito.mock(JulesoknadkandidatDAO::class.java)
         val soknadDAO = Mockito.mock(SykepengesoknadDAO::class.java)
@@ -108,13 +105,10 @@ class ForskutteringLesereTest : FellesTestOppsett() {
         Mockito.`when`(ident.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)).thenReturn(FolkeregisterIdenter(fnr, emptyList()))
         val kandidat = JulesoknadkandidatDAO.Julesoknadkandidat("kandidat-id", soknadUuid)
 
-        fun prosesser(leser: ForskutteringLeser) =
-            ProsesserJulesoknadkandidat(julesoknadDAO, soknadDAO, soknadRepository, leser, aktivering, ident)
+        val prosesser = ProsesserJulesoknadkandidat(julesoknadDAO, soknadDAO, soknadRepository, gammel, aktivering, ident)
 
-        prosesser(gammelLeser).prosseserJulesoknadKandidat(kandidat)
+        prosesser.prosseserJulesoknadKandidat(kandidat)
         Mockito.verify(soknadRepository, Mockito.never()).settErAktivertJulesoknadKandidat("db-id")
-        prosesser(nyLeser).prosseserJulesoknadKandidat(kandidat)
-        Mockito.verify(soknadRepository).settErAktivertJulesoknadKandidat("db-id")
 
         esyfo.save(
             ForskutteringEsyfo(
@@ -125,13 +119,13 @@ class ForskutteringLesereTest : FellesTestOppsett() {
                 brukerFnr = fnr,
                 aktivFom = fom,
                 aktivTom = null,
-                arbeidsgiverForskutterer = null,
+                arbeidsgiverForskutterer = true,
             ),
         )
-        mottaker(nyLeser).arbeidsgiverForskutterer(soknad.copy(arbeidsgiverOrgnummer = "999999996")) shouldBe true
+        mottaker.arbeidsgiverForskutterer(soknad.copy(arbeidsgiverOrgnummer = "999999996")) shouldBe true
         Mockito.clearInvocations(soknadRepository)
         Mockito.`when`(dbRecord.arbeidsgiverOrgnummer).thenReturn("999999996")
-        prosesser(nyLeser).prosseserJulesoknadKandidat(kandidat)
+        prosesser.prosseserJulesoknadKandidat(kandidat)
         Mockito.verify(soknadRepository).settErAktivertJulesoknadKandidat("db-id")
     }
 }
