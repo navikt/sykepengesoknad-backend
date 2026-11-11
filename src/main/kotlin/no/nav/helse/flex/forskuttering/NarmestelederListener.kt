@@ -24,11 +24,6 @@ class NarmestelederListener(
     fun listen(
         cr: ConsumerRecord<String, String?>,
         acknowledgment: Acknowledgment,
-    ) = behandle(cr, acknowledgment)
-
-    private fun behandle(
-        cr: ConsumerRecord<String, String?>,
-        acknowledgment: Acknowledgment,
     ) {
         val melding = cr.value()
         if (melding == null) {
