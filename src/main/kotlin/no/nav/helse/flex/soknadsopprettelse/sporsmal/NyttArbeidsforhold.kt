@@ -44,6 +44,7 @@ fun nyttArbeidsforholdSporsmal(
                                 "Oppgi det du har tjent før skatt. " +
                                     "Se på lønnslippen eller kontrakten hvor mye du har tjent eller skal tjene.",
                             svartype = Svartype.BELOP,
+                            min = "1",
                         ),
                     ),
             )

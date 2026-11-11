@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -27,8 +29,29 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
     }
 
     @Test
+    @Order(1)
+    fun `Svar 0 på beløp gir bad request`() {
+        val soknaden = hentSoknader(fnr = fnr).first()
+
+        val besvarer =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "0", ferdigBesvart = false)
+
+        val json =
+            oppdaterSporsmalMedResult(
+                fnr,
+                besvarer.finnHovedsporsmal(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"),
+                soknaden.id,
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andReturn()
+                .response.contentAsString
+        json shouldBe """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+    }
+
+    @Test
     @Order(2)
-    fun `Vi besvarer og sender inn søknaden med 0 svar`() {
+    fun `Vi besvarer og sender inn søknaden med gyldig beløp`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknader(fnr = fnr).first()
@@ -37,7 +60,7 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
             SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "0", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "100", ferdigBesvart = true)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
