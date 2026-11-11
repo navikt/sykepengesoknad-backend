@@ -41,9 +41,6 @@ class OppdateringAvForskutteringEsyfo(
     // transaksjoner ved rebalance, men kan ikke sortere om records på ulike tråder.
     @Transactional(rollbackFor = [Throwable::class])
     fun behandle(record: ConsumerRecord<String, String?>): String {
-        require(record.topic() == NARMESTELEDER_ESYFO_LEESAH_TOPIC) { "Uventet topic for ESYFO-projeksjon" }
-        require(record.partition() >= 0 && record.offset() >= 0) { "Ugyldig Kafka-posisjon" }
-
         jdbcTemplate.update(
             """INSERT INTO forskuttering_esyfo_checkpoint (topic, partition)
                VALUES (?, ?) ON CONFLICT (topic, partition) DO NOTHING""",
