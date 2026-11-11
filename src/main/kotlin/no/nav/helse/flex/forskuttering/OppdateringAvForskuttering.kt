@@ -17,12 +17,13 @@ class OppdateringAvForskuttering(
     fun behandleMeldingFraKafka(meldingString: String) {
         val narmesteLederLeesah = meldingString.tilNarmesteLederLeesah()
         val narmesteLeder = forskutteringRepository.findByNarmesteLederId(narmesteLederLeesah.narmesteLederId)
+
         if (narmesteLeder != null) {
             forskutteringRepository.save(narmesteLederLeesah.tilNarmesteLeder(id = narmesteLeder.id))
-            log.info("Oppdatert nærmeste leder")
+            log.info("Oppdatert narmesteleder med id ${narmesteLederLeesah.narmesteLederId}")
         } else {
             forskutteringRepository.save(narmesteLederLeesah.tilNarmesteLeder(id = null))
-            log.info("Lagret nærmeste leder")
+            log.info("Lagret narmesteleder med id ${narmesteLederLeesah.narmesteLederId}")
         }
     }
 
