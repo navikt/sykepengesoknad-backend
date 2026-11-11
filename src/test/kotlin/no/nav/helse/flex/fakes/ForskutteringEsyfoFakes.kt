@@ -23,16 +23,9 @@ class ForskutteringEsyfoRepositoryFake :
     ForskutteringEsyfoRepository {
     private val offseter = mutableMapOf<Pair<String, Int>, Long>()
 
-    override fun lagre(forskuttering: ForskutteringEsyfo): Int {
-        val eksisterende = findByNarmesteLederId(forskuttering.narmesteLederId)
-        save(forskuttering.copy(id = eksisterende?.id))
-        return 1
-    }
-
-    override fun slett(narmesteLederId: UUID): Int {
-        val eksisterende = findByNarmesteLederId(narmesteLederId) ?: return 0
+    override fun deleteByNarmesteLederId(narmesteLederId: UUID) {
+        val eksisterende = findByNarmesteLederId(narmesteLederId) ?: return
         delete(eksisterende)
-        return 1
     }
 
     override fun findByNarmesteLederId(narmesteLederId: UUID) = store.values.find { it.narmesteLederId == narmesteLederId }

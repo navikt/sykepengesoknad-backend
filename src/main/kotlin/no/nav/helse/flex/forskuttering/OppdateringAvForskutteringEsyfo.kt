@@ -41,7 +41,7 @@ class OppdateringAvForskutteringEsyfo(
         val id = UUID.fromString(record.key())
         val verdi = record.value()
         if (verdi == null) {
-            repository.slett(id)
+            repository.deleteByNarmesteLederId(id)
         } else {
             val melding = objectMapper.readValue<NarmesteLederEsyfoLeesah>(verdi)
             require(melding.narmesteLederId == id) { "Nøkkel stemmer ikke med ESYFO-payload" }
@@ -52,8 +52,10 @@ class OppdateringAvForskutteringEsyfo(
     }
 
     private fun lagre(melding: NarmesteLederEsyfoLeesah) {
-        repository.lagre(
+        val eksisterende = repository.findByNarmesteLederId(melding.narmesteLederId)
+        repository.save(
             ForskutteringEsyfo(
+                id = eksisterende?.id,
                 oppdatert = Instant.now(),
                 timestamp = melding.timestamp.toInstant(),
                 narmesteLederId = melding.narmesteLederId,

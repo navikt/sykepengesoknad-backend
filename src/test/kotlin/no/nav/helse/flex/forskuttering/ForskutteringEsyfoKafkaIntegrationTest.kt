@@ -1,6 +1,7 @@
 package no.nav.helse.flex.forskuttering
 
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
@@ -57,6 +58,7 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
 
         try {
             kontrollerHistorikkInnlesing(container, melding, historiskOffset)
+            kontrollerGammelOppdateringMedAktivEsyfoConsumer(melding)
             val slettetOffset = kontrollerTombstone(melding)
             kontrollerGjenstartMedSammeGruppe(container, melding, slettetOffset)
         } finally {
@@ -107,6 +109,21 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
         return slettetOffset
+    }
+
+    private fun kontrollerGammelOppdateringMedAktivEsyfoConsumer(melding: NarmesteLederLeesah) {
+        val lagretEsyfo = esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldNotBeNull()
+        val lagretOffset = checkpoint()
+        val oppdatert = melding.copy(orgnummer = "999999993", timestamp = melding.timestamp.minusDays(1))
+        kafkaProducer
+            .send(
+                ProducerRecord(NARMESTELEDER_LEESAH_TOPIC, 0, melding.narmesteLederId.toString(), oppdatert.serialisertTilString()),
+            ).get()
+        await().atMost(Duration.ofSeconds(20)).untilAsserted {
+            gammel.findByNarmesteLederId(melding.narmesteLederId)?.orgnummer shouldBe oppdatert.orgnummer
+        }
+        esyfo.findByNarmesteLederId(melding.narmesteLederId) shouldBe lagretEsyfo
+        checkpoint() shouldBe lagretOffset
     }
 
     private fun kontrollerGjenstartMedSammeGruppe(

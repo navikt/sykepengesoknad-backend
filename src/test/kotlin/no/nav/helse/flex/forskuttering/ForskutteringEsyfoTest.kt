@@ -1,12 +1,12 @@
 package no.nav.helse.flex.forskuttering
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.transaction.PlatformTransactionManager
@@ -86,7 +86,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         val andreKey = andre.narmesteLederId.toString()
         var kvitteringer = 0
         val feil =
-            assertThrows<IllegalStateException> {
+            shouldThrow<IllegalStateException> {
                 esyfoListener.listen(
                     listOf(record(0, andreKey, "{", 23), record(0, førsteKey, første.serialisertTilString(), 22)),
                 ) { kvitteringer++ }
@@ -210,14 +210,14 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         esyfoListener.listen(listOf(record(1, melding.narmesteLederId.toString(), json, 13))) { kvittert = true }
         kvittert shouldBe true
         kvittert = false
-        assertThrows<IllegalStateException> {
+        shouldThrow<IllegalStateException> {
             esyfoListener.listen(listOf(record(2, UUID.randomUUID().toString(), json, 13))) { kvittert = true }
         }
         kvittert shouldBe false
         checkpoint(13) shouldBe 1L
         listOf(null, "ugyldig-uuid").forEach { key ->
             val feil =
-                assertThrows<IllegalStateException> {
+                shouldThrow<IllegalStateException> {
                     esyfoListener.listen(listOf(ConsumerRecord<String, String?>(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 13, 2L, key, null))) {
                         kvittert = true
                     }
@@ -232,7 +232,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     fun `Feil etter domeneskriving ruller tilbake og retry kan committe`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val rec = record(1, melding.narmesteLederId.toString(), melding.serialisertTilString(), 14)
-        assertThrows<IllegalStateException> {
+        shouldThrow<IllegalStateException> {
             TransactionTemplate(transactionManager).executeWithoutResult {
                 oppdatering.behandle(rec)
                 error("Test feil før ytre commit")
@@ -270,7 +270,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         )
         var kvittert = false
         try {
-            assertThrows<IllegalStateException> { esyfoListener.listen(listOf(rec)) { kvittert = true } }
+            shouldThrow<IllegalStateException> { esyfoListener.listen(listOf(rec)) { kvittert = true } }
             kvittert shouldBe false
             esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
             checkpoint(18).shouldBeNull()
@@ -288,7 +288,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     fun `Replay etter DB commit men før Kafka ack endrer ikke raden`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val rec = record(1, melding.narmesteLederId.toString(), melding.serialisertTilString(), 17)
-        assertThrows<IllegalStateException> {
+        shouldThrow<IllegalStateException> {
             esyfoListener.listen(listOf(rec)) { error("Simulerer manglende Kafka-ack") }
         }
         val lagret = esyfo.findByNarmesteLederId(melding.narmesteLederId)
