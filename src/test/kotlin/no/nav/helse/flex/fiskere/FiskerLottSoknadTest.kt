@@ -70,7 +70,6 @@ class FiskerLottSoknadTest : FellesTestOppsett() {
         soknad.sporsmal!!.map { it.tag } shouldBe
             listOf(
                 ANSVARSERKLARING,
-                FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 FISKER_LOTT_OPPRETTHOLDT_INNTEKT,
@@ -99,7 +98,6 @@ class FiskerLottSoknadTest : FellesTestOppsett() {
         val sendtSoknad =
             SoknadBesvarer(soknad, this, fnr)
                 .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-                .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "NEI")
                 .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
                 .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
                 .besvarSporsmal(FISKER_LOTT_OPPRETTHOLDT_INNTEKT, "NEI")

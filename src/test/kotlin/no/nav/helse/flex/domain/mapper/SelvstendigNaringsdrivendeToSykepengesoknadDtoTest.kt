@@ -1,6 +1,5 @@
 package no.nav.helse.flex.domain.mapper
 
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
@@ -117,20 +116,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     }
 
     @Test
-    fun `Inneholder spørsmål om fravær for sykmeldingen`() {
-        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
-        val soknadDTO = lagSykepengesoknadDTO(soknad)
-
-        soknadDTO.getSporsmalMedTagOrNull("FRAVAR_FOR_SYKMELDINGEN_V2").also { fravaerSpm ->
-            fravaerSpm?.svar.shouldNotBeNull()
-            fravaerSpm.sporsmalstekst shouldBe
-                "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt 1. juni 2018?"
-            fravaerSpm.svar!!.size shouldBe 1
-            fravaerSpm.svar!!.first().verdi shouldBe "JA"
-        }
-    }
-
-    @Test
     fun `Inneholder ikke spørsmål om yrkesskade`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknadGradert()
@@ -177,7 +162,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-            it.size shouldBe 11
+            it.size shouldBe 10
             it[TILBAKE_I_ARBEID] shouldBe true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] shouldBe false
             it["JOBBET_DU_GRADERT_1"] shouldBe false
@@ -185,7 +170,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[ANDRE_INNTEKTSKILDER_V2] shouldBe true
             it[OPPHOLD_UTENFOR_EOS] shouldBe true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] shouldBe false
-            it[FRAVAR_FOR_SYKMELDINGEN_V2] shouldBe true
             it[NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET] shouldBe true
             it[NARINGSDRIVENDE_NY_I_ARBEIDSLIVET] shouldBe false
             it[NARINGSDRIVENDE_VARIG_ENDRING] shouldBe true
@@ -217,7 +201,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-            it.size shouldBe 9
+            it.size shouldBe 8
             it[TILBAKE_I_ARBEID] shouldBe true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] shouldBe false
             it["JOBBET_DU_GRADERT_1"] shouldBe false
@@ -225,7 +209,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[ANDRE_INNTEKTSKILDER_V2] shouldBe true
             it[OPPHOLD_UTENFOR_EOS] shouldBe true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] shouldBe false
-            it[FRAVAR_FOR_SYKMELDINGEN_V2] shouldBe true
             it[NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET] shouldBe false
         }
     }
@@ -257,7 +240,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-            it.size shouldBe 11
+            it.size shouldBe 10
             it[TILBAKE_I_ARBEID] shouldBe true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] shouldBe false
             it["JOBBET_DU_GRADERT_1"] shouldBe false
@@ -265,7 +248,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[ANDRE_INNTEKTSKILDER_V2] shouldBe true
             it[OPPHOLD_UTENFOR_EOS] shouldBe true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] shouldBe false
-            it[FRAVAR_FOR_SYKMELDINGEN_V2] shouldBe true
             it[NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET] shouldBe false
             it[NARINGSDRIVENDE_NY_I_ARBEIDSLIVET] shouldBe false
             it[NARINGSDRIVENDE_VARIG_ENDRING] shouldBe false

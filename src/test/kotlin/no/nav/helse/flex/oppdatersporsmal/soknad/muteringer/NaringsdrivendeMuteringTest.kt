@@ -9,7 +9,7 @@ import no.nav.helse.flex.soknadsopprettelse.naringsdrivende.lagSykepengegrunnlag
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.junit.jupiter.api.Test
 
-private const val MAX_SPORSMAL = 13
+private const val MAX_SPORSMAL = 12
 
 class NaringsdrivendeMuteringTest {
     @Test

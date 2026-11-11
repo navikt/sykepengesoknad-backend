@@ -51,7 +51,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     private val forventedeSporsmalTagsForNaringsdrivendeForsteSoknad =
         listOf(
             ANSVARSERKLARING,
-            FRAVAR_FOR_SYKMELDINGEN_V2,
             TILBAKE_I_ARBEID,
             arbeidUnderveis100ProsentTag,
             NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
@@ -65,7 +64,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     private val forventedeSporsmalTagsForNaringsdrivendeAndreSoknad =
         forventedeSporsmalTagsForNaringsdrivendeForsteSoknad.minus(
             listOf(
-                FRAVAR_FOR_SYKMELDINGEN_V2,
                 NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                 NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
                 NARINGSDRIVENDE_VARIG_ENDRING,
