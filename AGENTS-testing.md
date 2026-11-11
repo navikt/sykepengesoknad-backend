@@ -8,7 +8,9 @@
 ## Retningslinjer
 
 - Legg mest mulig av testingen på rene funksjoner.
-- Test Spring-komponenter som integrasjoner med hele Spring-konteksten, ikke som isolerte komponenter.
+- Foretrekk håndskrevne fakes fremfor integrasjonstester når fakes dekker oppførselen som skal testes.
+- Test Spring-komponenter gjennom hele Spring-konteksten, med fake-beans etter repoets mønster. Ikke instansier komponentene isolert i testen.
+- Bruk integrasjonstester når testen må verifisere database-, transaksjons- eller Kafka-semantikk som fakes ikke dekker.
 - Ikke bruk mocks eller stubs. Dette gjelder også Mockito, `@MockitoBean` og `@MockitoSpyBean` i Spring-tester.
 - Skriv testnavn på norsk bokmål i backticks, med stor forbokstav.
 - Bruk `@Nested`-testklasser når testene trenger inndeling. I Kotlin skal disse være `inner`-klasser.
