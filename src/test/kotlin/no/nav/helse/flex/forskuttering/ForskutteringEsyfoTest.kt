@@ -159,12 +159,12 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val key = melding.narmesteLederId.toString()
         val partition = 11
-        oppdatering.behandle(record(20, key, melding.serialisertTilString(), partition)) shouldBe "oppdatert"
-        oppdatering.behandle(record(22, key, null, partition)) shouldBe "slettet"
+        oppdatering.behandle(record(20, key, melding.serialisertTilString(), partition)) shouldBe true
+        oppdatering.behandle(record(22, key, null, partition)) shouldBe true
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         checkpoint(partition) shouldBe 22L
-        oppdatering.behandle(record(20, key, melding.serialisertTilString(), partition)) shouldBe "duplikat"
-        oppdatering.behandle(record(22, key, melding.serialisertTilString(), partition)) shouldBe "duplikat"
+        oppdatering.behandle(record(20, key, melding.serialisertTilString(), partition)) shouldBe false
+        oppdatering.behandle(record(22, key, melding.serialisertTilString(), partition)) shouldBe false
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         oppdatering.behandle(
             record(24, key, melding.copy(arbeidsgiverForskutterer = null, aktivTom = null).serialisertTilString(), partition),

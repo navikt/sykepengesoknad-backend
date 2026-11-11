@@ -28,41 +28,41 @@ class OppdateringAvForskutteringEsyfo(
     private val repository: ForskutteringEsyfoRepository,
     private val checkpoint: ForskutteringEsyfoCheckpoint,
 ) {
-    @Transactional(rollbackFor = [Throwable::class])
+    @Transactional(rollbackFor = [Exception::class])
     fun behandleBatch(records: List<ConsumerRecord<String, String?>>) {
-        // Fast låserekkefølge mellom partisjoner; sorteringen bevarer record-rekkefølgen innen hver partisjon.
         records.sortedBy { it.partition() }.forEach { behandle(it) }
     }
 
-    // Kalles synkront av én Kafka-listenertråd per tildelt partisjon. Låsen serialiserer
-    // transaksjoner ved rebalance, men kan ikke sortere om records på ulike tråder.
-    @Transactional(rollbackFor = [Throwable::class])
-    fun behandle(record: ConsumerRecord<String, String?>): String {
+    @Transactional(rollbackFor = [Exception::class])
+    fun behandle(record: ConsumerRecord<String, String?>): Boolean {
         val sistBehandlet = checkpoint.lasOgHentOffset(record.topic(), record.partition())
-        if (record.offset() <= sistBehandlet) {
-            return "duplikat"
-        }
+        if (record.offset() <= sistBehandlet) return false
 
-        val key = UUID.fromString(record.key())
-        if (record.value() == null) {
-            repository.slett(key)
+        val id = UUID.fromString(record.key())
+        val verdi = record.value()
+        if (verdi == null) {
+            repository.slett(id)
         } else {
-            val melding = objectMapper.readValue<NarmesteLederEsyfoLeesah>(record.value()!!)
-            require(melding.narmesteLederId == key) { "Key og nærmeste leder-ID er ulike" }
-            repository.lagre(
-                ForskutteringEsyfo(
-                    oppdatert = Instant.now(),
-                    timestamp = melding.timestamp.toInstant(),
-                    narmesteLederId = melding.narmesteLederId,
-                    orgnummer = melding.orgnummer,
-                    brukerFnr = melding.fnr,
-                    aktivFom = melding.aktivFom,
-                    aktivTom = melding.aktivTom,
-                    arbeidsgiverForskutterer = melding.arbeidsgiverForskutterer,
-                ),
-            )
+            val melding = objectMapper.readValue<NarmesteLederEsyfoLeesah>(verdi)
+            require(melding.narmesteLederId == id) { "Nøkkel stemmer ikke med ESYFO-payload" }
+            lagre(melding)
         }
         checkpoint.lagreOffset(record.topic(), record.partition(), record.offset())
-        return if (record.value() == null) "slettet" else "oppdatert"
+        return true
+    }
+
+    private fun lagre(melding: NarmesteLederEsyfoLeesah) {
+        repository.lagre(
+            ForskutteringEsyfo(
+                oppdatert = Instant.now(),
+                timestamp = melding.timestamp.toInstant(),
+                narmesteLederId = melding.narmesteLederId,
+                orgnummer = melding.orgnummer,
+                brukerFnr = melding.fnr,
+                aktivFom = melding.aktivFom,
+                aktivTom = melding.aktivTom,
+                arbeidsgiverForskutterer = melding.arbeidsgiverForskutterer,
+            ),
+        )
     }
 }
