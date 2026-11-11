@@ -19,8 +19,7 @@ class NarmestelederEsyfoListener(
         containerFactory = "esyfoKafkaListenerContainerFactory",
         autoStartup = "\${FORSKUTTERING_ESYFO_CONSUMER_AKTIV:false}",
         concurrency = "1",
-        id = "esyfo-narmesteleder-listener",
-        idIsGroup = false,
+        id = "forskuttering-esyfo",
     )
     fun listen(
         records: List<ConsumerRecord<String, String?>>,

@@ -38,7 +38,7 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
     @Qualifier("aivenKafkaListenerContainerFactory")
     lateinit var eksisterendeFactory: ConcurrentKafkaListenerContainerFactory<String, String>
 
-    private val gruppe = "sykepengesoknad-backend-forskuttering-esyfo-bootstrap-v1"
+    private val gruppe = "forskuttering-esyfo"
 
     private fun checkpoint(): Long? =
         jdbc
@@ -50,10 +50,10 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Ny Kafka-gruppe er av som standard og spiller historikk isolert ved eksplisitt start og restart`() {
-        val container = checkNotNull(register.getListenerContainer("esyfo-narmesteleder-listener"))
+        val container = checkNotNull(register.getListenerContainer(gruppe))
         container.isRunning shouldBe false
         val config = checkNotNull(factory.consumerFactory).configurationProperties
-        config[ConsumerConfig.GROUP_ID_CONFIG] shouldBe gruppe
+        container.groupId shouldBe gruppe
         config[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] shouldBe "earliest"
         config[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] shouldBe false
         config[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] shouldBe "500"

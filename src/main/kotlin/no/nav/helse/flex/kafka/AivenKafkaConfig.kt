@@ -138,13 +138,10 @@ class AivenKafkaConfig(
     @Bean
     fun esyfoKafkaListenerContainerFactory(
         esyfoKafkaErrorHandler: EsyfoKafkaErrorHandler,
-        @Value("\${FORSKUTTERING_ESYFO_CONSUMER_GRUPPE:sykepengesoknad-backend-forskuttering-esyfo-bootstrap-v1}") gruppe: String,
     ): ConcurrentKafkaListenerContainerFactory<String, String> {
-        require(gruppe.isNotBlank() && gruppe != "syfosoknad-consumer") { "ESYFO krever egen consumergruppe" }
         val config =
             commonConfig() +
                 mapOf(
-                    ConsumerConfig.GROUP_ID_CONFIG to gruppe,
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
                     ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
