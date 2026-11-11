@@ -49,7 +49,7 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
             ).firstOrNull()
 
     @Test
-    fun `ny Kafka-gruppe er av som standard og spiller historikk isolert ved eksplisitt start og restart`() {
+    fun `Ny Kafka-gruppe er av som standard og spiller historikk isolert ved eksplisitt start og restart`() {
         val container = checkNotNull(register.getListenerContainer("esyfo-narmesteleder-listener"))
         container.isRunning shouldBe false
         val config = checkNotNull(factory.consumerFactory).configurationProperties

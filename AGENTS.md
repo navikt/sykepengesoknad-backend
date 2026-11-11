@@ -8,8 +8,9 @@ Se #file:AGENTS-intellij.md for hvordan du kjører formatering, tester og byggin
 
 ## 2) Testing
 
+Følg [testreglene for Kotlin og Spring](AGENTS-testing.md).
+
 - Prioriter tester som dekker endret domenelogikk.
-- Bruk fakes når enhetstester holder.
 - Bruk integrasjonstester når endringen krysser database, Kafka eller eksterne klienter.
 - Fakes for eksterne avhengigheter ligger i `src/test/kotlin/.../testconfig/fakes/`.
 - Testdata og byggere ligger i `src/test/kotlin/.../testdata/`.

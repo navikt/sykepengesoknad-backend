@@ -59,14 +59,7 @@ class OppdateringAvForskutteringEsyfo(
             return "duplikat"
         }
 
-        val key =
-            try {
-                val tekst = record.key() ?: throw IllegalArgumentException("Mangler key i ESYFO-record")
-                require(UUID_FORMAT.matches(tekst))
-                UUID.fromString(tekst)
-            } catch (_: IllegalArgumentException) {
-                throw IllegalArgumentException("Ugyldig UUID-key i ESYFO-record")
-            }
+        val key = UUID.fromString(record.key())
         if (record.value() == null) {
             repository.slett(key)
         } else {
@@ -93,9 +86,5 @@ class OppdateringAvForskutteringEsyfo(
             record.partition(),
         )
         return if (record.value() == null) "slettet" else "oppdatert"
-    }
-
-    companion object {
-        private val UUID_FORMAT = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
     }
 }

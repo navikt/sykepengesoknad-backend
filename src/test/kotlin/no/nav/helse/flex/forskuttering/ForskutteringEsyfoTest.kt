@@ -52,7 +52,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
             ).firstOrNull()
 
     @Test
-    fun `batch lagres atomisk med én kvittering og bevarer rekkefølge og tombstones`() {
+    fun `Batch lagres atomisk med én kvittering og bevarer rekkefølge og tombstones`() {
         val første = getNarmesteLederLeesah(UUID.randomUUID())
         val andre = getNarmesteLederLeesah(UUID.randomUUID())
         val førsteKey = første.narmesteLederId.toString()
@@ -79,7 +79,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `feil i batch ruller tilbake alle partisjoner uten kvittering og kan forsøkes igjen`() {
+    fun `Feil i batch ruller tilbake alle partisjoner uten kvittering og kan forsøkes igjen`() {
         val første = getNarmesteLederLeesah(UUID.randomUUID())
         val andre = getNarmesteLederLeesah(UUID.randomUUID())
         val førsteKey = første.narmesteLederId.toString()
@@ -106,14 +106,14 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `tom batch kvitteres ikke`() {
+    fun `Tom batch kvitteres ikke`() {
         var kvitteringer = 0
         esyfoListener.listen(emptyList()) { kvitteringer++ }
         kvitteringer shouldBe 0
     }
 
     @Test
-    fun `eSyfo lagres i separat tabell uten å endre eksisterende forskuttering`() {
+    fun `Innlesing fra eSyfo lagres i separat tabell uten å endre eksisterende forskuttering`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678942", orgnummer = "999999991")
         val key = melding.narmesteLederId.toString()
         listener.listen(
@@ -129,7 +129,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `eSyfo lagrer aktive og avsluttede relasjoner uten å endre eksisterende oppslag`() {
+    fun `Innlesing fra eSyfo lagrer aktive og avsluttede relasjoner uten å endre eksisterende oppslag`() {
         val aktiv = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678943", orgnummer = "999999992")
         val avsluttet =
             getNarmesteLederLeesah(
@@ -155,7 +155,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `tombstone flytter checkpoint og gammel offset gjenoppretter ikke slettet rad`() {
+    fun `Tombstone flytter checkpoint og gammel offset gjenoppretter ikke slettet rad`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val key = melding.narmesteLederId.toString()
         val partition = 11
@@ -177,7 +177,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `høyere offset vinner også med eldre og likt domenetidsstempel`() {
+    fun `Høyere offset vinner også med eldre og likt domenetidsstempel`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID()).copy(timestamp = OffsetDateTime.parse("2025-01-02T12:00:00Z"))
         val key = melding.narmesteLederId.toString()
         oppdatering.behandle(record(1, key, melding.serialisertTilString(), 12))
@@ -190,7 +190,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `ukjente felter og status tåles men feil key avvises uten ack`() {
+    fun `Ukjente felter og status tåles men feil key avvises uten ack`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val json =
             """
@@ -215,12 +215,21 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         }
         kvittert shouldBe false
         checkpoint(13) shouldBe 1L
-        assertThrows<IllegalArgumentException> { oppdatering.behandle(record(2, "ikke-uuid", null, 13)) }
+        listOf(null, "ugyldig-uuid").forEach { key ->
+            val feil =
+                assertThrows<IllegalStateException> {
+                    esyfoListener.listen(listOf(ConsumerRecord<String, String?>(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 13, 2L, key, null))) {
+                        kvittert = true
+                    }
+                }
+            feil.cause.shouldBeNull()
+            kvittert shouldBe false
+        }
         checkpoint(13) shouldBe 1L
     }
 
     @Test
-    fun `feil etter domeneskriving ruller tilbake og retry kan committe`() {
+    fun `Feil etter domeneskriving ruller tilbake og retry kan committe`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val rec = record(1, melding.narmesteLederId.toString(), melding.serialisertTilString(), 14)
         assertThrows<IllegalStateException> {
@@ -276,7 +285,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `replay etter DB commit men før Kafka ack endrer ikke raden`() {
+    fun `Replay etter DB commit men før Kafka ack endrer ikke raden`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID())
         val rec = record(1, melding.narmesteLederId.toString(), melding.serialisertTilString(), 17)
         assertThrows<IllegalStateException> {
@@ -292,7 +301,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `samtidig første checkpoint låser og tidligere record på annen key blir ikke hoppet over`() {
+    fun `Samtidig første checkpoint låser og tidligere record på annen key blir ikke hoppet over`() {
         val a = getNarmesteLederLeesah(UUID.randomUUID())
         val b = getNarmesteLederLeesah(UUID.randomUUID())
         val pool = Executors.newFixedThreadPool(2)
