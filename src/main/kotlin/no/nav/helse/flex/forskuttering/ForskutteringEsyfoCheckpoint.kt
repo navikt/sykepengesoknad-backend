@@ -1,5 +1,7 @@
 package no.nav.helse.flex.forskuttering
 
+import no.nav.helse.flex.forskuttering.domain.ForskutteringEsyfoOffset
+import no.nav.helse.flex.forskuttering.domain.ForskutteringEsyfoOffsetId
 import org.springframework.stereotype.Repository
 
 interface ForskutteringEsyfoCheckpoint {
@@ -17,7 +19,7 @@ interface ForskutteringEsyfoCheckpoint {
 
 @Repository("forskutteringEsyfoCheckpoint")
 class DatabaseForskutteringEsyfoCheckpoint(
-    private val repository: ForskutteringEsyfoRepository,
+    private val repository: ForskutteringEsyfoOffsetRepository,
 ) : ForskutteringEsyfoCheckpoint {
     override fun lasOgHentOffset(
         topic: String,
@@ -32,6 +34,6 @@ class DatabaseForskutteringEsyfoCheckpoint(
         partition: Int,
         offset: Long,
     ) {
-        repository.lagreOffset(topic, partition, offset)
+        repository.save(ForskutteringEsyfoOffset(ForskutteringEsyfoOffsetId(topic, partition), offset))
     }
 }

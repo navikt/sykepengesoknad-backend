@@ -4,6 +4,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
+import no.nav.helse.flex.fakes.ForskutteringEsyfoOffsetRepositoryFake
 import no.nav.helse.flex.fakes.ForskutteringEsyfoRepositoryFake
 import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -19,9 +20,12 @@ class ForskutteringEsyfoFakeTest : FakesTestOppsett() {
 
     @Autowired lateinit var checkpoint: ForskutteringEsyfoCheckpoint
 
+    @Autowired lateinit var offsetRepository: ForskutteringEsyfoOffsetRepositoryFake
+
     @AfterEach
     fun `Rydd fake-data etter hver test`() {
-        repository.reset()
+        repository.deleteAll()
+        offsetRepository.deleteAll()
     }
 
     @Test
