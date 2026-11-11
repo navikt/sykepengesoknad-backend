@@ -38,4 +38,40 @@ interface ForskutteringEsyfoRepository : CrudRepository<ForskutteringEsyfo, Stri
     fun slett(narmesteLederId: UUID): Int
 
     fun findByNarmesteLederId(narmesteLederId: UUID): ForskutteringEsyfo?
+
+    @Modifying
+    @Query(
+        """
+        INSERT INTO forskuttering_esyfo_checkpoint (topic, partition)
+        VALUES (:topic, :partition) ON CONFLICT (topic, partition) DO NOTHING
+        """,
+    )
+    fun opprettCheckpoint(
+        topic: String,
+        partition: Int,
+    ): Int
+
+    @Query(
+        """
+        SELECT last_processed_offset FROM forskuttering_esyfo_checkpoint
+        WHERE topic = :topic AND partition = :partition FOR UPDATE
+        """,
+    )
+    fun hentOffsetForOppdatering(
+        topic: String,
+        partition: Int,
+    ): Long?
+
+    @Modifying
+    @Query(
+        """
+        UPDATE forskuttering_esyfo_checkpoint SET last_processed_offset = :offset
+        WHERE topic = :topic AND partition = :partition
+        """,
+    )
+    fun lagreOffset(
+        topic: String,
+        partition: Int,
+        offset: Long,
+    ): Int
 }
