@@ -48,7 +48,7 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
             ).firstOrNull()
 
     @Test
-    fun `Ny Kafka-gruppe er av som standard og spiller historikk isolert ved eksplisitt start og restart`() {
+    fun `Egen Kafka-gruppe leser historikk isolert ved eksplisitt start og gjenstart`() {
         val container = checkNotNull(register.getListenerContainer(gruppe))
         kontrollerConsumerInnstillinger(container)
         val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678945", orgnummer = "999999994")
