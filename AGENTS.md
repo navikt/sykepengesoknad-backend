@@ -43,7 +43,8 @@ Repoet bruker også testoppsett for fakes og integrasjonstester, samt Flyway-mig
 
 ## 5) Kodestil
 
-- Følg eksisterende mønstre i koden.
+- Les tilsvarende produksjonskode og tester før du velger løsning. Følg mønsteret i hvert repo, ikke kopier ukritisk mellom repoer.
+- Implementer bare avtalt omfang og migreringsfase. Unngå ekstra funksjoner, opprydding og formateringsstøy.
 - Skriv nye meldinger, kommentarer og brukerrettet tekst på norsk bokmål.
 - Behold etablerte tekniske navn og domenenavn når de allerede finnes i koden.
 
