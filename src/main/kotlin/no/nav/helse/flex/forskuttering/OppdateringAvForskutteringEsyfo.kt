@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.helse.flex.forskuttering.domain.ForskutteringEsyfo
 import no.nav.helse.flex.util.objectMapper
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.springframework.context.annotation.Profile
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.module.kotlin.readValue
@@ -26,10 +24,9 @@ private data class NarmesteLederEsyfoLeesah(
 )
 
 @Component
-@Profile("!fakes")
 class OppdateringAvForskutteringEsyfo(
     private val repository: ForskutteringEsyfoRepository,
-    private val jdbcTemplate: JdbcTemplate,
+    private val checkpoint: ForskutteringEsyfoCheckpoint,
 ) {
     @Transactional(rollbackFor = [Throwable::class])
     fun behandleBatch(records: List<ConsumerRecord<String, String?>>) {
@@ -41,20 +38,7 @@ class OppdateringAvForskutteringEsyfo(
     // transaksjoner ved rebalance, men kan ikke sortere om records på ulike tråder.
     @Transactional(rollbackFor = [Throwable::class])
     fun behandle(record: ConsumerRecord<String, String?>): String {
-        jdbcTemplate.update(
-            """INSERT INTO forskuttering_esyfo_checkpoint (topic, partition)
-               VALUES (?, ?) ON CONFLICT (topic, partition) DO NOTHING""",
-            record.topic(),
-            record.partition(),
-        )
-        val sistBehandlet =
-            jdbcTemplate.queryForObject(
-                """SELECT last_processed_offset FROM forskuttering_esyfo_checkpoint
-                   WHERE topic = ? AND partition = ? FOR UPDATE""",
-                Long::class.java,
-                record.topic(),
-                record.partition(),
-            ) ?: error("Mangler checkpoint etter opprettelse")
+        val sistBehandlet = checkpoint.lasOgHentOffset(record.topic(), record.partition())
         if (record.offset() <= sistBehandlet) {
             return "duplikat"
         }
@@ -78,13 +62,7 @@ class OppdateringAvForskutteringEsyfo(
                 ),
             )
         }
-        jdbcTemplate.update(
-            """UPDATE forskuttering_esyfo_checkpoint SET last_processed_offset = ?
-               WHERE topic = ? AND partition = ?""",
-            record.offset(),
-            record.topic(),
-            record.partition(),
-        )
+        checkpoint.lagreOffset(record.topic(), record.partition(), record.offset())
         return if (record.value() == null) "slettet" else "oppdatert"
     }
 }
