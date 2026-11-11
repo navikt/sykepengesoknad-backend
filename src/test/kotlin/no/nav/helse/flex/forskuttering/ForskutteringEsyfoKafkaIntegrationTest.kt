@@ -3,12 +3,10 @@ package no.nav.helse.flex.forskuttering
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
 import no.nav.helse.flex.util.serialisertTilString
-import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
-import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.TopicPartition
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry
+import org.springframework.kafka.listener.MessageListenerContainer
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
@@ -51,6 +50,21 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
     @Test
     fun `Ny Kafka-gruppe er av som standard og spiller historikk isolert ved eksplisitt start og restart`() {
         val container = checkNotNull(register.getListenerContainer(gruppe))
+        kontrollerConsumerInnstillinger(container)
+        val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678945", orgnummer = "999999994")
+        val historiskOffset = publiserHistorikk(melding)
+        kontrollerAtBareEksisterendeTabellErOppdatert(melding)
+
+        try {
+            kontrollerHistorikkInnlesing(container, melding, historiskOffset)
+            val slettetOffset = kontrollerTombstone(melding)
+            kontrollerGjenstartMedSammeGruppe(container, melding, slettetOffset)
+        } finally {
+            stoppConsumer(container)
+        }
+    }
+
+    private fun kontrollerConsumerInnstillinger(container: MessageListenerContainer) {
         container.isRunning shouldBe false
         val config = checkNotNull(factory.consumerFactory).configurationProperties
         container.groupId shouldBe gruppe
@@ -60,73 +74,72 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
         factory.isBatchListener shouldBe true
         (eksisterendeFactory.isBatchListener == true) shouldBe false
         checkNotNull(eksisterendeFactory.consumerFactory).configurationProperties[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] shouldBe "1"
+    }
 
-        val melding = getNarmesteLederLeesah(UUID.randomUUID(), fnr = "12345678945", orgnummer = "999999994")
+    private fun publiserHistorikk(melding: NarmesteLederLeesah): Long {
         val key = melding.narmesteLederId.toString()
         kafkaProducer.send(ProducerRecord(NARMESTELEDER_LEESAH_TOPIC, 0, key, melding.serialisertTilString())).get()
-        kafkaProducer.send(ProducerRecord(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 0, key, melding.serialisertTilString())).get()
-        val historisk =
-            kafkaProducer
-                .send(
-                    ProducerRecord(
-                        NARMESTELEDER_ESYFO_LEESAH_TOPIC,
-                        0,
-                        key,
-                        melding.copy(arbeidsgiverForskutterer = false).serialisertTilString(),
-                    ),
-                ).get()
-                .offset()
+        sendEsyfoMelding(melding.narmesteLederId, melding.serialisertTilString())
+        return sendEsyfoMelding(melding.narmesteLederId, melding.copy(arbeidsgiverForskutterer = false).serialisertTilString())
+    }
 
+    private fun kontrollerAtBareEksisterendeTabellErOppdatert(melding: NarmesteLederLeesah) {
         await().atMost(Duration.ofSeconds(20)).until {
             gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer == true
         }
         esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
         checkpoint().shouldBeNull()
-        val admin = AdminClient.create(mapOf(BOOTSTRAP_SERVERS_CONFIG to System.getProperty("KAFKA_BROKERS")))
-        val partisjon = TopicPartition(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 0)
-        try {
-            container.start()
-            await().atMost(Duration.ofSeconds(30)).until {
-                checkpoint() == historisk && esyfo.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer == false
-            }
-            gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
-            await().atMost(Duration.ofSeconds(20)).until {
-                admin
-                    .listConsumerGroupOffsets(gruppe)
-                    .partitionsToOffsetAndMetadata()
-                    .get()[partisjon]
-                    ?.offset() == historisk + 1
-            }
+    }
 
-            val sletting =
-                kafkaProducer.send(ProducerRecord<String, String?>(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 0, key, null)).get().offset()
-            await().atMost(Duration.ofSeconds(20)).until { checkpoint() == sletting }
-            esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
-            gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
+    private fun kontrollerHistorikkInnlesing(
+        container: MessageListenerContainer,
+        melding: NarmesteLederLeesah,
+        historiskOffset: Long,
+    ) {
+        container.start()
+        ventPaLagretForskuttering(melding.narmesteLederId, historiskOffset, forskutterer = false)
+        gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
+    }
 
-            val stoppet = CountDownLatch(1)
-            container.stop { stoppet.countDown() }
-            check(stoppet.await(20, TimeUnit.SECONDS))
-            val neste =
-                kafkaProducer.send(ProducerRecord(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 0, key, melding.serialisertTilString())).get().offset()
-            checkpoint() shouldBe sletting
-            container.start()
-            await().atMost(Duration.ofSeconds(30)).until {
-                checkpoint() == neste && esyfo.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer == true
-            }
-            await().atMost(Duration.ofSeconds(20)).until {
-                admin
-                    .listConsumerGroupOffsets(gruppe)
-                    .partitionsToOffsetAndMetadata()
-                    .get()[partisjon]
-                    ?.offset() == neste + 1
-            }
-            gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
-        } finally {
-            val stoppet = CountDownLatch(1)
-            container.stop { stoppet.countDown() }
-            check(stoppet.await(20, TimeUnit.SECONDS))
-            admin.close()
+    private fun kontrollerTombstone(melding: NarmesteLederLeesah): Long {
+        val slettetOffset = sendEsyfoMelding(melding.narmesteLederId, null)
+        await().atMost(Duration.ofSeconds(20)).until { checkpoint() == slettetOffset }
+        esyfo.findByNarmesteLederId(melding.narmesteLederId).shouldBeNull()
+        gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
+        return slettetOffset
+    }
+
+    private fun kontrollerGjenstartMedSammeGruppe(
+        container: MessageListenerContainer,
+        melding: NarmesteLederLeesah,
+        slettetOffset: Long,
+    ) {
+        stoppConsumer(container)
+        val nesteOffset = sendEsyfoMelding(melding.narmesteLederId, melding.serialisertTilString())
+        checkpoint() shouldBe slettetOffset
+        container.start()
+        ventPaLagretForskuttering(melding.narmesteLederId, nesteOffset, forskutterer = true)
+        gammel.findByNarmesteLederId(melding.narmesteLederId)?.arbeidsgiverForskutterer shouldBe true
+    }
+
+    private fun ventPaLagretForskuttering(
+        id: UUID,
+        offset: Long,
+        forskutterer: Boolean,
+    ) {
+        await().atMost(Duration.ofSeconds(30)).until {
+            checkpoint() == offset && esyfo.findByNarmesteLederId(id)?.arbeidsgiverForskutterer == forskutterer
         }
     }
+
+    private fun stoppConsumer(container: MessageListenerContainer) {
+        val stoppet = CountDownLatch(1)
+        container.stop { stoppet.countDown() }
+        check(stoppet.await(20, TimeUnit.SECONDS))
+    }
+
+    private fun sendEsyfoMelding(
+        id: UUID,
+        verdi: String?,
+    ): Long = kafkaProducer.send(ProducerRecord(NARMESTELEDER_ESYFO_LEESAH_TOPIC, 0, id.toString(), verdi)).get().offset()
 }
