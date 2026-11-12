@@ -29,11 +29,11 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers søknad blir markert som julesøknad`() {
+    fun `15 dagers arbeidsledigsøknad blir markert som julesøknad`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),

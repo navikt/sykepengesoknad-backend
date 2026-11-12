@@ -8,8 +8,6 @@ import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
-import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.sendSykmelding
@@ -17,12 +15,10 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import java.time.Duration
-import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
@@ -39,16 +35,12 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var julesoknadkandidatDAO: JulesoknadkandidatDAO
 
-    @Autowired
-    private lateinit var forskutteringRepository: ForskutteringRepository
-
     private final val fnr = "123456789"
 
     private final val nesteÅr = LocalDate.now().plusYears(1).year
 
     @BeforeEach
     fun setUp() {
-        forskutteringRepository.deleteAll()
         flexSyketilfelleMockRestServiceServer.reset()
         databaseReset.resetDatabase()
     }
@@ -189,112 +181,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dager lang arbeidstakersøknad i riktig periode uten forskuttering aktiveres`() {
-        lagreForskuttering(false)
-
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = LocalDate.of(nesteÅr, 12, 1),
-                        tom = LocalDate.of(nesteÅr, 12, 15),
-                    ),
-            ),
-        )
-
-        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
-        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-
-        val soknader =
-            await().atMost(Duration.ofSeconds(5)).until(
-                { hentSoknaderMetadata(fnr) },
-                { (it.size == 1 && it.first().status == NY) },
-            )
-
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
-    }
-
-    @Test
-    fun `15 dager lang arbeidstakersøknad i riktig periode hvor forskuttering fjernes forskuttering aktiveres`() {
-        lagreForskuttering(true)
-
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = LocalDate.of(nesteÅr, 12, 1),
-                        tom = LocalDate.of(nesteÅr, 12, 15),
-                    ),
-            ),
-        )
-
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-
-        julesoknadkandidatDAO.hentJulesoknadkandidater().run {
-            this shouldHaveSize 1
-            this.first().sykepengesoknadUuid shouldBe soknaden.id
-        }
-
-        // Lagre at arbeidsgiver ikke forskutterer.
-        forskutteringRepository.deleteAll()
-        lagreForskuttering(false)
-
-        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-
-        val prosesserteSoknader =
-            await().atMost(Duration.ofSeconds(5)).until(
-                { hentSoknaderMetadata(fnr) },
-                { (it.size == 1 && it.first().status == NY) },
-            )
-
-        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(prosesserteSoknader.first().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
-    }
-
-    @Test
-    fun `15 dager lang arbeidstakersøknad i riktig periode med ukjent forskuttering aktiveres`() {
-        val orgnummer = "999999999"
-
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = LocalDate.of(nesteÅr, 12, 1),
-                        tom = LocalDate.of(nesteÅr, 12, 15),
-                    ),
-            ),
-        )
-
-        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
-        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-
-        val soknader =
-            await().atMost(Duration.ofSeconds(5)).until(
-                { hentSoknaderMetadata(fnr) },
-                { (it.size == 1 && it.first().status == NY) },
-            )
-
-        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
-    }
-
-    @Test
-    fun `15 dager lang arbeidstakersøknad i riktig periode med forskuttering aktiveres ikke`() {
-        lagreForskuttering(true)
-
+    fun `15 dager lang arbeidstakersøknad i riktig periode tidligaktiveres ikke uten forskutteringsdata`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -318,16 +205,25 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
+
+        aktiveringJob.bestillAktivering(LocalDate.of(nesteÅr, 12, 16))
+        await().atMost(Duration.ofSeconds(5)).until(
+            { hentSoknaderMetadata(fnr).single().status },
+            { it == NY },
+        )
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
-    fun `Lang sykmelding som treffer over julesøknadperioden får aktivert julesøknaden når foranliggende er aktivert`() {
-        lagreForskuttering(false)
-
+    fun `Lang sykmelding for arbeidsledig får aktivert julesøknaden når foranliggende er aktivert`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 10, 1),
@@ -374,13 +270,11 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Aktiverer julesøknad når tidligere søknad fra annen sykmelding blir aktivert`() {
-        lagreForskuttering(false)
-
+    fun `Aktiverer julesøknad for arbeidsledig når tidligere søknad fra annen sykmelding blir aktivert`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -391,7 +285,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 11, 15),
@@ -444,24 +338,5 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-    }
-
-    private fun lagreForskuttering(
-        forskutterer: Boolean,
-        orgNummer: String = ORG_NUMMER,
-    ) {
-        forskutteringRepository.save(
-            Forskuttering(
-                id = null,
-                narmesteLederId = UUID.randomUUID(),
-                brukerFnr = fnr,
-                orgnummer = orgNummer,
-                aktivFom = LocalDate.now(),
-                aktivTom = null,
-                arbeidsgiverForskutterer = forskutterer,
-                timestamp = Instant.now(),
-                oppdatert = Instant.now(),
-            ),
-        )
     }
 }

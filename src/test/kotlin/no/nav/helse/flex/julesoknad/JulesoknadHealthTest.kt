@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -27,9 +26,6 @@ class JulesoknadHealthTest : FellesTestOppsett() {
     private lateinit var prosesserJulesoknadkandidat: JulesoknadCronJob
 
     @Autowired
-    private lateinit var forskutteringRepository: ForskutteringRepository
-
-    @Autowired
     private lateinit var applicationEventPublisher: ApplicationEventPublisher
 
     private final val fnr = "123456789"
@@ -38,7 +34,6 @@ class JulesoknadHealthTest : FellesTestOppsett() {
 
     @BeforeEach
     fun setUp() {
-        forskutteringRepository.deleteAll()
         flexSyketilfelleMockRestServiceServer.reset()
         databaseReset.resetDatabase()
 

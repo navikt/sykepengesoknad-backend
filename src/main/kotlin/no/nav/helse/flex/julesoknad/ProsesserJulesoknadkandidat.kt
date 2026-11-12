@@ -2,14 +2,13 @@ package no.nav.helse.flex.julesoknad
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.aktivering.AktiveringProducer
+import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO.Julesoknadkandidat
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.IdentService
 import org.springframework.stereotype.Service
@@ -20,7 +19,6 @@ class ProsesserJulesoknadkandidat(
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
-    private val forskutteringRepository: ForskutteringRepository,
     private val aktiveringProducer: AktiveringProducer,
     private val identService: IdentService,
 ) {
@@ -44,7 +42,7 @@ class ProsesserJulesoknadkandidat(
                 return
             }
 
-            if (soknad.arbeidsgiverForskuttererIkke()) {
+            if (soknad.arbeidssituasjon != ARBEIDSTAKER) {
                 val folkeregisterIdenter = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
                 val tidligereFremtidigeSoknader =
                     sykepengesoknadDAO
@@ -71,25 +69,5 @@ class ProsesserJulesoknadkandidat(
         } catch (e: Exception) {
             log.error("Feil ved prossesering av julesøknadkandidat $julesoknadkandidat", e)
         }
-    }
-
-    private fun SykepengesoknadDbRecord.arbeidsgiverForskuttererIkke(): Boolean {
-        if (this.arbeidssituasjon == no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER) {
-            val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
-
-            val forskuttering =
-                forskutteringRepository
-                    .finnForskuttering(
-                        brukerFnr = this.fnr,
-                        orgnummer = orgnummer,
-                    )?.arbeidsgiverForskutterer
-            if (forskuttering == true) {
-                log.info("Arbeidsgiver forskutterer for sykepengesoknad: $sykepengesoknadUuid")
-                return false
-            }
-            log.info("Arbeidsgiver forskutterer IKKE for sykepengesoknad: $sykepengesoknadUuid")
-            return true
-        }
-        return true
     }
 }
