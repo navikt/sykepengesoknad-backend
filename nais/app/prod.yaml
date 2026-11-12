@@ -26,6 +26,7 @@ external-host:
   - data.brreg.no
 
 env:
+  ESYFO_KAFKA_CONCURRENCY: 1
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: prod-fss.pdl.pdl-api

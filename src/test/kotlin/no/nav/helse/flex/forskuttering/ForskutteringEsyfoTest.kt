@@ -88,7 +88,7 @@ class ForskutteringEsyfoTest : FellesTestOppsett() {
         val feil =
             shouldThrow<IllegalStateException> {
                 esyfoListener.listen(
-                    listOf(record(0, andreKey, "{", 23), record(0, førsteKey, første.serialisertTilString(), 22)),
+                    listOf(record(0, førsteKey, første.serialisertTilString(), 22), record(0, andreKey, "{", 23)),
                 ) { kvitteringer++ }
             }
         feil.cause.shouldBeNull()

@@ -154,7 +154,6 @@ class AivenKafkaConfig(
             setCommonErrorHandler(esyfoKafkaErrorHandler)
             setBatchListener(true)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            setConcurrency(1)
         }
     }
 

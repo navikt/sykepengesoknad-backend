@@ -18,7 +18,7 @@ class NarmestelederEsyfoListener(
         topics = [NARMESTELEDER_ESYFO_LEESAH_TOPIC],
         containerFactory = "esyfoKafkaListenerContainerFactory",
         autoStartup = "\${spring.kafka.listener.auto-startup:true}",
-        concurrency = "1",
+        concurrency = "\${ESYFO_KAFKA_CONCURRENCY:1}",
         id = "forskuttering-esyfo",
     )
     fun listen(
