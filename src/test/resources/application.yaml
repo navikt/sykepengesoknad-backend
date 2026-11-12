@@ -135,12 +135,13 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
 
+narmeste-leder:
+  esyfo-auto-startup: false
+
 spring:
   profiles.active: test,cronjobber,sykmeldinger,frisktilarbeid,fakeunleash
   main.banner-mode: 'off'
   kafka:
-    listener:
-      auto-startup: false
     consumer:
       group-id: sykepengesoknad-local
       max-poll-records: 1

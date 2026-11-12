@@ -68,6 +68,9 @@ class ForskutteringEsyfoKafkaIntegrationTest : FellesTestOppsett() {
 
     private fun kontrollerConsumerInnstillinger(container: MessageListenerContainer) {
         container.isRunning shouldBe false
+        register.listenerContainers
+            .single { it.containerProperties.topics?.contains(NARMESTELEDER_LEESAH_TOPIC) == true }
+            .isRunning shouldBe true
         val config = checkNotNull(factory.consumerFactory).configurationProperties
         container.groupId shouldBe gruppe
         config[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] shouldBe "earliest"
