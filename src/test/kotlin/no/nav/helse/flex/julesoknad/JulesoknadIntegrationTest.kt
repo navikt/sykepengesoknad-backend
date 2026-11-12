@@ -292,34 +292,6 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Julesøknad aktiveres når forskutteringsverdien er null`() {
-        lagreForskuttering(null)
-
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = LocalDate.of(nesteÅr, 12, 1),
-                        tom = LocalDate.of(nesteÅr, 12, 15),
-                    ),
-            ),
-        )
-
-        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
-        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-        val soknader =
-            await().atMost(Duration.ofSeconds(5)).until(
-                { hentSoknaderMetadata(fnr) },
-                { it.size == 1 && it.first().status == NY },
-            )
-        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
-    }
-
-    @Test
     fun `15 dager lang arbeidstakersøknad i riktig periode med forskuttering aktiveres ikke`() {
         lagreForskuttering(true)
 
@@ -475,7 +447,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     private fun lagreForskuttering(
-        forskutterer: Boolean?,
+        forskutterer: Boolean,
         orgNummer: String = ORG_NUMMER,
     ) {
         forskutteringRepository.save(
