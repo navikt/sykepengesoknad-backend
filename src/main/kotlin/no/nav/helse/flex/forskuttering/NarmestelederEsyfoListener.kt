@@ -35,3 +35,5 @@ class NarmestelederEsyfoListener(
         }
     }
 }
+
+const val NARMESTELEDER_ESYFO_LEESAH_TOPIC = "team-esyfo.syfo-narmesteleder-leesah"

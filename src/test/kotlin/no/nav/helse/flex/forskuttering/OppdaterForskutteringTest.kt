@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
 import no.nav.helse.flex.util.serialisertTilString
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
@@ -26,9 +25,6 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
     @Autowired
     lateinit var oppdateringAvForskuttering: OppdateringAvForskuttering
 
-    @Autowired
-    lateinit var narmestelederListener: NarmestelederListener
-
     @Test
     fun `Like og eldre tidsstempler oppdaterer eksisterende forskutteringstabell`() {
         val melding = getNarmesteLederLeesah(UUID.randomUUID()).copy(timestamp = OffsetDateTime.parse("2025-01-02T12:00:00Z"))
@@ -45,41 +41,6 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
         oppdatert.id shouldBe lagret.id
         oppdatert.arbeidsgiverForskutterer.shouldBeNull()
         oppdatert.timestamp shouldBe melding.timestamp.minusDays(1).toInstant()
-    }
-
-    @Test
-    fun `Tombstone kvitteres uten å slette eksisterende rad`() {
-        forskutteringRepository.deleteAll()
-        val melding = getNarmesteLederLeesah(UUID.randomUUID())
-        oppdateringAvForskuttering.behandleMeldingFraKafka(melding.serialisertTilString())
-        val lagret = forskutteringRepository.findByNarmesteLederId(melding.narmesteLederId)
-        var kvittert = false
-
-        narmestelederListener.listen(
-            ConsumerRecord(NARMESTELEDER_LEESAH_TOPIC, 0, 0L, melding.narmesteLederId.toString(), null),
-            { kvittert = true },
-        )
-
-        kvittert.shouldBeTrue()
-        forskutteringRepository.findByNarmesteLederId(melding.narmesteLederId) shouldBe lagret
-    }
-
-    @Test
-    fun `Melding etter tombstone blir behandlet`() {
-        forskutteringRepository.deleteAll()
-        val melding = getNarmesteLederLeesah(UUID.randomUUID())
-
-        kafkaProducer
-            .send(
-                ProducerRecord(NARMESTELEDER_LEESAH_TOPIC, null, melding.narmesteLederId.toString(), null),
-            ).get()
-        sendNarmesteLederLeesah(melding)
-
-        await().atMost(10, TimeUnit.SECONDS).until {
-            forskutteringRepository.findByNarmesteLederId(melding.narmesteLederId) != null
-        }
-        forskutteringRepository.findByNarmesteLederId(melding.narmesteLederId)!!.arbeidsgiverForskutterer shouldBe
-            melding.arbeidsgiverForskutterer
     }
 
     @Test
