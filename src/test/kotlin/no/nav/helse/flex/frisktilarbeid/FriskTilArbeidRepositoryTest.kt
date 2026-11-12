@@ -1,131 +1,107 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.medlemskap.tilPostgresJson
-import no.nav.helse.flex.util.objectMapper
-import no.nav.helse.flex.util.serialisertTilString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
-import java.util.*
 
-/**
- * Tester at vi kan lagre og hente vedtak om friskmeldt til arbeidsformidling fra databasen.
- */
 class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
     @Autowired
     private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
     @BeforeEach
     fun slettFraDatabase() {
-        friskTilArbeidRepository.deleteAll()
+        databaseReset.resetDatabase()
     }
 
     @Test
-    fun `Lagrer og henter vedtak`() {
-        val verdierForLagring =
-            lagVerdierForLagring(fnr = "11111111111", ignorerArbeidssokerregister = true).also {
-                friskTilArbeidRepository.save(
-                    it.vedtakStatus.tilDbRecord(it.uuid, it.key, it.ignorerArbeidssokerregister),
-                )
-            }
+    fun `Lagrer og henter vedtak med innhold og behandlingsstatus`() {
+        val vedtak = lagFriskTilArbeidVedtakStatus("11111111111", Status.FATTET)
+        val lagret = friskTilArbeidRepository.save(vedtak.tilDbRecord(ignorerArbeidssokerregister = true))
 
-        val dbRecords = friskTilArbeidRepository.findAll() shouldHaveSize 1
-        val dbRecord = dbRecords.first()
+        val hentet = friskTilArbeidRepository.findAll().single()
 
-        dbRecord.id shouldNotBe null
-        dbRecord.vedtakUuid shouldBe verdierForLagring.uuid
-        dbRecord.key shouldBe verdierForLagring.key
-        dbRecord.fnr shouldBe verdierForLagring.vedtakStatus.personident
-        dbRecord.fom shouldBe verdierForLagring.vedtakStatus.fom
-        dbRecord.tom shouldBe verdierForLagring.vedtakStatus.tom
-        dbRecord.behandletStatus shouldBe BehandletStatus.NY
-        dbRecord.behandletTidspunkt shouldBe null
-        dbRecord.ignorerArbeidssokerregister shouldBe true
-
-        val lagretJson = objectMapper.readTree(dbRecord.vedtak!!.value)
-        val vedtakStatusJson = objectMapper.readTree(verdierForLagring.vedtakStatus.serialisertTilString())
-        lagretJson shouldBe vedtakStatusJson
+        hentet.id.shouldNotBeNull() shouldBe lagret.id
+        hentet.vedtakUuid shouldBe vedtak.uuid
+        hentet.key shouldBe vedtak.personident.asProducerRecordKey()
+        hentet.fnr shouldBe vedtak.personident
+        hentet.fom shouldBe vedtak.fom
+        hentet.tom shouldBe vedtak.tom
+        hentet.opprettet shouldBe FriskTilArbeidTestTid.tidspunkt
+        hentet.behandletStatus shouldBe BehandletStatus.NY
+        hentet.behandletTidspunkt shouldBe null
+        hentet.ignorerArbeidssokerregister shouldBe true
+        hentet.vedtak
+            .shouldNotBeNull()
+            .value
+            .shouldNotBeNull()
+            .tilFriskTilArbeidVedtakStatus() shouldBe vedtak
     }
 
     @Test
-    fun `Finner vedtak som skal behandles`() {
-        lagVerdierForLagring("11111111111").also {
-            friskTilArbeidRepository.save(
-                it.vedtakStatus.tilDbRecord(it.uuid, it.key),
+    fun `Henter eldste ubehandlede vedtak først og begrenser antallet`() {
+        val nyeste =
+            lagreVedtak(
+                fnr = "33333333333",
+                opprettet = FriskTilArbeidTestTid.tidspunkt.plusSeconds(2),
+                ignorerArbeidssokerregister = false,
             )
-        }
-
-        lagVerdierForLagring("22222222222").also {
-            friskTilArbeidRepository.save(
-                it.vedtakStatus.tilDbRecord(it.uuid, it.key, ignorerArbeidssokerregister = true),
+        val eldste = lagreVedtak(fnr = "11111111111", opprettet = FriskTilArbeidTestTid.tidspunkt)
+        val mellomste =
+            lagreVedtak(
+                fnr = "22222222222",
+                opprettet = FriskTilArbeidTestTid.tidspunkt.plusSeconds(1),
+                ignorerArbeidssokerregister = true,
             )
-        }
 
-        lagVerdierForLagring("33333333333").also {
-            friskTilArbeidRepository.save(
-                it.vedtakStatus.tilDbRecord(it.uuid, it.key, ignorerArbeidssokerregister = false),
-            )
-        }
-
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).also {
-            it.size shouldBe 1
-            it[0].fnr shouldBe "11111111111"
-            it[0].ignorerArbeidssokerregister shouldBe null
-        }
-
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(2).also {
-            it.size shouldBe 2
-            it[0].fnr shouldBe "11111111111"
-            it[1].fnr shouldBe "22222222222"
-            it[1].ignorerArbeidssokerregister shouldBe true
-        }
-
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(3).also {
-            it.size shouldBe 3
-            it[0].fnr shouldBe "11111111111"
-            it[1].fnr shouldBe "22222222222"
-            it[2].fnr shouldBe "33333333333"
-            it[2].ignorerArbeidssokerregister shouldBe false
-        }
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).map { it.id } shouldBe listOf(eldste.id)
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(2).map { it.id } shouldBe listOf(eldste.id, mellomste.id)
+        val alle = friskTilArbeidRepository.finnVedtakSomSkalBehandles(3)
+        alle.map { it.id } shouldBe listOf(eldste.id, mellomste.id, nyeste.id)
+        alle.map { it.ignorerArbeidssokerregister } shouldBe listOf(null, true, false)
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(0).shouldBeEmpty()
     }
 
-    private fun lagVerdierForLagring(
+    @ParameterizedTest(name = "Henter ikke vedtak med status {0}")
+    @EnumSource(value = BehandletStatus::class, names = ["NY"], mode = EnumSource.Mode.EXCLUDE)
+    fun `Henter bare vedtak med status NY`(status: BehandletStatus) {
+        lagreVedtak(fnr = "11111111111", behandletStatus = status)
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(10).shouldBeEmpty()
+    }
+
+    private fun lagreVedtak(
         fnr: String,
-        ignorerArbeidssokerregister: Boolean = false,
-    ): VerdierForLagring =
-        VerdierForLagring(
-            uuid = UUID.randomUUID().toString(),
-            key = fnr.asProducerRecordKey(),
-            vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET),
-            ignorerArbeidssokerregister = ignorerArbeidssokerregister,
+        opprettet: Instant = FriskTilArbeidTestTid.tidspunkt,
+        ignorerArbeidssokerregister: Boolean? = null,
+        behandletStatus: BehandletStatus = BehandletStatus.NY,
+    ): FriskTilArbeidVedtakDbRecord =
+        friskTilArbeidRepository.save(
+            lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
+                .tilDbRecord(opprettet, ignorerArbeidssokerregister)
+                .copy(behandletStatus = behandletStatus),
         )
 
     private fun FriskTilArbeidVedtakStatus.tilDbRecord(
-        vedtakUuid: String,
-        key: String,
+        opprettet: Instant = FriskTilArbeidTestTid.tidspunkt,
         ignorerArbeidssokerregister: Boolean? = null,
     ): FriskTilArbeidVedtakDbRecord =
         FriskTilArbeidVedtakDbRecord(
-            vedtakUuid = vedtakUuid,
-            key = key,
-            opprettet = Instant.now(),
-            fnr = this.personident,
-            fom = this.fom,
-            tom = this.tom,
-            vedtak = this.tilPostgresJson(),
+            vedtakUuid = uuid,
+            key = personident.asProducerRecordKey(),
+            opprettet = opprettet,
+            fnr = personident,
+            fom = fom,
+            tom = tom,
+            vedtak = tilPostgresJson(),
             behandletStatus = BehandletStatus.NY,
             ignorerArbeidssokerregister = ignorerArbeidssokerregister,
         )
-
-    private data class VerdierForLagring(
-        val uuid: String,
-        val key: String,
-        val vedtakStatus: FriskTilArbeidVedtakStatus,
-        val ignorerArbeidssokerregister: Boolean?,
-    )
 }
