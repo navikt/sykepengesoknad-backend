@@ -10,8 +10,9 @@ import java.util.*
 @Repository
 @Profile("fakes")
 @Primary
-class SporsmalRepositoryFake :
-    InMemoryCrudRepository<SporsmalDbRecord, String>(
+class SporsmalRepositoryFake(
+    private val svarRepositoryFake: SvarRepositoryFake,
+) : InMemoryCrudRepository<SporsmalDbRecord, String>(
         getId = { it.id },
         copyWithId = { record, newId ->
             record.copy(id = newId)
@@ -24,6 +25,8 @@ class SporsmalRepositoryFake :
     }
 
     fun slettSporsmalOgSvar(sykepengesoknadIder: List<String>) {
+        val sporsmalIder = store.values.filter { it.sykepengesoknadId in sykepengesoknadIder }.map { it.id }
+        svarRepositoryFake.slettSvar(sporsmalIder)
         store.values.removeIf { it.sykepengesoknadId in sykepengesoknadIder }
     }
 }
