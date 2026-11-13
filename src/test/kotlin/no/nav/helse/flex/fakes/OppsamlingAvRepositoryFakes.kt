@@ -5,8 +5,6 @@ import no.nav.helse.flex.aktivering.RetryRepository
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
-import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.mockito.Mockito
@@ -91,70 +89,6 @@ class OppsamlingAvRepositoryFakes : RetryRepository {
     }
 
     override fun deleteAll(entities: MutableIterable<RetryRecord>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll() {
-        TODO("Not yet implemented")
-    }
-}
-
-@Repository
-@Primary
-@Profile("fakes")
-class ForskutteringRepositoryFake : ForskutteringRepository {
-    override fun findByNarmesteLederId(narmesteLederId: UUID): Forskuttering? {
-        TODO("Not yet implemented")
-    }
-
-    override fun finnForskuttering(
-        brukerFnr: String,
-        orgnummer: String,
-    ): Forskuttering? {
-        TODO("Not yet implemented")
-    }
-
-    override fun <S : Forskuttering> save(entity: S): S {
-        TODO("Not yet implemented")
-    }
-
-    override fun <S : Forskuttering> saveAll(entities: Iterable<S>): Iterable<S> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findById(id: String): Optional<Forskuttering> {
-        TODO("Not yet implemented")
-    }
-
-    override fun existsById(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAll(): MutableIterable<Forskuttering> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAllById(ids: MutableIterable<String>): MutableIterable<Forskuttering> {
-        TODO("Not yet implemented")
-    }
-
-    override fun count(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteById(id: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(entity: Forskuttering) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAllById(ids: MutableIterable<String>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll(entities: MutableIterable<Forskuttering>) {
         TODO("Not yet implemented")
     }
 

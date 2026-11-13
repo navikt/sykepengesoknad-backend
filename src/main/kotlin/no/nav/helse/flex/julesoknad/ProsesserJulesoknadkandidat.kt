@@ -57,7 +57,7 @@ class ProsesserJulesoknadkandidat(
                     log.info("$julesoknadkandidat har tidligere fremtidige søknader, kan derfor ikke aktivere julesøknad")
                     return
                 }
-                log.info("Arbeidsgiver forskutterer ikke julesøknadkandidat $julesoknadkandidat, aktiverer søknad og sletter kandidat")
+                log.info("Aktiverer julesøknadkandidat $julesoknadkandidat for annen arbeidssituasjon enn arbeidstaker og sletter kandidat")
 
                 // Gjør at vi kan identifisere søknaden som en julesøknad i sykepengesoknad-frontend.
                 sykepengesoknadRepository.settErAktivertJulesoknadKandidat(soknad.id!!)
