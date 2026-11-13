@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component
 @Profile("fakes")
 @Primary
 class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
-    var arbeidsgiverperiode: Arbeidsgiverperiode? = null
-
     override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
@@ -36,5 +34,7 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
         sykmelding: SykmeldingKafkaMessageDTO?,
         forelopig: Boolean,
         identer: FolkeregisterIdenter,
-    ): Arbeidsgiverperiode? = arbeidsgiverperiode
+    ): Arbeidsgiverperiode? {
+        TODO("Not yet implemented")
+    }
 }
