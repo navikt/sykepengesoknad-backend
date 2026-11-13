@@ -190,39 +190,18 @@ class MottakerAvSoknadService(
             )
         }
 
-        if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
-            // Utenfor arbeidgiverperiode og arbeidsgiver forskutter
-            return MottakerOgVurdering(
-                mottaker = ARBEIDSGIVER_OG_NAV,
-                arbeidsgiverperiode = arbeidsgiverperiode,
-                vurdering =
-                    listOfNotNull(
-                        skapJuridiskVurderingDagerArbeidsgiver(
-                            utfall = Utfall.VILKAR_OPPFYLT,
-                            sykepengesoknad = sykepengesoknad,
-                            arbeidsgiverperiode = arbeidsgiverperiode,
-                        ),
-                        skapJuridiskVurderingNavBetaler(
-                            utfall = Utfall.VILKAR_IKKE_OPPFYLT,
-                            sykepengesoknad = sykepengesoknad,
-                            arbeidsgiverperiode = arbeidsgiverperiode,
-                        ),
-                    ),
-            )
-        }
-
-        // Utenfor arbeidgiverperiode
+        // Utenfor arbeidsgiverperiode
         return MottakerOgVurdering(
-            mottaker = NAV,
+            mottaker = ARBEIDSGIVER_OG_NAV,
             arbeidsgiverperiode = arbeidsgiverperiode,
             vurdering =
                 listOfNotNull(
-                    skapJuridiskVurderingNavBetaler(
+                    skapJuridiskVurderingDagerArbeidsgiver(
                         utfall = Utfall.VILKAR_OPPFYLT,
                         sykepengesoknad = sykepengesoknad,
                         arbeidsgiverperiode = arbeidsgiverperiode,
                     ),
-                    skapJuridiskVurderingDagerArbeidsgiver(
+                    skapJuridiskVurderingNavBetaler(
                         utfall = Utfall.VILKAR_IKKE_OPPFYLT,
                         sykepengesoknad = sykepengesoknad,
                         arbeidsgiverperiode = arbeidsgiverperiode,
