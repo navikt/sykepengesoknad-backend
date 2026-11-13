@@ -3,15 +3,12 @@ package no.nav.helse.flex.julesoknad
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import java.time.Duration
 import java.time.LocalDate
 
 class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
@@ -29,7 +26,7 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers søknad blir markert som julesøknad`() {
+    fun `15 dagers søknad blir ikke markert som julesøknad`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -49,16 +46,13 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(Duration.ofSeconds(5)).until(
-            { hentSoknaderMetadata(fnr) },
-            { (it.size == 1 && it.first().status == NY) },
-        )
-
-        hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr,
-        ).julesoknad shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+        soknad.julesoknad shouldBe false
+        soknad.status shouldBe FREMTIDIG
     }
 
     @Test

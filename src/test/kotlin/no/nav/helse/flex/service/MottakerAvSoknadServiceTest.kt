@@ -11,8 +11,6 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.forskuttering.ForskutteringRepository
-import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.assertj.core.api.Assertions.assertThat
@@ -24,7 +22,6 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
 import java.time.LocalDate.now
-import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class MottakerAvSoknadServiceTest {
@@ -40,29 +37,11 @@ class MottakerAvSoknadServiceTest {
     @Mock
     private lateinit var identService: IdentService
 
-    @Mock
-    private lateinit var forskutteringRepository: ForskutteringRepository
-
     private val fnr = "11111111111"
     private val folkeregisterIdenter = FolkeregisterIdenter(fnr, emptyList())
 
     @Mock
     private lateinit var juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer
-
-    private val forskutteringJa =
-        Forskuttering(
-            id = null,
-            oppdatert = Instant.now(),
-            timestamp = Instant.now(),
-            narmesteLederId = UUID.randomUUID(),
-            orgnummer = "org",
-            brukerFnr = fnr,
-            aktivFom = now(),
-            aktivTom = null,
-            arbeidsgiverForskutterer = true,
-        )
-
-    private val forskutteringNei = forskutteringJa.copy(arbeidsgiverForskutterer = false)
 
     @Test
     fun soknadForArbeidstakerErInnenforArbeidsgiverperioden_soknadSendesTilArbeidsgiver() {
@@ -192,11 +171,9 @@ class MottakerAvSoknadServiceTest {
     }
 
     @Test
-    fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgNLAgForskutterer_soknadSendesTilArbeidsgiverOgNAV() {
+    fun `Arbeidstakersøknad utenfor arbeidsgiverperioden sendes til arbeidsgiver og Nav`() {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringJa)
 
         val soknad =
             Sykepengesoknad(
@@ -225,11 +202,9 @@ class MottakerAvSoknadServiceTest {
     }
 
     @Test
-    fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgNLAgForskuttererIkke_soknadSendesTilNAV() {
+    fun `Arbeidstakersøknad uten orgnummer utenfor arbeidsgiverperioden sendes til arbeidsgiver og Nav`() {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         val soknad =
             Sykepengesoknad(
@@ -242,41 +217,7 @@ class MottakerAvSoknadServiceTest {
                 opprettet = Instant.now(),
                 startSykeforlop = now(),
                 sykmeldingSkrevet = Instant.now(),
-                arbeidsgiverOrgnummer = "orgnummer",
-                arbeidsgiverNavn = "arbNavn",
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadPerioder = emptyList(),
-                sporsmal = emptyList(),
-                soknadstype = Soknadstype.ARBEIDSTAKERE,
-                utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = null,
-                forstegangssoknad = false,
-            )
-
-        val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
-
-        assertThat(mottaker).isEqualByComparingTo(Mottaker.NAV)
-    }
-
-    @Test
-    fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgForskutterer_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
-            .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
-
-        val soknad =
-            Sykepengesoknad(
-                id = "sykepengesoknadId",
-                fnr = fnr,
-                sykmeldingId = "sykmeldingId",
-                status = NY,
-                fom = now().plusDays(17),
-                tom = now().plusDays(20),
-                opprettet = Instant.now(),
-                startSykeforlop = now(),
-                sykmeldingSkrevet = Instant.now(),
-                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverOrgnummer = null,
                 arbeidsgiverNavn = "arbNavn",
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 soknadPerioder = emptyList(),
@@ -293,45 +234,10 @@ class MottakerAvSoknadServiceTest {
     }
 
     @Test
-    fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgUkjentForskuttering_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
-            .thenReturn(Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16))))
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
-
-        val soknad =
-            Sykepengesoknad(
-                id = "sykepengesoknadId",
-                fnr = fnr,
-                sykmeldingId = "sykmeldingId",
-                status = NY,
-                fom = now().plusDays(17),
-                tom = now().plusDays(20),
-                opprettet = Instant.now(),
-                startSykeforlop = now(),
-                sykmeldingSkrevet = Instant.now(),
-                arbeidsgiverOrgnummer = "orgnummer",
-                arbeidsgiverNavn = "arbNavn",
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadPerioder = emptyList(),
-                sporsmal = emptyList(),
-                soknadstype = Soknadstype.ARBEIDSTAKERE,
-                utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = null,
-                forstegangssoknad = false,
-            )
-        val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
-
-        assertThat(mottaker).isEqualByComparingTo(Mottaker.ARBEIDSGIVER_OG_NAV)
-    }
-
-    @Test
-    fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgIngenSvarForskuttering_soknadSendesTilArbeidsgiverOgNAV() {
+    fun `Arbeidstakersøknad med tomt orgnummer utenfor arbeidsgiverperioden sendes til arbeidsgiver og Nav`() {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
-
         val soknad =
             Sykepengesoknad(
                 id = "sykepengesoknadId",
@@ -343,41 +249,7 @@ class MottakerAvSoknadServiceTest {
                 opprettet = Instant.now(),
                 startSykeforlop = now(),
                 sykmeldingSkrevet = Instant.now(),
-                arbeidsgiverOrgnummer = "orgnummer",
-                arbeidsgiverNavn = "arbNavn",
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadPerioder = emptyList(),
-                sporsmal = emptyList(),
-                soknadstype = Soknadstype.ARBEIDSTAKERE,
-                utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = null,
-                forstegangssoknad = false,
-            )
-
-        val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
-
-        assertThat(mottaker).isEqualByComparingTo(Mottaker.ARBEIDSGIVER_OG_NAV)
-    }
-
-    @Test
-    fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgIkkeSpurtForskuttering_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
-            .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
-
-        val soknad =
-            Sykepengesoknad(
-                id = "sykepengesoknadId",
-                fnr = fnr,
-                sykmeldingId = "sykmeldingId",
-                status = NY,
-                fom = now().plusDays(17),
-                tom = now().plusDays(20),
-                opprettet = Instant.now(),
-                startSykeforlop = now(),
-                sykmeldingSkrevet = Instant.now(),
-                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverOrgnummer = "",
                 arbeidsgiverNavn = "arbNavn",
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 soknadPerioder = emptyList(),
@@ -462,11 +334,9 @@ class MottakerAvSoknadServiceTest {
     }
 
     @Test
-    fun soknadForArbeidstakerErSendtTilNav_korrigeringUtenforPeriodeSendesTilNav() {
+    fun `Korrigering utenfor arbeidsgiverperioden sendes til arbeidsgiver og Nav selv om originalen gikk til Nav`() {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         val soknad =
             Sykepengesoknad(
@@ -496,7 +366,7 @@ class MottakerAvSoknadServiceTest {
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
-        assertThat(mottaker).isEqualByComparingTo(Mottaker.NAV)
+        assertThat(mottaker).isEqualByComparingTo(Mottaker.ARBEIDSGIVER_OG_NAV)
     }
 
     @Test
@@ -634,8 +504,6 @@ class MottakerAvSoknadServiceTest {
                 egenmeldingsdagerFraSykmelding = null,
                 forstegangssoknad = false,
             )
-
-        whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.ARBEIDSGIVER)
