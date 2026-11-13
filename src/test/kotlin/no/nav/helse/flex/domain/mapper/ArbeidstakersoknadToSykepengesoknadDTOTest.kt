@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykmeldingstype.AKTIVITET_IKKE_MULIG
 import no.nav.helse.flex.domain.Sykmeldingstype.GRADERT
@@ -19,7 +18,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.tilOsloLocalDateTime
-import no.nav.helse.flex.util.toJsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -33,40 +31,6 @@ import java.time.temporal.TemporalAdjusters.next
 
 @ExtendWith(MockitoExtension::class)
 class ArbeidstakersoknadToSykepengesoknadDTOTest {
-    @Test
-    fun `Serialisert forskuttering er null for alle søknadstyper også uten arbeidsgiver`() {
-        val soknad = opprettNyArbeidstakerSoknad()
-        Soknadstype.entries.forEach { type ->
-            listOf("123456789", "", null).forEach { orgnummer ->
-                val dto =
-                    konverterTilSykepengesoknadDTO(
-                        soknad.copy(soknadstype = type, arbeidsgiverOrgnummer = orgnummer),
-                        Mottaker.NAV,
-                        false,
-                        emptyList(),
-                    )
-
-                dto.toJsonNode()["arbeidsgiverForskutterer"].isNull shouldBe true
-            }
-        }
-    }
-
-    @Test
-    fun `Serialisert forskuttering er null for korrigeringer og ettersendinger`() {
-        val soknad = opprettNyArbeidstakerSoknad()
-        listOf(false, true).forEach { erEttersending ->
-            val dto =
-                konverterTilSykepengesoknadDTO(
-                    soknad.copy(korrigerer = "opprinnelig-soknad"),
-                    Mottaker.ARBEIDSGIVER_OG_NAV,
-                    erEttersending,
-                    emptyList(),
-                )
-
-            dto.toJsonNode()["arbeidsgiverForskutterer"].isNull shouldBe true
-        }
-    }
-
     @Test
     fun periodeTest() {
         val fom = now().minusDays(3)

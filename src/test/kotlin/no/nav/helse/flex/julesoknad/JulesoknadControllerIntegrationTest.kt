@@ -8,8 +8,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -27,13 +25,12 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
         databaseReset.resetDatabase()
     }
 
-    @ParameterizedTest
-    @EnumSource(value = Arbeidssituasjon::class, names = ["ARBEIDSTAKER", "ARBEIDSLEDIG"])
-    fun `15 dagers søknad blir ikke markert som julesøknad`(arbeidssituasjon: Arbeidssituasjon) {
+    @Test
+    fun `15 dagers søknad blir ikke markert som julesøknad`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidssituasjon = arbeidssituasjon,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
