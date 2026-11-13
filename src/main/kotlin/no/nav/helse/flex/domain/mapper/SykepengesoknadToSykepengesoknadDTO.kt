@@ -25,7 +25,7 @@ fun konverterTilSykepengesoknadDTO(
         korrigerer = sykepengesoknad.korrigerer,
         korrigertAv = sykepengesoknad.korrigertAv,
         soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad),
-        arbeidsgiverForskutterer = ArbeidsgiverForskuttererDTO.JA,
+        arbeidsgiverForskutterer = null,
         fom = sykepengesoknad.fom,
         tom = sykepengesoknad.tom,
         startSyketilfelle = sykepengesoknad.startSykeforlop,

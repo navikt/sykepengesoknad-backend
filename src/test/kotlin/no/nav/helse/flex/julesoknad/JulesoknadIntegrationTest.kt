@@ -46,7 +46,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dager lang arbeidsledigsøknad i riktig periode aktiveres når cron job kjøres`() {
+    fun `15 dager lang arbeidsledigsøknad tidligaktiveres ikke som julesøknad`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -65,16 +65,15 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         val soknader =
             await().atMost(Duration.ofSeconds(5)).until(
                 { hentSoknaderMetadata(fnr) },
-                { (it.size == 1 && it.first().status == NY) },
+                { (it.size == 1 && it.first().status == FREMTIDIG) },
             )
 
-        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
     }
 
     @Test
-    fun `15 dager lang arbeidsledigsøknad i riktig periode med tom i neste år aktiveres når cron job kjøres`() {
+    fun `Arbeidsledigsøknad med tom i neste år tidligaktiveres ikke som julesøknad`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -93,12 +92,11 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         val soknader =
             await().atMost(Duration.ofSeconds(5)).until(
                 { hentSoknaderMetadata(fnr) },
-                { (it.size == 1 && it.first().status == NY) },
+                { (it.size == 1 && it.first().status == FREMTIDIG) },
             )
 
-        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(1)
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
     }
 
     @Test
@@ -219,7 +217,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Lang sykmelding for arbeidsledig får aktivert julesøknaden når foranliggende er aktivert`() {
+    fun `Arbeidsledigsøknad aktiveres ordinært og ikke som julesøknad når foranliggende er aktivert`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -261,16 +259,27 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         val soknader =
             await().atMost(Duration.ofSeconds(5)).until(
                 { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
-                { (it.size == 3 && it.all { it.status == NY }) },
+                { (it.size == 3 && it[0].status == NY && it[1].status == NY && it[2].status == FREMTIDIG) },
             )
 
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe false
+        sykepengesoknadKafkaConsumer.ventPåRecords(2)
+
+        aktiveringJob.bestillAktivering(soknader.last().tom!!.plusDays(1))
+        await().atMost(Duration.ofSeconds(5)).until(
+            { hentSoknaderMetadata(fnr) },
+            { it.size == 3 && it.all { soknad -> soknad.status == NY } },
+        )
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(3)
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe false
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
-    fun `Aktiverer julesøknad for arbeidsledig når tidligere søknad fra annen sykmelding blir aktivert`() {
+    fun `Arbeidsledigsøknad tidligaktiveres ikke når tidligere søknad fra annen sykmelding blir aktivert`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -321,12 +330,12 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         val soknader =
             await().atMost(Duration.ofSeconds(5)).until(
                 { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
-                { (it.size == 2 && it.all { it.status == NY }) },
+                { (it.size == 2 && it[0].status == NY && it[1].status == FREMTIDIG) },
             )
 
-        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe true
-        sykepengesoknadKafkaConsumer.ventPåRecords(2)
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe false
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test

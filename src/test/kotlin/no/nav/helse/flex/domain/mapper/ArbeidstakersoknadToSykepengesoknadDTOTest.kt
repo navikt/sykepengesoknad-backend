@@ -34,7 +34,7 @@ import java.time.temporal.TemporalAdjusters.next
 @ExtendWith(MockitoExtension::class)
 class ArbeidstakersoknadToSykepengesoknadDTOTest {
     @Test
-    fun `Serialisert forskuttering er JA for alle søknadstyper også uten arbeidsgiver`() {
+    fun `Serialisert forskuttering er null for alle søknadstyper også uten arbeidsgiver`() {
         val soknad = opprettNyArbeidstakerSoknad()
         Soknadstype.entries.forEach { type ->
             listOf("123456789", "", null).forEach { orgnummer ->
@@ -46,13 +46,13 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         emptyList(),
                     )
 
-                dto.toJsonNode()["arbeidsgiverForskutterer"].stringValue() shouldBe "JA"
+                dto.toJsonNode()["arbeidsgiverForskutterer"].isNull shouldBe true
             }
         }
     }
 
     @Test
-    fun `Serialisert forskuttering er JA for korrigeringer og ettersendinger`() {
+    fun `Serialisert forskuttering er null for korrigeringer og ettersendinger`() {
         val soknad = opprettNyArbeidstakerSoknad()
         listOf(false, true).forEach { erEttersending ->
             val dto =
@@ -63,7 +63,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                     emptyList(),
                 )
 
-            dto.toJsonNode()["arbeidsgiverForskutterer"].stringValue() shouldBe "JA"
+            dto.toJsonNode()["arbeidsgiverForskutterer"].isNull shouldBe true
         }
     }
 
