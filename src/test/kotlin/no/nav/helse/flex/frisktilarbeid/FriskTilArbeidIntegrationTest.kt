@@ -1,170 +1,170 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
-import no.nav.helse.flex.`should be within seconds of`
-import no.nav.helse.flex.subscribeHvisIkkeSubscribed
+import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
-import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.util.concurrent.TimeUnit
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FriskTilArbeidIntegrationTest : FellesTestOppsett() {
-    @Autowired
-    lateinit var friskTilArbeidKafkaConsumer: Consumer<String, String>
-
     @Autowired
     private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
     @Autowired
     private lateinit var friskTilArbeidService: FriskTilArbeidService
 
-    @BeforeAll
-    fun subscribeToTopic() {
-        friskTilArbeidKafkaConsumer.subscribeHvisIkkeSubscribed(FRISKTILARBEID_TOPIC)
-    }
+    private val fnr = "11111111111"
+    private val vedtaksperiode = Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 3, 9))
 
-    @BeforeAll
-    @AfterAll
+    @BeforeEach
     fun slettDatabase() {
-        sykepengesoknadRepository.deleteAll()
-        friskTilArbeidRepository.deleteAll()
+        databaseReset.resetDatabase()
     }
 
     @Test
-    @Order(1)
-    fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
-        // To 14-dagersperioder og én 7-dagersperiode.
-        val vedtaksperiode =
-            Periode(
-                fom = LocalDate.of(2025, 2, 3),
-                tom = LocalDate.of(2025, 3, 9),
-            )
-        val fnr = "11111111111"
+    fun `Mottar vedtak med status FATTET fra Kafka og lagrer det for behandling`() {
+        val vedtak = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
         val key = fnr.asProducerRecordKey()
-        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
 
-        kafkaProducer
-            .send(
-                ProducerRecord(
-                    FRISKTILARBEID_TOPIC,
-                    key,
-                    friskTilArbeidVedtakStatus.serialisertTilString(),
-                ),
-            ).get()
+        kafkaProducer.send(ProducerRecord(FRISKTILARBEID_TOPIC, key, vedtak.serialisertTilString())).get()
 
-        friskTilArbeidKafkaConsumer.ventPåRecords(1, Duration.ofSeconds(1)).first().also {
-            it.value() shouldBe friskTilArbeidVedtakStatus.serialisertTilString()
+        forventVedtakLagretForBehandling(vedtak, key)
+    }
+
+    @Test
+    fun `Behandler vedtak og oppretter tre fremtidige søknader med Kafka-hendelser`() {
+        val vedtak = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
+        lagreVedtakForBehandling(vedtak)
+        val forBehandling = Instant.now()
+
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+
+        val lagret = friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single()
+        lagret.behandletStatus shouldBe BehandletStatus.BEHANDLET
+        lagret.behandletTidspunkt.shouldNotBeNull().also {
+            it.isBefore(forBehandling) shouldBe false
+            it.isAfter(Instant.now()) shouldBe false
         }
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).shouldBeEmpty()
 
-        val vedtakSomSkalBehandles =
-            await().atMost(1, TimeUnit.SECONDS).until(
-                { friskTilArbeidRepository.finnVedtakSomSkalBehandles(1) },
-                { it.size == 1 },
+        val vedtakId = lagret.id.shouldNotBeNull()
+        val soknader =
+            forventFremtidigeSoknaderFraVedtak(
+                vedtakId,
+                forventedePerioder =
+                    listOf(
+                        LocalDate.of(2025, 2, 3) to LocalDate.of(2025, 2, 16),
+                        LocalDate.of(2025, 2, 17) to LocalDate.of(2025, 3, 2),
+                        LocalDate.of(2025, 3, 3) to LocalDate.of(2025, 3, 9),
+                    ),
             )
 
-        vedtakSomSkalBehandles.first().also {
-            it.fnr shouldBe fnr
-            it.behandletStatus shouldBe BehandletStatus.NY
-            it.behandletTidspunkt shouldBe null
-            it.fom shouldBe vedtaksperiode.fom
-            it.tom shouldBe vedtaksperiode.tom
-            it.ignorerArbeidssokerregister shouldBe null
-        }
+        forventPubliserteFremtidigeSoknader(
+            vedtakId,
+            soknadIder = soknader.map { it.sykepengesoknadUuid },
+            ignorerArbeidssokerregister = null,
+        ).forEach { it.friskTilArbeidVedtakPeriode shouldBe vedtaksperiode.serialisertTilString() }
     }
 
     @Test
-    @Order(2)
-    fun `Oppretter søknad fra med status FREMTIDIG`() {
+    fun `Behandler vedtak som skal ignorere arbeidssøkerregisteret og publiserer flagget`() {
+        val vedtak =
+            lagFriskTilArbeidVedtakStatus(
+                fnr,
+                Status.FATTET,
+                Periode(LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 23)),
+            )
+        lagreVedtakForBehandling(vedtak, ignorerArbeidssokerregister = true)
+
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).shouldBeEmpty()
+        val lagret = friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single()
+        lagret.behandletStatus shouldBe BehandletStatus.BEHANDLET
+        lagret.ignorerArbeidssokerregister shouldBe true
+        val vedtakId = lagret.id.shouldNotBeNull()
+        val soknad = sykepengesoknadRepository.findByFriskTilArbeidVedtakId(vedtakId).shouldHaveSize(1).single()
+        soknad.status shouldBe Soknadstatus.FREMTIDIG
 
-        val friskTilArbeidDbRecord =
-            friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
-                it.behandletTidspunkt!! `should be within seconds of` (1 to Instant.now())
-            }
-
-        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).also {
-            it.size shouldBe 3
-            it.forEach {
-                it.status shouldBe Soknadstatus.FREMTIDIG
-                it.friskTilArbeidVedtakId shouldBe friskTilArbeidDbRecord.id
-            }
-        }
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
-            soknader.size shouldBe 3
-            soknader.forEach {
-                it.fnr shouldBe "11111111111"
-                it.status shouldBe SoknadsstatusDTO.FREMTIDIG
-                it.type shouldBe SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
-
-                it.friskTilArbeidVedtakId shouldBe friskTilArbeidDbRecord.id
-                it.friskTilArbeidVedtakPeriode shouldBe
-                    Periode(
-                        fom = friskTilArbeidDbRecord.fom,
-                        tom = friskTilArbeidDbRecord.tom,
-                    ).serialisertTilString()
-                it.ignorerArbeidssokerregister shouldBe null
-            }
-        }
-    }
-
-    @Test
-    @Order(3)
-    fun `Mottar og lagrer VedtakStatusRecord med status FATTET som ikke skal sjekkes mot Arbeidssøkerregisteret`() {
-        val fnr = "22222222222"
-        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusKafkaMelding(
-                key = fnr.asProducerRecordKey(),
-                friskTilArbeidVedtakStatus =
-                    lagFriskTilArbeidVedtakStatus(
-                        fnr,
-                        Status.FATTET,
-                    ).copy(statusAt = OffsetDateTime.of(LocalDateTime.of(2025, 3, 9, 23, 1, 0), ZoneOffset.UTC)),
-                ignorerArbeidssokerregister = true,
-            ),
+        forventPubliserteFremtidigeSoknader(
+            vedtakId,
+            soknadIder = listOf(soknad.sykepengesoknadUuid),
+            ignorerArbeidssokerregister = true,
         )
-        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+    }
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
+    private fun lagreVedtakForBehandling(
+        vedtak: FriskTilArbeidVedtakStatus,
+        ignorerArbeidssokerregister: Boolean? = null,
+    ) {
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(fnr.asProducerRecordKey(), vedtak, ignorerArbeidssokerregister),
+        )
+    }
 
-        friskTilArbeidRepository.findAll().first { it -> it.fnr == fnr }.also {
-            it.behandletStatus shouldBe BehandletStatus.BEHANDLET
+    private fun forventVedtakLagretForBehandling(
+        vedtak: FriskTilArbeidVedtakStatus,
+        key: String,
+    ) {
+        ventPaFriskTilArbeid("Kafka-vedtak er lagret og klart for behandling").untilAsserted {
+            val lagret = friskTilArbeidRepository.findByFnrIn(listOf(fnr)).shouldHaveSize(1).single()
+            lagret.key shouldBe key
+            lagret.fnr shouldBe fnr
+            lagret.behandletStatus shouldBe BehandletStatus.NY
+            lagret.behandletTidspunkt shouldBe null
+            lagret.fom shouldBe vedtak.fom
+            lagret.tom shouldBe vedtak.tom
+            lagret.ignorerArbeidssokerregister shouldBe null
+            lagret.vedtak
+                .shouldNotBeNull()
+                .value
+                .shouldNotBeNull()
+                .tilFriskTilArbeidVedtakStatus() shouldBe vedtak
+            friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).map { it.id } shouldBe listOf(lagret.id)
         }
+    }
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
-            soknader.size shouldBe 1
-            soknader.forEach {
-                it.fnr shouldBe fnr
-                it.status shouldBe SoknadsstatusDTO.FREMTIDIG
-                it.type shouldBe SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
-                it.ignorerArbeidssokerregister shouldBe true
-            }
+    private fun forventFremtidigeSoknaderFraVedtak(
+        vedtakId: String,
+        forventedePerioder: List<Pair<LocalDate, LocalDate>>,
+    ): List<SykepengesoknadDbRecord> {
+        val soknader = sykepengesoknadRepository.findByFriskTilArbeidVedtakId(vedtakId).sortedBy { it.fom }
+        soknader.map { it.fom to it.tom } shouldBe forventedePerioder
+        soknader.forEach { it.status shouldBe Soknadstatus.FREMTIDIG }
+        return soknader
+    }
+
+    private fun forventPubliserteFremtidigeSoknader(
+        vedtakId: String,
+        soknadIder: List<String>,
+        ignorerArbeidssokerregister: Boolean?,
+    ): List<SykepengesoknadDTO> {
+        val hendelser = sykepengesoknadKafkaConsumer.ventPåRecords(antall = soknadIder.size).tilSoknader()
+        hendelser.map { it.id } shouldContainExactlyInAnyOrder soknadIder
+        hendelser.forEach {
+            it.fnr shouldBe fnr
+            it.status shouldBe SoknadsstatusDTO.FREMTIDIG
+            it.type shouldBe SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+            it.friskTilArbeidVedtakId shouldBe vedtakId
+            it.ignorerArbeidssokerregister shouldBe ignorerArbeidssokerregister
         }
+        return hendelser
     }
 }

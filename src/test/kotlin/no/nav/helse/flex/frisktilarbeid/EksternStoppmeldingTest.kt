@@ -1,153 +1,117 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helse.flex.FakesTestOppsett
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.sporsmal.sendFriskTilArbeidVedtak
+import no.nav.helse.flex.frisktilarbeid.sporsmal.ventPaFriskTilArbeidSoknader
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.util.tilLocalDate
-import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
+import no.nav.helse.flex.util.osloZone
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Instant
-import java.time.LocalDate
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class EksternStoppmeldingTest : FakesTestOppsett() {
     @Autowired
-    lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
+    private lateinit var friskTilArbeidService: FriskTilArbeidService
 
     @Autowired
-    lateinit var sykepengesoknadRepository: SykepengesoknadRepository
+    private lateinit var aktiveringJob: AktiveringJob
+
+    @Autowired
+    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     private val fnr = "11111111122"
-    private val avsluttetTidspunkt = Instant.now()
+    private val iDag = FriskTilArbeidTestTid.dato
+    private val avsluttetTidspunkt = iDag.atStartOfDay(osloZone).toInstant()
+    private val vedtakFom = iDag.minusDays(15)
+    private val vedtakTom = iDag.plusDays(35)
+    private lateinit var vedtakId: String
 
-    private var vedtaksId: String? = null
-
-    val vedtakFom = LocalDate.now().minusDays(15)
-    val vedtakTom = LocalDate.now().plusDays(35)
-
-    @Test
-    @Order(1)
-    fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
+    @BeforeEach
+    fun opprettSoknader() {
+        nullstillTestdata()
         sendFriskTilArbeidVedtak(fnr, vedtakFom, vedtakTom)
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
+        aktiveringJob.bestillAktivering(iDag)
+        ventPaFriskTilArbeidSoknader(
+            fnr,
+            listOf(RSSoknadstatus.NY, RSSoknadstatus.FREMTIDIG, RSSoknadstatus.FREMTIDIG, RSSoknadstatus.FREMTIDIG),
+        )
+        val vedtak = friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single()
+        check(vedtak.behandletStatus == BehandletStatus.BEHANDLET)
+        vedtakId = vedtak.id.shouldNotBeNull()
+    }
+
+    @AfterEach
+    fun nullstillTestdata() {
+        sykepengesoknadRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
+        SoknadKafkaProducerFake.records.clear()
     }
 
     @Test
-    @Order(2)
-    fun `Oppretter søknader med status NY og FREMTIDIG`() {
-        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+    fun `Stopp sletter fremtidige perioder og publiserer slettingene`() {
+        sendStoppMelding(vedtakId, fnr, avsluttetTidspunkt)
 
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
+        forventSlettedeSoknaderForVedtak(
+            vedtakId,
+            forventedeStartdatoer = listOf(vedtakFom.plusDays(28), vedtakFom.plusDays(42)),
+        )
 
-        val friskTilArbeidDbRecord =
-            friskTilArbeidRepository.findAll().first().also {
-                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
-            }
-
-        await().until {
-            sykepengesoknadRepository
-                .findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!)
-                .map { it.status }
-                .sorted() ==
-                listOf(
-                    Soknadstatus.NY,
-                    Soknadstatus.FREMTIDIG,
-                    Soknadstatus.FREMTIDIG,
-                    Soknadstatus.FREMTIDIG,
-                )
-        }
-
-        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size shouldBe 4
-            it.map { it.status } shouldBe
-                listOf(
-                    Soknadstatus.NY,
-                    Soknadstatus.FREMTIDIG,
-                    Soknadstatus.FREMTIDIG,
-                    Soknadstatus.FREMTIDIG,
-                )
-        }
-        vedtaksId = friskTilArbeidDbRecord.id
+        hentSoknader(fnr).sortedBy { it.fom }.map { it.fom to it.status } shouldBe
+            listOf(vedtakFom to RSSoknadstatus.NY, vedtakFom.plusDays(14) to RSSoknadstatus.FREMTIDIG)
+        friskTilArbeidRepository.findById(vedtakId).get().avsluttetTidspunkt shouldBe avsluttetTidspunkt
     }
 
     @Test
-    @Order(3)
-    fun `Send ArbeidssokerperiodeStartStoppMelding`() {
-        val soknader = hentSoknader(fnr)
-        val soknad = soknader.first { it.status == RSSoknadstatus.NY }
-        soknader.shouldHaveSize(4)
+    fun `Samme stoppmelding behandlet to ganger gir ingen nye slettinger eller hendelser`() {
+        sendStoppMelding(vedtakId, fnr, avsluttetTidspunkt)
+        val vedtakEtterForsteStopp = friskTilArbeidRepository.findById(vedtakId).get()
+        val soknaderEtterForsteStopp = sykepengesoknadRepository.findByFriskTilArbeidVedtakId(vedtakId).sortedBy { it.fom }
+        val hendelserEtterForsteStopp = SoknadKafkaProducerFake.records.toList()
+        check(soknaderEtterForsteStopp.size == 2)
+        check(hendelserEtterForsteStopp.count { it.value().status == SoknadsstatusDTO.SLETTET } == 2)
 
-        sendStoppMelding(soknad.friskTilArbeidVedtakId!!, fnr, avsluttetTidspunkt)
+        sendStoppMelding(vedtakId, fnr, avsluttetTidspunkt)
+
+        friskTilArbeidRepository.findById(vedtakId).get() shouldBe vedtakEtterForsteStopp
+        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(vedtakId).sortedBy { it.fom } shouldBe soknaderEtterForsteStopp
+        SoknadKafkaProducerFake.records.toList() shouldBe hendelserEtterForsteStopp
     }
 
     @Test
-    @Order(4)
-    fun `2 søknader er slettet og produsert på kafka`() {
+    fun `Nytt vedtak kan starte dagen etter stopp og opprette fremtidige søknader`() {
+        sendStoppMelding(vedtakId, fnr, avsluttetTidspunkt)
+        check(friskTilArbeidRepository.findById(vedtakId).get().avsluttetTidspunkt == avsluttetTidspunkt)
+        sendFriskTilArbeidVedtak(fnr, iDag.plusDays(1), vedtakTom)
+        val nyttVedtak = friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).single()
+        val nyttVedtakId = nyttVedtak.id.shouldNotBeNull()
+
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).shouldBeEmpty()
+        friskTilArbeidRepository.findById(nyttVedtakId).get().behandletStatus shouldBe BehandletStatus.BEHANDLET
+        val soknader = sykepengesoknadRepository.findByFriskTilArbeidVedtakId(nyttVedtakId).sortedBy { it.fom }
+        soknader.map { it.fom to it.tom } shouldBe
+            listOf(
+                iDag.plusDays(1) to iDag.plusDays(14),
+                iDag.plusDays(15) to iDag.plusDays(28),
+                iDag.plusDays(29) to vedtakTom,
+            )
+        soknader.forEach { it.status shouldBe Soknadstatus.FREMTIDIG }
         SoknadKafkaProducerFake.records
-            .filter { it.value().status == SoknadsstatusDTO.SLETTET }
-            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }
-            .shouldHaveSize(2)
-    }
-
-    @Test
-    @Order(4)
-    fun `resterende 2 søknader er de to første og fom er alltid før avsluttet tidsunkt`() {
-        val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 2
-        soknader[0].fom!! shouldBeLessThan avsluttetTidspunkt.tilLocalDate()
-        soknader[0].fom!! shouldBe vedtakFom
-        soknader[1].fom!! shouldBeLessThan avsluttetTidspunkt.tilLocalDate()
-        soknader[1].fom!! shouldBe vedtakFom.plusDays(14)
-    }
-
-    @Test
-    @Order(5)
-    fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
-        friskTilArbeidRepository
-            .findByFnrIn(listOf(fnr))
-            .single()
-            .avsluttetTidspunkt shouldBe avsluttetTidspunkt
-    }
-
-    @Test
-    @Order(6)
-    fun `Tillatter nytt vedtak fom neste dag etter stopp tidspunktet`() {
-        sendFriskTilArbeidVedtak(fnr, LocalDate.now().plusDays(1), LocalDate.now().plusDays(35))
-
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 1
-    }
-
-    @Test
-    @Order(7)
-    fun `Oppretter nye søknader med status FREMTIDIG`() {
-        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
-
-        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size shouldBe 0
-
-        val friskTilArbeidDbRecord =
-            friskTilArbeidRepository.findAll().maxByOrNull { it.opprettet }!!.also {
-                it.behandletStatus shouldBe BehandletStatus.BEHANDLET
-            }
-
-        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size shouldBe 3
-            it.map { it.status } shouldBe
-                listOf(
-                    Soknadstatus.FREMTIDIG,
-                    Soknadstatus.FREMTIDIG,
-                    Soknadstatus.FREMTIDIG,
-                )
-        }
+            .map { it.value() }
+            .filter { it.friskTilArbeidVedtakId == nyttVedtak.id }
+            .map { it.status } shouldBe List(3) { SoknadsstatusDTO.FREMTIDIG }
     }
 }

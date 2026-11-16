@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.time.Duration
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit
 @Primary
 class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
     companion object {
-        val records = mutableListOf<ProducerRecord<String, SykepengesoknadDTO>>()
+        val records = CopyOnWriteArrayList<ProducerRecord<String, SykepengesoknadDTO>>()
     }
 
     override fun close() {
