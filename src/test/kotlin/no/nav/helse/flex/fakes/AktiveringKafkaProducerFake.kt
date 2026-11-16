@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.*
 import org.apache.kafka.common.metrics.KafkaMetric
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit
 @Primary
 class AktiveringKafkaProducerFake : Producer<String, AktiveringBestilling> {
     @Autowired
-    private lateinit var aktiveringConsumer: AktiveringConsumer
+    private lateinit var aktiveringConsumer: ObjectProvider<AktiveringConsumer>
 
     override fun close() {
         TODO("Not yet implemented")
@@ -89,11 +90,11 @@ class AktiveringKafkaProducerFake : Producer<String, AktiveringBestilling> {
     override fun send(p0: ProducerRecord<String, AktiveringBestilling>): Future<RecordMetadata> {
         val cr = ConsumerRecord("topic", 0, 0, p0.key(), p0.value().serialisertTilString())
         // Starter en ny tråd for å kalle aktiveringConsumer.listen asynkront
-        Thread({
-            aktiveringConsumer.listen(cr) {
+        Thread {
+            aktiveringConsumer.getObject().listen(cr) {
                 // Håndter callback her dersom nødvendig
             }
-        }).start()
+        }.start()
         return object : Future<RecordMetadata> {
             override fun cancel(p0: Boolean): Boolean = false
 

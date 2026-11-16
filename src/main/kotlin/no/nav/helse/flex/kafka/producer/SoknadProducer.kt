@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
+import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -16,7 +17,7 @@ import java.time.LocalDate
 
 @Component
 class SoknadProducer(
-    private val kafkaProducer: AivenKafkaProducer,
+    private val outboxService: OutboxService,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
     @WithSpan
@@ -39,7 +40,7 @@ class SoknadProducer(
                     opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime(),
                 )
 
-        kafkaProducer.produserMelding(sykepengesoknadDTO)
+        outboxService.outboxSykepengesoknad(sykepengesoknadDTO)
     }
 
     private fun Sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(): Boolean =

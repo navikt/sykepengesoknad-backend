@@ -23,11 +23,11 @@ import no.nav.helse.flex.domain.EventType
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.frisktilarbeid.*
-import no.nav.helse.flex.kafka.producer.AuditLogProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.AuditLogger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
@@ -67,7 +67,7 @@ class SoknadFlexAzureController(
     private val hentSoknadService: HentSoknadService,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
-    private val auditLogProducer: AuditLogProducer,
+    private val auditLogger: AuditLogger,
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
 ) {
@@ -103,7 +103,7 @@ class SoknadFlexAzureController(
             sykepengesoknadListe = soknader,
             klippetSykepengesoknadRecord = (klippetSoknad + klippetSykmelding).toSet(),
         ).also {
-            auditLogProducer.lagAuditLog(
+            auditLogger.lagAuditLog(
                 AuditEntry(
                     appNavn = "flex-internal",
                     utførtAv = navIdent,
@@ -132,7 +132,7 @@ class SoknadFlexAzureController(
         val navIdent = clientIdValidation.hentNavIdent()
 
         return pdlClient.hentIdenterMedHistorikk(requestBody.ident).also {
-            auditLogProducer.lagAuditLog(
+            auditLogger.lagAuditLog(
                 AuditEntry(
                     appNavn = "flex-internal",
                     utførtAv = navIdent,
@@ -161,7 +161,7 @@ class SoknadFlexAzureController(
             fnr = soknad.fnr,
             arbeidsforholdFraAareg = soknad.arbeidsforholdFraAareg,
         ).also {
-            auditLogProducer.lagAuditLog(
+            auditLogger.lagAuditLog(
                 AuditEntry(
                     appNavn = "flex-internal",
                     utførtAv = navIdent,
@@ -190,7 +190,7 @@ class SoknadFlexAzureController(
         val navIdent = clientIdValidation.hentNavIdent()
 
         return aaregClient.hentArbeidsforhold(requestBody.fnr).also {
-            auditLogProducer.lagAuditLog(
+            auditLogger.lagAuditLog(
                 AuditEntry(
                     appNavn = "flex-internal",
                     utførtAv = navIdent,
@@ -222,7 +222,7 @@ class SoknadFlexAzureController(
         return pensjongivendeInntektClient
             .hentPensjonsgivendeInntekt(requestBody.fnr, requestBody.inntektsaar.toInt())
             .also {
-                auditLogProducer.lagAuditLog(
+                auditLogger.lagAuditLog(
                     AuditEntry(
                         appNavn = "flex-internal",
                         utførtAv = navIdent,
@@ -261,7 +261,7 @@ class SoknadFlexAzureController(
                     siste = false,
                 ),
             ).also {
-                auditLogProducer.lagAuditLog(
+                auditLogger.lagAuditLog(
                     AuditEntry(
                         appNavn = "flex-internal",
                         utførtAv = navIdent,
@@ -293,7 +293,7 @@ class SoknadFlexAzureController(
             .findByFnrIn(
                 identService.hentFolkeregisterIdenterMedHistorikkForFnr(requestBody.fnr).alle(),
             ).also {
-                auditLogProducer.lagAuditLog(
+                auditLogger.lagAuditLog(
                     AuditEntry(
                         appNavn = "flex-internal",
                         utførtAv = navIdent,
@@ -538,7 +538,7 @@ class SoknadFlexAzureController(
 
             sykepengesoknadDAO.slettSoknad(soknad)
 
-            auditLogProducer.lagAuditLog(
+            auditLogger.lagAuditLog(
                 AuditEntry(
                     appNavn = "flex-internal",
                     utførtAv = navIdent,

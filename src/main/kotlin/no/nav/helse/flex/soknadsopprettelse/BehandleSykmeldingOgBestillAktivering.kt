@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.aktivering.AktiveringProducer
+import no.nav.helse.flex.aktivering.AktiveringBestiller
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykmeldingmerknader.OppdateringAvMerknader
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class BehandleSykmeldingOgBestillAktivering(
     private val behandleSendtBekreftetSykmelding: BehandleSendtBekreftetSykmelding,
-    private val aktiveringProducer: AktiveringProducer,
+    private val aktiveringBestiller: AktiveringBestiller,
     private val oppdateringAvMerknader: OppdateringAvMerknader,
 ) {
     val log = logger()
@@ -27,7 +27,7 @@ class BehandleSykmeldingOgBestillAktivering(
         }
 
         return skalAktiveres
-            .forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
+            .forEach { aktiveringBestiller.bestillAktivering(it) }
     }
 
     fun prosesserSykmeldingMedOptIn(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
@@ -38,6 +38,6 @@ class BehandleSykmeldingOgBestillAktivering(
                 optIn = true,
             )
 
-        skalAktiveres.forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
+        skalAktiveres.forEach { aktiveringBestiller.bestillAktivering(it) }
     }
 }

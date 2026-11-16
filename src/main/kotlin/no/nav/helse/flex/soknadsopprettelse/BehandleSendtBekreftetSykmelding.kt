@@ -6,8 +6,8 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
 import no.nav.helse.flex.domain.sykmelding.tilSykmeldingTilSoknadOpprettelse
-import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.GjenapneSykmeldingService
@@ -24,7 +24,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor
 @Service
 @Transactional(rollbackFor = [Throwable::class])
 class BehandleSendtBekreftetSykmelding(
-    private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
+    private val outboxService: OutboxService,
     private val identService: IdentService,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
@@ -54,7 +54,7 @@ class BehandleSendtBekreftetSykmelding(
                     "legger til rebehandling ${e.rebehandlingsTid}",
                 e,
             )
-            rebehandlingSykmeldingSendtProducer.leggPaRebehandlingTopic(sykmeldingKafkaMessage, e.rebehandlingsTid)
+            outboxService.outboxRebehandlingSykmelding(sykmeldingKafkaMessage, e.rebehandlingsTid)
             TransactionInterceptor
                 .currentTransactionStatus()
                 .setRollbackOnly() // Kjører rollback, uten å kaste en ny exception

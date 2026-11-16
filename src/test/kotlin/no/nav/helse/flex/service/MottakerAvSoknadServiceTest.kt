@@ -11,7 +11,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
+import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -41,7 +41,7 @@ class MottakerAvSoknadServiceTest {
     private val folkeregisterIdenter = FolkeregisterIdenter(fnr, emptyList())
 
     @Mock
-    private lateinit var juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer
+    private lateinit var outboxService: OutboxService
 
     @Test
     fun soknadForArbeidstakerErInnenforArbeidsgiverperioden_soknadSendesTilArbeidsgiver() {
