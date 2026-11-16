@@ -14,10 +14,12 @@ import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import java.time.Duration
 import java.time.LocalDate
 
 class RebehandlingKafkaIntegrationTest : FellesTestOppsett() {
@@ -81,7 +83,9 @@ class RebehandlingKafkaIntegrationTest : FellesTestOppsett() {
     )
 
     private fun verifiserRebehandling() {
-        Mockito.verify(rebehandlingsSykmeldingSendtProducer, Mockito.times(1)).leggPaRebehandlingTopic(any(), any())
+        await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            Mockito.verify(rebehandlingsSykmeldingSendtProducer, Mockito.times(1)).leggPaRebehandlingTopic(any(), any())
+        }
     }
 
     private fun skapKafkaMelding(

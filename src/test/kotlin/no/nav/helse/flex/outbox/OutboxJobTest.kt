@@ -6,6 +6,7 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.testoppsett.PausbarOutboxService
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.junit.jupiter.api.AfterEach
@@ -26,10 +27,19 @@ class OutboxJobTest : FellesTestOppsett() {
     @Autowired
     private lateinit var transactionManager: PlatformTransactionManager
 
+    @Autowired
+    private lateinit var pausbarOutboxService: PausbarOutboxService
+
     @BeforeEach
-    @AfterEach
-    fun ryddOutbox() {
+    fun pauseJobbOgRyddOutbox() {
+        pausbarOutboxService.pauseJobb()
         outboxDbRepository.deleteAll()
+    }
+
+    @AfterEach
+    fun ryddOutboxOgStartJobb() {
+        outboxDbRepository.deleteAll()
+        pausbarOutboxService.startJobb()
     }
 
     @Test

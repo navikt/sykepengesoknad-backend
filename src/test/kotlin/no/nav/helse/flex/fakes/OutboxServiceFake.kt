@@ -12,15 +12,17 @@ import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 
 /**
- * Sender direkte på Kafka i stedet for å gå via outbox-tabellen, slik at eksisterende tester
- * ser meldingene med en gang. Den ekte outboxen testes i OutboxServiceIntegrasjonTest.
+ * Sender direkte på Kafka i stedet for å gå via outbox-tabellen, siden FakesTestOppsett ikke har database.
+ * Integrasjonstestene i FellesTestOppsett bruker den ekte outboxen via PausbarOutboxService.
  */
 @Service
 @Primary
+@Profile("fakes")
 class OutboxServiceFake(
     private val aivenKafkaProducer: AivenKafkaProducer,
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,

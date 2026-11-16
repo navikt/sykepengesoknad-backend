@@ -23,11 +23,13 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.testoppsett.PausbarOutboxService
 import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -65,12 +67,22 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
+    @Autowired
+    private lateinit var pausbarOutboxService: PausbarOutboxService
+
     private lateinit var transactionTemplate: TransactionTemplate
 
     @BeforeEach
     fun setUp() {
+        pausbarOutboxService.pauseJobb()
         transactionTemplate = TransactionTemplate(transactionManager)
         outboxDbRepository.deleteAll()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        outboxDbRepository.deleteAll()
+        pausbarOutboxService.startJobb()
     }
 
     @Test
