@@ -68,7 +68,7 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
                     lovverksversjon = LocalDate.of(1997, 5, 1),
                     utfall = VILKAR_IKKE_OPPFYLT,
                 )
-            juridiskVurderingKafkaProducer.produserMelding(vurdering)
+            outboxService.outboxJuridiskVurdering(vurdering)
         }
 
         if (kunHelgEtterArbeidsgiverperiode) {

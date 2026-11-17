@@ -12,12 +12,12 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
-import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.juridiskvurdering.SporingType.ORGANISASJONSNUMMER
 import no.nav.helse.flex.juridiskvurdering.SporingType.SOKNAD
 import no.nav.helse.flex.juridiskvurdering.SporingType.SYKMELDING
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
@@ -31,7 +31,7 @@ class MottakerAvSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val flexSyketilfelleClient: FlexSyketilfelleClient,
     val identService: IdentService,
-    val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
+    val outboxService: OutboxService,
 ) {
     val log = logger()
 
@@ -76,7 +76,7 @@ class MottakerAvSoknadService(
             beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad, identer, sykmelding)
                 .also {
                     it.vurdering.forEach { jv ->
-                        juridiskVurderingKafkaProducer.produserMelding(jv)
+                        outboxService.outboxJuridiskVurdering(jv)
                     }
                 }
 

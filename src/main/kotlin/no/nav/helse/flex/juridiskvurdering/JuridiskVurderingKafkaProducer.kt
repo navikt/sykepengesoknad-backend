@@ -20,8 +20,7 @@ class JuridiskVurderingKafkaProducer(
     val log = logger()
 
     @WithSpan
-    fun produserMelding(juridiskVurdering: JuridiskVurdering) {
-        val dto = juridiskVurdering.tilDto()
+    fun produserMelding(dto: JuridiskVurderingKafkaDto) {
         try {
             producer
                 .send(
@@ -42,19 +41,19 @@ class JuridiskVurderingKafkaProducer(
         }
     }
 
-    fun JuridiskVurdering.tilDto(): JuridiskVurderingKafkaDto =
+    fun tilDto(juridiskVurdering: JuridiskVurdering): JuridiskVurderingKafkaDto =
         JuridiskVurderingKafkaDto(
-            bokstav = bokstav,
-            fodselsnummer = fodselsnummer,
-            sporing = sporing,
-            lovverk = lovverk,
-            lovverksversjon = lovverksversjon,
-            paragraf = paragraf,
-            ledd = ledd,
-            punktum = punktum,
-            input = input,
-            output = output,
-            utfall = utfall,
+            bokstav = juridiskVurdering.bokstav,
+            fodselsnummer = juridiskVurdering.fodselsnummer,
+            sporing = juridiskVurdering.sporing,
+            lovverk = juridiskVurdering.lovverk,
+            lovverksversjon = juridiskVurdering.lovverksversjon,
+            paragraf = juridiskVurdering.paragraf,
+            ledd = juridiskVurdering.ledd,
+            punktum = juridiskVurdering.punktum,
+            input = juridiskVurdering.input,
+            output = juridiskVurdering.output,
+            utfall = juridiskVurdering.utfall,
             id = UUID.randomUUID().toString(),
             eventName = "subsumsjon",
             versjon = "1.0.0",

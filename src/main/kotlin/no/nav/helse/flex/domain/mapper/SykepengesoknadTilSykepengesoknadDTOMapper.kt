@@ -6,8 +6,8 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
-import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
-    private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
+    private val outboxService: OutboxService,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
 ) {
@@ -67,7 +67,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             hentSoknadsPerioderMedFaktiskGrad.second?.let {
                 if (endeligVurdering) {
                     // TODO: Denne burde ligge et annet sted
-                    juridiskVurderingKafkaProducer.produserMelding(it)
+                    outboxService.outboxJuridiskVurdering(it)
                 }
             }
             return hentSoknadsPerioderMedFaktiskGrad.first

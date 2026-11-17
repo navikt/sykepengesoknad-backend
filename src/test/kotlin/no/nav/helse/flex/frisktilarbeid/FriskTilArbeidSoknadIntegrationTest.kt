@@ -7,7 +7,6 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.tilSoknader
@@ -16,6 +15,8 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -28,7 +29,7 @@ class FriskTilArbeidSoknadIntegrationTest : FellesTestOppsett() {
     private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
     @Autowired
-    lateinit var soknadProducer: SoknadProducer
+    lateinit var transactionManager: PlatformTransactionManager
 
     @BeforeAll
     @AfterAll
@@ -86,7 +87,7 @@ class FriskTilArbeidSoknadIntegrationTest : FellesTestOppsett() {
             it.friskTilArbeidVedtakId shouldBe lagretVedtak.id
         }
 
-        soknadProducer.soknadEvent(soknad)
+        TransactionTemplate(transactionManager).executeWithoutResult { soknadProducer.soknadEvent(soknad) }
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().also {
             it.friskTilArbeidVedtakId shouldBe lagretVedtak.id

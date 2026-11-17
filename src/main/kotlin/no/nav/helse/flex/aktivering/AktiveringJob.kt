@@ -12,7 +12,7 @@ import kotlin.system.measureTimeMillis
 
 @Component
 class AktiveringJob(
-    val aktiveringProducer: AktiveringProducer,
+    val aktiveringBestiller: AktiveringBestiller,
     val leaderElection: LeaderElection,
     val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
@@ -37,7 +37,7 @@ class AktiveringJob(
         val publiseringstid =
             measureTimeMillis {
                 skalAktiveres.forEach {
-                    aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(it.fnr, it.sykepengesoknadUuid))
+                    aktiveringBestiller.bestillAktivering(AktiveringBestilling(it.fnr, it.sykepengesoknadUuid))
                 }
             }
         log.info("Publiserte ${skalAktiveres.size} soknader som skal aktiveres på $publiseringstid millisekunder.")

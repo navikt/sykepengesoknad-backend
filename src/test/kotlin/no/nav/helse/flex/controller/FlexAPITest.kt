@@ -303,7 +303,6 @@ class FlexAPITest : FellesTestOppsett() {
     // ------- DESTRUCTIVE TESTS (disse bruker kun genererTestFnr for å ikke dele data) --------
 
     @Test
-    @Transactional
     fun `Kan slette FriskTilArbeid-søknad med status NY`() {
         val testFnr = genererTestFnr()
         val friskTilArbeidVedtakId = lagreFriskTilArbeidVedtakStatus(lagFriskTilArbeidVedtakStatus(testFnr, Status.FATTET))
@@ -342,7 +341,6 @@ class FlexAPITest : FellesTestOppsett() {
     }
 
     @Test
-    @Transactional
     fun `Kan slette FriskTilArbeid-søknad med status FREMTIDIG`() {
         val testFnr = genererTestFnr()
         val friskTilArbeidVedtakId = lagreFriskTilArbeidVedtakStatus(lagFriskTilArbeidVedtakStatus(testFnr, Status.FATTET))

@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
@@ -305,18 +306,29 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
     inner class FeilHandtering {
         @Test
         fun `Uventet exception kastes videre`() {
-            Assertions.assertThrows(RuntimeException::class.java) {
-                val kafkaMessage = sykmeldingKafkaMessage(fnr = fnr)
-                mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
-
-                whenever(aivenKafkaProducer.produserMelding(any())).thenThrow(RuntimeException("Feil"))
-
-                behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                    sykmeldingId = kafkaMessage.sykmelding.id,
-                    sykmeldingKafkaMessage = kafkaMessage,
-                    topic = SYKMELDINGSENDT_TOPIC,
+            // Fremtidig sykmelding, så søknaden publiseres med en gang i stedet for å bestille aktivering
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder = heltSykmeldt(fom = datoIFremtiden, tom = datoIFremtiden.plusDays(10)),
+                    syketilfelleStartDato = datoIFremtiden,
                 )
-            }
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
+
+            doThrow(RuntimeException("Feil"))
+                .whenever(soknadProducer)
+                .soknadEvent(any(), anyOrNull(), any(), anyOrNull(), anyOrNull())
+
+            val exception =
+                Assertions.assertThrows(RuntimeException::class.java) {
+                    behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+                        sykmeldingId = kafkaMessage.sykmelding.id,
+                        sykmeldingKafkaMessage = kafkaMessage,
+                        topic = SYKMELDINGSENDT_TOPIC,
+                    )
+                }
+            exception.message shouldBe "Feil"
+            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size shouldBe 0
         }
 
         @Test
@@ -334,12 +346,16 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
             mockStandardSyketilfelle(kafkaMessage.sykmelding.id, erUtenforVentetid = true, oppfolgingsdato = datoIFremtiden)
 
-            // Kaster feil på andre sykepengesøknad som produseres
-            doThrow(ProduserKafkaMeldingException()).`when`(aivenKafkaProducer).produserMelding(
-                argWhere {
-                    it.tom?.isEqual(datoIFremtiden.plusDays(40)) == true
-                },
-            )
+            // Kaster feil på andre sykepengesøknad som legges i outboxen
+            doThrow(ProduserKafkaMeldingException())
+                .whenever(soknadProducer)
+                .soknadEvent(
+                    argWhere { it.tom?.isEqual(datoIFremtiden.plusDays(40)) == true },
+                    anyOrNull(),
+                    any(),
+                    anyOrNull(),
+                    anyOrNull(),
+                )
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
                 sykmeldingId = kafkaMessage.sykmelding.id,
@@ -348,7 +364,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
             )
 
             sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size shouldBe 0
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
         }
 
         private inner class ProduserKafkaMeldingException :

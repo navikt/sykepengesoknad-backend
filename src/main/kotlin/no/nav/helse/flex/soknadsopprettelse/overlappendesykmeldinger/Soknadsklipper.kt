@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
+import no.nav.helse.flex.aktivering.AktiveringBestiller
 import no.nav.helse.flex.aktivering.AktiveringBestilling
-import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.domain.Opprinnelse
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -23,7 +23,7 @@ import java.util.*
 @Transactional(rollbackFor = [Throwable::class])
 class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val aktiveringProducer: AktiveringProducer,
+    private val aktiveringBestiller: AktiveringBestiller,
     private val soknadProducer: SoknadProducer,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
     private val sporsmalGenerator: SporsmalGenerator,
@@ -67,7 +67,7 @@ class Soknadsklipper(
         }
 
         if (sok.status == Soknadstatus.FREMTIDIG && nyePerioder.maxOf { it.tom } < LocalDate.now()) {
-            aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(sok.fnr, sok.id))
+            aktiveringBestiller.bestillAktivering(AktiveringBestilling(sok.fnr, sok.id))
         }
     }
 

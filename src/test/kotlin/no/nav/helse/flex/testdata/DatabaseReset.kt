@@ -2,6 +2,7 @@ package no.nav.helse.flex.testdata
 
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.outbox.OutboxDbRepository
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -17,6 +18,7 @@ class DatabaseReset(
     private val klippMetrikkRepository: KlippMetrikkRepository,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
+    private val outboxDbRepository: OutboxDbRepository,
 ) {
     fun resetDatabase() {
         val aktorIder =
@@ -38,5 +40,6 @@ class DatabaseReset(
         klippMetrikkRepository.deleteAll()
         medlemskapVurderingRepository.deleteAll()
         friskTilArbeidRepository.deleteAll()
+        outboxDbRepository.deleteAll()
     }
 }

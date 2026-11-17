@@ -10,6 +10,7 @@ import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
+import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.mockdispatcher.FellesQueueDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -118,6 +119,9 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @MockitoSpyBean
     lateinit var aivenKafkaProducer: AivenKafkaProducer
+
+    @MockitoSpyBean
+    lateinit var soknadProducer: SoknadProducer
 
     @Autowired
     lateinit var mockMvc: MockMvc

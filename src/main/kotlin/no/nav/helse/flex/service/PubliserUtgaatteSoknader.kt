@@ -3,7 +3,6 @@ package no.nav.helse.flex.service
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.cronjob.LeaderElection
-import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.scheduling.annotation.Scheduled
@@ -16,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 @Component
 class PubliserUtgaatteSoknader(
-    val soknadProducer: SoknadProducer,
+    val publiserUtgaattSoknad: PubliserUtgaattSoknad,
     val toggle: EnvironmentToggles,
     val leaderElection: LeaderElection,
     val sykepengesoknadDAO: SykepengesoknadDAO,
@@ -36,8 +35,7 @@ class PubliserUtgaatteSoknader(
     fun publiserUtgatteSoknader(): Int {
         val soknaderTilPublisering = sykepengesoknadDAO.finnUpubliserteUtlopteSoknader()
         soknaderTilPublisering.forEach {
-            soknadProducer.soknadEvent(sykepengesoknadDAO.finnSykepengesoknad(it))
-            sykepengesoknadDAO.settUtloptPublisert(it, LocalDateTime.now())
+            publiserUtgaattSoknad.publiser(it)
         }
         if (soknaderTilPublisering.isNotEmpty()) {
             log.info("Publiserte ${soknaderTilPublisering.size} utgåtte søknader på Kafka.")

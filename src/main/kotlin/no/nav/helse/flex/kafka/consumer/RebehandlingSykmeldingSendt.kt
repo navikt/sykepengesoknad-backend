@@ -2,8 +2,8 @@ package no.nav.helse.flex.kafka.consumer
 
 import no.nav.helse.flex.kafka.SYKMELDING_SENDT_RETRY_TOPIC
 import no.nav.helse.flex.kafka.producer.BEHANDLINGSTIDSPUNKT
-import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.outbox.OutboxService
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.context.annotation.Profile
@@ -19,7 +19,7 @@ import java.time.ZoneOffset
 @Component
 @Profile("sykmeldinger")
 class RebehandlingSykmeldingSendt(
-    private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
+    private val outboxService: OutboxService,
     private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering,
 ) {
     val log = logger()
@@ -61,7 +61,7 @@ class RebehandlingSykmeldingSendt(
                 acknowledgment.acknowledge()
             }
         } catch (e: Exception) {
-            rebehandlingSykmeldingSendtProducer.leggPaRebehandlingTopic(
+            outboxService.outboxRebehandlingSykmelding(
                 sykmeldingKafkaMessage,
                 OffsetDateTime.now().plusMinutes(10),
             )

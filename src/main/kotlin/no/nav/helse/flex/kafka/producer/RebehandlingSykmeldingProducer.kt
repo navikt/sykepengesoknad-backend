@@ -39,7 +39,10 @@ class RebehandlingSykmeldingSendtProducer(
                     ),
                 ).get()
         } catch (exception: Exception) {
-            log.error("Det feiler når sykmelding ${sykmeldingKafkaMessage.sykmelding} skal legges på rebehandling-topic", exception)
+            log.error(
+                "Det feiler når sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId} skal legges på rebehandling-topic",
+                exception,
+            )
             throw RuntimeException(exception)
         }
     }

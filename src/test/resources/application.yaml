@@ -167,3 +167,5 @@ aiven-kafka:
 SKRIVEMODUS: READWRITE
 
 BRREG_API_URL: url
+
+outbox.job.initial-delay-ms: 0

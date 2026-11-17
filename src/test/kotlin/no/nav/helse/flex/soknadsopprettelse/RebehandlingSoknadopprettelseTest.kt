@@ -108,7 +108,9 @@ class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
         )
         val sykepengesoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
         assertThat(sykepengesoknader.size).isEqualTo(0)
-        verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
+        }
     }
 
     private fun skapConsumerRecord(

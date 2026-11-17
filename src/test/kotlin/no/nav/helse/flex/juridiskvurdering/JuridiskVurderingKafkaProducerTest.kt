@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.lang.RuntimeException
 import java.time.LocalDate
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 
@@ -29,7 +28,7 @@ class JuridiskVurderingKafkaProducerTest {
 
         val kastetException =
             assertThrows(RuntimeException::class.java) {
-                jurifiskVurderingKafkaProducer.produserMelding(juridiskVurdering)
+                jurifiskVurderingKafkaProducer.produserMelding(jurifiskVurderingKafkaProducer.tilDto(juridiskVurdering))
             }
 
         kastetException.cause.shouldBeInstanceOf<ExecutionException>()

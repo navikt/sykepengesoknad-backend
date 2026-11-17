@@ -1,7 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import no.nav.helse.flex.aktivering.AktiveringBestiller
 import no.nav.helse.flex.aktivering.AktiveringBestilling
-import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.logger
 import org.springframework.scheduling.annotation.Scheduled
@@ -15,7 +15,7 @@ const val BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK = 50
 class FriskTilArbeidCronJob(
     private val leaderElection: LeaderElection,
     private val friskTilArbeidService: FriskTilArbeidService,
-    private val aktiveringProducer: AktiveringProducer,
+    private val aktiveringBestiller: AktiveringBestiller,
 ) {
     private val log = logger()
 
@@ -34,7 +34,7 @@ class FriskTilArbeidCronJob(
             .behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
             .filter { it.tom!!.isBefore(LocalDate.now()) }
             .forEach {
-                aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(it.fnr, it.id))
+                aktiveringBestiller.bestillAktivering(AktiveringBestilling(it.fnr, it.id))
             }
     }
 }

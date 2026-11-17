@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.*
 import org.apache.kafka.common.metrics.KafkaMetric
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
@@ -24,11 +25,11 @@ class StringStringKafkaProducerFake : Producer<String, String> {
     }
 
     @Autowired
-    lateinit var arbeidssokerregisterStartStoppListener: ArbeidssokerregisterStartStoppListener
+    lateinit var arbeidssokerregisterStartStoppListener: ObjectProvider<ArbeidssokerregisterStartStoppListener>
 
     fun rutMeldingTilListener(record: ProducerRecord<String, String>) {
         if (record.topic() == ARBEIDSSOKERREGISTER_START_STOPP_TOPIC) {
-            arbeidssokerregisterStartStoppListener.listen(record.tilConsumerRecord(), { })
+            arbeidssokerregisterStartStoppListener.getObject().listen(record.tilConsumerRecord()) { }
         }
     }
 
