@@ -401,7 +401,9 @@ class SoknadBrukerController(
         oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
         sporsmalTag: String,
     ): RSOppdaterSporsmalResponse {
-        val sporsmalSomBleOppdatert = oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }!!
+        val sporsmalSomBleOppdatert =
+            oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }
+                ?: throw IllegalStateException("Sporsmal $sporsmalTag finnes ikke på den oppdaterte søknaden")
 
         if (oppdaterSporsmalResultat.mutert) {
             return RSOppdaterSporsmalResponse(
