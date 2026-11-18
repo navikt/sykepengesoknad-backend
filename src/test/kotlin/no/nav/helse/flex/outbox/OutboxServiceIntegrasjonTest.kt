@@ -2,6 +2,7 @@ package no.nav.helse.flex.outbox
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
@@ -47,6 +48,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -256,7 +258,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         val eldste = lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(60))
         val nestEldste = lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(30))
 
-        val rader = transactionTemplate.execute { outboxDbRepository.finnOgLasUsendteForEldsteLedigeFnr() }
+        val rader = transactionTemplate.execute { lasEldsteLedigeFnrOgFinnUsendte() }
 
         rader.map { it.fnr }.distinct() shouldBe listOf("fnr-eldst")
         rader.map { it.id } shouldBe listOf(eldste.id, nestEldste.id)
@@ -275,7 +277,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         val tråd =
             thread {
                 transactionTemplate.executeWithoutResult {
-                    fnrLåstAvTransaksjon1.addAll(outboxDbRepository.finnOgLasUsendteForEldsteLedigeFnr().map { it.fnr })
+                    fnrLåstAvTransaksjon1.addAll(lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr })
                     transaksjon1HarLås.countDown()
                     // Holder transaksjonen, og dermed advisory-låsen, åpen til testen slipper den.
                     slippTransaksjon1.await(5, TimeUnit.SECONDS)
@@ -286,7 +288,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
 
         val fnrLåstAvTransaksjon2 =
             transactionTemplate.execute {
-                outboxDbRepository.finnOgLasUsendteForEldsteLedigeFnr().map { it.fnr }
+                lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr }
             }
 
         slippTransaksjon1.countDown()
@@ -294,6 +296,47 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
 
         fnrLåstAvTransaksjon1.distinct() shouldBe listOf("fnr-eldst")
         fnrLåstAvTransaksjon2.distinct() shouldBe listOf("fnr-nyest")
+    }
+
+    @Test
+    fun `samme rad sendes ikke flere ganger når flere instanser sender samtidig`() {
+        val antallRader = 300
+        val antallInstanser = 4
+        repeat(antallRader) { i ->
+            outboxService.outboxRebehandlingSykmelding(
+                sykmeldingKafkaMessage(fnr = (20000000000L + i).toString()),
+                OffsetDateTime.now(),
+            )
+        }
+
+        val sendteSykmeldingIder = ConcurrentLinkedQueue<String>()
+        doAnswer { invocation ->
+            sendteSykmeldingIder.add(invocation.getArgument<SykmeldingKafkaMessageDTO>(0).event.sykmeldingId)
+            Unit
+        }.whenever(rebehandlingsSykmeldingSendtProducer).leggPaRebehandlingTopic(any(), any())
+
+        val start = CountDownLatch(1)
+        val feil = ConcurrentLinkedQueue<Throwable>()
+        val tråder =
+            (1..antallInstanser).map {
+                thread {
+                    try {
+                        start.await()
+                        while (outboxService.sendUsendteForEldsteLedigeFnr()) {
+                            // Fortsetter til det ikke er flere ledige fnr
+                        }
+                    } catch (e: Throwable) {
+                        feil.add(e)
+                    }
+                }
+            }
+        start.countDown()
+        tråder.forEach { it.join(TimeUnit.SECONDS.toMillis(60)) }
+
+        feil.shouldBeEmpty()
+        outboxDbRepository.findAll().filter { it.sendtTimestamp == null }.shouldBeEmpty()
+        sendteSykmeldingIder.groupingBy { it }.eachCount().filterValues { it > 1 } shouldBe emptyMap()
+        sendteSykmeldingIder shouldHaveSize antallRader
     }
 
     @Test
@@ -312,7 +355,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
                         )
                 },
                 iMellomtiden = {
-                    transactionTemplate.execute { outboxDbRepository.finnOgLasUsendteForEldsteLedigeFnr().map { it.fnr } }
+                    transactionTemplate.execute { lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr } }
                 },
             )
 
@@ -328,7 +371,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         var fnrLåstAvOutbox = emptyList<String>()
         val låstAnnetSted =
             medÅpenTransaksjonIAnnenTråd(
-                iTråd = { fnrLåstAvOutbox = outboxDbRepository.finnOgLasUsendteForEldsteLedigeFnr().map { it.fnr } },
+                iTråd = { fnrLåstAvOutbox = lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr } },
                 iMellomtiden = {
                     transactionTemplate.execute {
                         listOf(
@@ -342,6 +385,9 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         fnrLåstAvOutbox.distinct() shouldBe listOf(fnr)
         låstAnnetSted shouldBe listOf(true, true)
     }
+
+    private fun lasEldsteLedigeFnrOgFinnUsendte(): List<OutboxDbRecord> =
+        outboxDbRepository.lasEldsteLedigeFnr()?.let { outboxDbRepository.finnUsendteForFnr(it) } ?: emptyList()
 
     private fun settBigintLåsPåHashtext(fnr: String): Boolean =
         namedParameterJdbcTemplate.queryForObject(

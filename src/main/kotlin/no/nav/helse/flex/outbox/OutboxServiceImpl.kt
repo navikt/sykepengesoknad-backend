@@ -69,13 +69,14 @@ class OutboxServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun sendUsendteForEldsteLedigeFnr(): Boolean {
-        val usendte = outboxDbRepository.finnOgLasUsendteForEldsteLedigeFnr()
-        if (usendte.isEmpty()) {
-            return false
-        }
-        usendte.forEach { record ->
+        val fnr = outboxDbRepository.lasEldsteLedigeFnr() ?: return false
+        // Henter radene i en ny spørring etter at låsen er tatt, så vi ser det andre instanser har sendt.
+        outboxDbRepository.finnUsendteForFnr(fnr).forEach { record ->
+            if (outboxDbRepository.markerSomSendt(record.id!!, Instant.now()) == 0) {
+                log.warn("Outbox-rad ${record.type} ${record.id} er allerede sendt, hopper over")
+                return@forEach
+            }
             send(record)
-            outboxDbRepository.save(record.copy(sendtTimestamp = Instant.now()))
         }
         return true
     }
