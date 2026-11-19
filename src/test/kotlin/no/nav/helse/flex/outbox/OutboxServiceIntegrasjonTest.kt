@@ -220,20 +220,72 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `rad som feiler blir ikke markert som sendt`() {
+    fun `rad som feiler blir utsatt med backoff i stedet for å bli markert som sendt`() {
         val sykmeldingKafkaMessage = sykmeldingKafkaMessage(fnr = "55555555555")
         transactionTemplate.executeWithoutResult {
             outboxService.outboxRebehandlingSykmelding(sykmeldingKafkaMessage, OffsetDateTime.now())
         }
         doThrow(RuntimeException("feil")).whenever(rebehandlingsSykmeldingSendtProducer).leggPaRebehandlingTopic(any(), any())
+        val førForsøk = Instant.now()
 
-        assertThrows<RuntimeException> { outboxService.sendEldsteUsendte() }
+        outboxService.sendEldsteUsendte() shouldBe true
 
-        outboxDbRepository
-            .findAll()
-            .single()
-            .sendtTimestamp
-            .shouldBeNull()
+        outboxDbRepository.findAll().single().also {
+            it.sendtTimestamp.shouldBeNull()
+            it.antallForsok shouldBe 1
+            it.sisteFeil shouldBe "${RuntimeException::class.java.name}: feil"
+            it.nesteForsokTimestamp.shouldNotBeNull().isAfter(førForsøk) shouldBe true
+        }
+        outboxService.sendEldsteUsendte() shouldBe false
+    }
+
+    @Test
+    fun `øker antall forsøk når en rad feiler på nytt`() {
+        val nå = Instant.now()
+        // Payloaden kan ikke leses som AuditEntry, så sendingen feiler.
+        lagreUsendtRad(
+            fnr = "fnr-x",
+            opprettetTimestamp = nå.minusSeconds(60),
+            nesteForsokTimestamp = nå.minusSeconds(1),
+            antallForsok = 3,
+        )
+
+        outboxService.sendEldsteUsendte() shouldBe true
+
+        outboxDbRepository.findAll().single().also {
+            it.antallForsok shouldBe 4
+            it.nesteForsokTimestamp.shouldNotBeNull().isAfter(nå.plusSeconds(7)) shouldBe true
+        }
+    }
+
+    @Test
+    fun `rad som venter på nytt forsøk blokkerer bare sitt eget fnr`() {
+        val nå = Instant.now()
+        lagreUsendtRad(
+            fnr = "fnr-x",
+            opprettetTimestamp = nå.minusSeconds(60),
+            nesteForsokTimestamp = nå.plusSeconds(3600),
+        )
+        lagreUsendtRad(fnr = "fnr-x", opprettetTimestamp = nå.minusSeconds(50))
+        val y1 = lagreUsendtRad(fnr = "fnr-y", opprettetTimestamp = nå.minusSeconds(30))
+
+        transactionTemplate.execute { outboxDbRepository.finnEldsteLedigeRadOgLas() }?.id shouldBe y1.id
+
+        outboxDbRepository.deleteById(y1.id!!)
+        transactionTemplate.execute { outboxDbRepository.finnEldsteLedigeRadOgLas() }.shouldBeNull()
+    }
+
+    @Test
+    fun `rad plukkes igjen når ventetiden er over`() {
+        val nå = Instant.now()
+        val x1 =
+            lagreUsendtRad(
+                fnr = "fnr-x",
+                opprettetTimestamp = nå.minusSeconds(60),
+                nesteForsokTimestamp = nå.minusSeconds(1),
+            )
+
+        transactionTemplate.execute { outboxDbRepository.finnEldsteLedigeRadOgLas() }?.id shouldBe x1.id
     }
 
     @Test
@@ -382,6 +434,8 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
     private fun lagreUsendtRad(
         fnr: String,
         opprettetTimestamp: Instant,
+        nesteForsokTimestamp: Instant? = null,
+        antallForsok: Int = 0,
     ): OutboxDbRecord =
         outboxDbRepository.save(
             OutboxDbRecord(
@@ -390,6 +444,8 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
                 payload = mapOf("fnr" to fnr).tilPostgresJson(),
                 opprettetTimestamp = opprettetTimestamp,
                 sendtTimestamp = null,
+                antallForsok = antallForsok,
+                nesteForsokTimestamp = nesteForsokTimestamp,
             ),
         )
 }

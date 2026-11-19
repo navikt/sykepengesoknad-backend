@@ -15,12 +15,16 @@ interface OutboxDbRepository : CrudRepository<OutboxDbRecord, Long> {
      * en rad som en annen instans allerede har sendt.
      *
      * Dette forutsetter at hver transaksjon bare sender én rad.
+     *
+     * Rader som venter på nytt forsøk etter en feil, hoppes over. De blokkerer likevel nyere rader for samme fnr,
+     * så rekkefølgen per fnr holder, mens andre fnr sendes som vanlig.
      */
     @Query(
         """
     SELECT *
     FROM outbox o
     WHERE o.sendt_timestamp IS NULL
+      AND (o.neste_forsok_timestamp IS NULL OR o.neste_forsok_timestamp <= now())
       AND NOT EXISTS (
           SELECT 1
           FROM outbox eldre

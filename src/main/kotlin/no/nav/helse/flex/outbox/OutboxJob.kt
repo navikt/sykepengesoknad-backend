@@ -1,6 +1,5 @@
 package no.nav.helse.flex.outbox
 
-import no.nav.helse.flex.LogMarker
 import no.nav.helse.flex.logger
 import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
@@ -39,7 +38,7 @@ class OutboxJob(
         }
     }
 
-    @Scheduled(initialDelayString = "\${outbox.job.initial-delay-ms:240000}", fixedDelay = 100, timeUnit = TimeUnit.MILLISECONDS)
+    @Scheduled(initialDelayString = "\${outbox.job.initial-delay-ms:20000}", fixedDelay = 100, timeUnit = TimeUnit.MILLISECONDS)
     fun kjørJobb() {
         lock.readLock().withLock {
             try {
@@ -47,9 +46,7 @@ class OutboxJob(
                     val prosesserteNoe = outboxService.sendEldsteUsendte()
                 } while (prosesserteNoe && !shutdown.get())
             } catch (e: Exception) {
-                // Exception-meldinger fra Kafka og Jackson kan inneholde payload, så detaljene går bare til team-logs.
-                log.error("Feil under kjøring av OutboxJob: ${e.javaClass.name}")
-                log.error(LogMarker.TEAM_LOG, "Feil under kjøring av OutboxJob", e)
+                log.error("Feil under kjøring av OutboxJob: ${e.message}", e)
             }
         }
     }
