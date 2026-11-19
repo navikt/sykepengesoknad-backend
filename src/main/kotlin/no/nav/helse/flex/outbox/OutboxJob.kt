@@ -44,7 +44,7 @@ class OutboxJob(
         lock.readLock().withLock {
             try {
                 do {
-                    val prosesserteNoe = outboxService.sendUsendteForEldsteLedigeFnr()
+                    val prosesserteNoe = outboxService.sendEldsteUsendte()
                 } while (prosesserteNoe && !shutdown.get())
             } catch (e: Exception) {
                 // Exception-meldinger fra Kafka og Jackson kan inneholde payload, så detaljene går bare til team-logs.

@@ -13,7 +13,7 @@ interface OutboxDbRepository : CrudRepository<OutboxDbRecord, Long> {
      * Låsen bruker to int-nøkler med hashtext('outbox') som første nøkkel. Da kolliderer den ikke med
      * bigint-låsene i LockRepository.
      *
-     * Radene må hentes med en egen spørring etter at låsen er tatt, se [finnUsendteForFnr]. Snapshotet til
+     * Raden må hentes med en egen spørring etter at låsen er tatt, se [finnEldsteUsendteForFnr]. Snapshotet til
      * denne spørringen er tatt før låsen, og kan derfor vise rader som en annen instans har sendt og committet
      * før den slapp låsen.
      */
@@ -41,7 +41,8 @@ interface OutboxDbRepository : CrudRepository<OutboxDbRecord, Long> {
     WHERE fnr = :fnr
       AND sendt_timestamp IS NULL
     ORDER BY opprettet_timestamp, id
+    LIMIT 1
     """,
     )
-    fun finnUsendteForFnr(fnr: String): List<OutboxDbRecord>
+    fun finnEldsteUsendteForFnr(fnr: String): OutboxDbRecord?
 }
