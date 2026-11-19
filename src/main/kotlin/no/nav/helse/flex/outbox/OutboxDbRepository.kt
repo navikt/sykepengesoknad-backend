@@ -1,10 +1,8 @@
 package no.nav.helse.flex.outbox
 
-import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
-import java.time.Instant
 
 @Repository
 interface OutboxDbRepository : CrudRepository<OutboxDbRecord, Long> {
@@ -46,14 +44,4 @@ interface OutboxDbRepository : CrudRepository<OutboxDbRecord, Long> {
     """,
     )
     fun finnUsendteForFnr(fnr: String): List<OutboxDbRecord>
-
-    /**
-     * Markerer raden som sendt bare hvis ingen andre har gjort det. Returnerer antall oppdaterte rader.
-     */
-    @Modifying
-    @Query("UPDATE outbox SET sendt_timestamp = :sendtTimestamp WHERE id = :id AND sendt_timestamp IS NULL")
-    fun markerSomSendt(
-        id: Long,
-        sendtTimestamp: Instant,
-    ): Int
 }
