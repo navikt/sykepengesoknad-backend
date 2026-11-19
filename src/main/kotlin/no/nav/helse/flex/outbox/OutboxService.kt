@@ -21,7 +21,7 @@ interface OutboxService {
 
     fun outboxAuditEntry(auditEntry: AuditEntry)
 
-    fun sendUsendteForEldsteLedigeFnr(): Boolean
+    fun sendEldsteUsendte(): Boolean
 }
 
 data class RebehandlingSykmeldingPayload(

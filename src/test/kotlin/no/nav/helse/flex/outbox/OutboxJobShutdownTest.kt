@@ -92,7 +92,7 @@ private class KontrollerbarOutboxService(
     val førsteKallStartet = CountDownLatch(1)
     val slippFørsteKall = CountDownLatch(1)
 
-    override fun sendUsendteForEldsteLedigeFnr(): Boolean {
+    override fun sendEldsteUsendte(): Boolean {
         val kallnummer = antallKall.incrementAndGet()
         if (kastFeil) {
             throw RuntimeException("Kafka er nede")

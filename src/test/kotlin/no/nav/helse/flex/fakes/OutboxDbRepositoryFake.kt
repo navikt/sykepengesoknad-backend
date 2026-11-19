@@ -25,8 +25,8 @@ class OutboxDbRepositoryFake :
             .minWithOrNull(compareBy({ it.opprettetTimestamp }, { it.id }))
             ?.fnr
 
-    override fun finnUsendteForFnr(fnr: String): List<OutboxDbRecord> =
+    override fun finnEldsteUsendteForFnr(fnr: String): OutboxDbRecord? =
         findAll()
             .filter { it.fnr == fnr && it.sendtTimestamp == null }
-            .sortedWith(compareBy({ it.opprettetTimestamp }, { it.id }))
+            .minWithOrNull(compareBy({ it.opprettetTimestamp }, { it.id }))
 }

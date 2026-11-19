@@ -31,5 +31,5 @@ class PausbarOutboxService(
         jobbPauset = false
     }
 
-    override fun sendUsendteForEldsteLedigeFnr(): Boolean = lås.read { !jobbPauset && outboxServiceImpl.sendUsendteForEldsteLedigeFnr() }
+    override fun sendEldsteUsendte(): Boolean = lås.read { !jobbPauset && outboxServiceImpl.sendEldsteUsendte() }
 }

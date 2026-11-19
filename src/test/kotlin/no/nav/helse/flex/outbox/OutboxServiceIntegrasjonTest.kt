@@ -107,7 +107,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
             it.sendtTimestamp.shouldBeNull()
         }
 
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe true
+        outboxService.sendEldsteUsendte() shouldBe true
 
         outboxDbRepository
             .findAll()
@@ -143,7 +143,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
             it.fnr shouldBe "22222222222"
         }
 
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe true
+        outboxService.sendEldsteUsendte() shouldBe true
 
         val vurdering = juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1).tilJuridiskVurdering().single()
         vurdering.fodselsnummer shouldBe "22222222222"
@@ -178,9 +178,9 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         rader.map { it.fnr }.toSet() shouldHaveSize 2
         rader.forEach { it.fnr.startsWith("audit-") shouldBe true }
 
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe true
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe true
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe false
+        outboxService.sendEldsteUsendte() shouldBe true
+        outboxService.sendEldsteUsendte() shouldBe true
+        outboxService.sendEldsteUsendte() shouldBe false
 
         auditlogKafkaConsumer.ventPåRecords(antall = 2).forEach {
             objectMapper.readValue<AuditEntry>(it.value()) shouldBe auditEntry
@@ -202,7 +202,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
             it.fnr shouldBe "44444444444"
         }
 
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe true
+        outboxService.sendEldsteUsendte() shouldBe true
 
         val meldingCaptor = argumentCaptor<SykmeldingKafkaMessageDTO>()
         val tidspunktCaptor = argumentCaptor<OffsetDateTime>()
@@ -236,7 +236,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         }
         doThrow(RuntimeException("feil")).whenever(rebehandlingsSykmeldingSendtProducer).leggPaRebehandlingTopic(any(), any())
 
-        assertThrows<RuntimeException> { outboxService.sendUsendteForEldsteLedigeFnr() }
+        assertThrows<RuntimeException> { outboxService.sendEldsteUsendte() }
 
         outboxDbRepository
             .findAll()
@@ -247,21 +247,48 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
 
     @Test
     fun `returnerer false når det ikke er noe å sende`() {
-        outboxService.sendUsendteForEldsteLedigeFnr() shouldBe false
+        outboxService.sendEldsteUsendte() shouldBe false
         verify(rebehandlingsSykmeldingSendtProducer, never()).leggPaRebehandlingTopic(any(), any())
     }
 
     @Test
-    fun `velger eldste ledige fnr og returnerer radene i opprettet-rekkefølge`() {
+    fun `velger eldste ledige fnr og henter eldste usendte rad for fnr-et`() {
         val nå = Instant.now()
         lagreUsendtRad(fnr = "fnr-nyest", opprettetTimestamp = nå.minusSeconds(10))
         val eldste = lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(60))
-        val nestEldste = lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(30))
+        lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(30))
 
-        val rader = transactionTemplate.execute { lasEldsteLedigeFnrOgFinnUsendte() }
+        val rad =
+            transactionTemplate.execute {
+                outboxDbRepository.lasEldsteLedigeFnr()?.let { outboxDbRepository.finnEldsteUsendteForFnr(it) }
+            }
 
-        rader.map { it.fnr }.distinct() shouldBe listOf("fnr-eldst")
-        rader.map { it.id } shouldBe listOf(eldste.id, nestEldste.id)
+        rad?.id shouldBe eldste.id
+    }
+
+    @Test
+    fun `sender én rad per kall, eldste først på tvers av fnr`() {
+        val a1 = sykmeldingKafkaMessage(fnr = "88888888881")
+        val b1 = sykmeldingKafkaMessage(fnr = "88888888882")
+        val a2 = sykmeldingKafkaMessage(fnr = "88888888881")
+        listOf(a1, b1, a2).forEach { outboxService.outboxRebehandlingSykmelding(it, OffsetDateTime.now()) }
+
+        val sendte = mutableListOf<String>()
+        doAnswer { invocation ->
+            sendte.add(invocation.getArgument<SykmeldingKafkaMessageDTO>(0).event.sykmeldingId)
+            Unit
+        }.whenever(rebehandlingsSykmeldingSendtProducer).leggPaRebehandlingTopic(any(), any())
+
+        outboxService.sendEldsteUsendte() shouldBe true
+        sendte shouldBe listOf(a1.event.sykmeldingId)
+
+        outboxService.sendEldsteUsendte() shouldBe true
+        sendte shouldBe listOf(a1.event.sykmeldingId, b1.event.sykmeldingId)
+
+        outboxService.sendEldsteUsendte() shouldBe true
+        sendte shouldBe listOf(a1.event.sykmeldingId, b1.event.sykmeldingId, a2.event.sykmeldingId)
+
+        outboxService.sendEldsteUsendte() shouldBe false
     }
 
     @Test
@@ -272,12 +299,12 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
 
         val transaksjon1HarLås = CountDownLatch(1)
         val slippTransaksjon1 = CountDownLatch(1)
-        val fnrLåstAvTransaksjon1 = mutableListOf<String>()
+        var fnrLåstAvTransaksjon1: String? = null
 
         val tråd =
             thread {
                 transactionTemplate.executeWithoutResult {
-                    fnrLåstAvTransaksjon1.addAll(lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr })
+                    fnrLåstAvTransaksjon1 = outboxDbRepository.lasEldsteLedigeFnr()
                     transaksjon1HarLås.countDown()
                     // Holder transaksjonen, og dermed advisory-låsen, åpen til testen slipper den.
                     slippTransaksjon1.await(5, TimeUnit.SECONDS)
@@ -286,16 +313,13 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
 
         transaksjon1HarLås.await(5, TimeUnit.SECONDS) shouldBe true
 
-        val fnrLåstAvTransaksjon2 =
-            transactionTemplate.execute {
-                lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr }
-            }
+        val fnrLåstAvTransaksjon2 = transactionTemplate.execute { outboxDbRepository.lasEldsteLedigeFnr() }
 
         slippTransaksjon1.countDown()
         tråd.join()
 
-        fnrLåstAvTransaksjon1.distinct() shouldBe listOf("fnr-eldst")
-        fnrLåstAvTransaksjon2.distinct() shouldBe listOf("fnr-nyest")
+        fnrLåstAvTransaksjon1 shouldBe "fnr-eldst"
+        fnrLåstAvTransaksjon2 shouldBe "fnr-nyest"
     }
 
     @Test
@@ -322,7 +346,7 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
                 thread {
                     try {
                         start.await()
-                        while (outboxService.sendUsendteForEldsteLedigeFnr()) {
+                        while (outboxService.sendEldsteUsendte()) {
                             // Fortsetter til det ikke er flere ledige fnr
                         }
                     } catch (e: Throwable) {
@@ -355,12 +379,12 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
                         )
                 },
                 iMellomtiden = {
-                    transactionTemplate.execute { lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr } }
+                    transactionTemplate.execute { outboxDbRepository.lasEldsteLedigeFnr() }
                 },
             )
 
         låstAnnetSted shouldBe listOf(true, true)
-        fnrLåstAvOutbox.distinct() shouldBe listOf(fnr)
+        fnrLåstAvOutbox shouldBe fnr
     }
 
     @Test
@@ -368,10 +392,10 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         val fnr = "77777777777"
         lagreUsendtRad(fnr = fnr, opprettetTimestamp = Instant.now())
 
-        var fnrLåstAvOutbox = emptyList<String>()
+        var fnrLåstAvOutbox: String? = null
         val låstAnnetSted =
             medÅpenTransaksjonIAnnenTråd(
-                iTråd = { fnrLåstAvOutbox = lasEldsteLedigeFnrOgFinnUsendte().map { it.fnr } },
+                iTråd = { fnrLåstAvOutbox = outboxDbRepository.lasEldsteLedigeFnr() },
                 iMellomtiden = {
                     transactionTemplate.execute {
                         listOf(
@@ -382,12 +406,9 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
                 },
             )
 
-        fnrLåstAvOutbox.distinct() shouldBe listOf(fnr)
+        fnrLåstAvOutbox shouldBe fnr
         låstAnnetSted shouldBe listOf(true, true)
     }
-
-    private fun lasEldsteLedigeFnrOgFinnUsendte(): List<OutboxDbRecord> =
-        outboxDbRepository.lasEldsteLedigeFnr()?.let { outboxDbRepository.finnUsendteForFnr(it) } ?: emptyList()
 
     private fun settBigintLåsPåHashtext(fnr: String): Boolean =
         namedParameterJdbcTemplate.queryForObject(

@@ -53,5 +53,5 @@ class OutboxServiceFake(
         auditLogProducer.lagAuditLog(auditEntry)
     }
 
-    override fun sendUsendteForEldsteLedigeFnr(): Boolean = false
+    override fun sendEldsteUsendte(): Boolean = false
 }
