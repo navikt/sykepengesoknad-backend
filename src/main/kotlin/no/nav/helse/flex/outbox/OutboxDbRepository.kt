@@ -7,42 +7,31 @@ import org.springframework.stereotype.Repository
 @Repository
 interface OutboxDbRepository : CrudRepository<OutboxDbRecord, Long> {
     /**
-     * Finner først alle fnr med usendte meldinger, sortert med eldste først, og med id som tiebreak.
-     * Materialized sikrer at denne delen kjøres først, uten å inlines, så vi ikke låser alle fnr-ene.
-     * Så går vi gjennom lista til vi finner et ulåst fnr, og låser kun det.
-     * Låsen bruker to int-nøkler med hashtext('outbox') som første nøkkel. Da kolliderer den ikke med
-     * bigint-låsene i LockRepository.
+     * Låser og returnerer den eldste usendte raden som ikke har eldre usendte rader for samme fnr.
      *
-     * Raden må hentes med en egen spørring etter at låsen er tatt, se [finnEldsteUsendteForFnr]. Snapshotet til
-     * denne spørringen er tatt før låsen, og kan derfor vise rader som en annen instans har sendt og committet
-     * før den slapp låsen.
+     * Raden som er eldst for et fnr, fungerer som lås for hele fnr-et: Så lenge den er låst og usendt,
+     * utelukker NOT EXISTS de nyere radene for fnr-et, og SKIP LOCKED hopper over den låste raden.
+     * Når raden låses, sjekker Postgres WHERE på nytt mot siste committede versjon, så vi låser aldri
+     * en rad som en annen instans allerede har sendt.
+     *
+     * Dette forutsetter at hver transaksjon bare sender én rad.
      */
     @Query(
         """
-    WITH kandidater AS MATERIALIZED (
-        SELECT fnr
-        FROM outbox
-        WHERE sendt_timestamp IS NULL
-        GROUP BY fnr
-        ORDER BY MIN(opprettet_timestamp), MIN(id)
-    )
-    SELECT fnr
-    FROM kandidater
-    WHERE pg_try_advisory_xact_lock(hashtext('outbox'), hashtext(fnr))
-    LIMIT 1
-    """,
-    )
-    fun lasEldsteLedigeFnr(): String?
-
-    @Query(
-        """
     SELECT *
-    FROM outbox
-    WHERE fnr = :fnr
-      AND sendt_timestamp IS NULL
-    ORDER BY opprettet_timestamp, id
+    FROM outbox o
+    WHERE o.sendt_timestamp IS NULL
+      AND NOT EXISTS (
+          SELECT 1
+          FROM outbox eldre
+          WHERE eldre.fnr = o.fnr
+            AND eldre.sendt_timestamp IS NULL
+            AND (eldre.opprettet_timestamp, eldre.id) < (o.opprettet_timestamp, o.id)
+      )
+    ORDER BY o.opprettet_timestamp, o.id
     LIMIT 1
+    FOR UPDATE SKIP LOCKED
     """,
     )
-    fun finnEldsteUsendteForFnr(fnr: String): OutboxDbRecord?
+    fun finnEldsteLedigeRadOgLas(): OutboxDbRecord?
 }
