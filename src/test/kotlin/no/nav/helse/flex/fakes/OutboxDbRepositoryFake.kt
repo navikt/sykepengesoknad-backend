@@ -19,14 +19,9 @@ class OutboxDbRepositoryFake :
         generateId = { nesteOutboxId.incrementAndGet() },
     ),
     OutboxDbRepository {
-    override fun lasEldsteLedigeFnr(): String? =
+    // Den eldste usendte raden totalt har aldri eldre usendte rader for samme fnr. Uten låser gir det samme svar som spørringen.
+    override fun finnEldsteLedigeRadOgLas(): OutboxDbRecord? =
         findAll()
             .filter { it.sendtTimestamp == null }
-            .minWithOrNull(compareBy({ it.opprettetTimestamp }, { it.id }))
-            ?.fnr
-
-    override fun finnEldsteUsendteForFnr(fnr: String): OutboxDbRecord? =
-        findAll()
-            .filter { it.fnr == fnr && it.sendtTimestamp == null }
             .minWithOrNull(compareBy({ it.opprettetTimestamp }, { it.id }))
 }

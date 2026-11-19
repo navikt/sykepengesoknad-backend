@@ -19,7 +19,6 @@ import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
 import no.nav.helse.flex.juridiskvurdering.SporingType
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.medlemskap.tilPostgresJson
-import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -35,8 +34,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.transaction.IllegalTransactionStateException
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
@@ -62,12 +59,6 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
 
     @Autowired
     private lateinit var transactionManager: PlatformTransactionManager
-
-    @Autowired
-    private lateinit var lockRepository: LockRepository
-
-    @Autowired
-    private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     @Autowired
     private lateinit var pausbarOutboxService: PausbarOutboxService
@@ -252,16 +243,13 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `velger eldste ledige fnr og henter eldste usendte rad for fnr-et`() {
+    fun `låser eldste usendte rad`() {
         val nå = Instant.now()
         lagreUsendtRad(fnr = "fnr-nyest", opprettetTimestamp = nå.minusSeconds(10))
         val eldste = lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(60))
         lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(30))
 
-        val rad =
-            transactionTemplate.execute {
-                outboxDbRepository.lasEldsteLedigeFnr()?.let { outboxDbRepository.finnEldsteUsendteForFnr(it) }
-            }
+        val rad = transactionTemplate.execute { outboxDbRepository.finnEldsteLedigeRadOgLas() }
 
         rad?.id shouldBe eldste.id
     }
@@ -292,34 +280,38 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `advisory lock hindrer at samme fnr plukkes av to samtidige transaksjoner`() {
+    fun `låst rad hindrer at nyere rader for samme fnr plukkes av en annen transaksjon`() {
         val nå = Instant.now()
-        lagreUsendtRad(fnr = "fnr-eldst", opprettetTimestamp = nå.minusSeconds(60))
-        lagreUsendtRad(fnr = "fnr-nyest", opprettetTimestamp = nå.minusSeconds(30))
+        val x1 = lagreUsendtRad(fnr = "fnr-x", opprettetTimestamp = nå.minusSeconds(60))
+        lagreUsendtRad(fnr = "fnr-x", opprettetTimestamp = nå.minusSeconds(50))
+        val y1 = lagreUsendtRad(fnr = "fnr-y", opprettetTimestamp = nå.minusSeconds(30))
 
-        val transaksjon1HarLås = CountDownLatch(1)
-        val slippTransaksjon1 = CountDownLatch(1)
-        var fnrLåstAvTransaksjon1: String? = null
+        var låstAvTransaksjon1: OutboxDbRecord? = null
+        val låstAvTransaksjon2 =
+            medÅpenTransaksjonIAnnenTråd(
+                iTråd = { låstAvTransaksjon1 = outboxDbRepository.finnEldsteLedigeRadOgLas() },
+                iMellomtiden = { transactionTemplate.execute { outboxDbRepository.finnEldsteLedigeRadOgLas() } },
+            )
 
-        val tråd =
-            thread {
-                transactionTemplate.executeWithoutResult {
-                    fnrLåstAvTransaksjon1 = outboxDbRepository.lasEldsteLedigeFnr()
-                    transaksjon1HarLås.countDown()
-                    // Holder transaksjonen, og dermed advisory-låsen, åpen til testen slipper den.
-                    slippTransaksjon1.await(5, TimeUnit.SECONDS)
-                }
-            }
+        låstAvTransaksjon1?.id shouldBe x1.id
+        låstAvTransaksjon2?.id shouldBe y1.id
+    }
 
-        transaksjon1HarLås.await(5, TimeUnit.SECONDS) shouldBe true
+    @Test
+    fun `returnerer ingen rad når eldste rad for eneste fnr er låst`() {
+        val nå = Instant.now()
+        val x1 = lagreUsendtRad(fnr = "fnr-x", opprettetTimestamp = nå.minusSeconds(60))
+        lagreUsendtRad(fnr = "fnr-x", opprettetTimestamp = nå.minusSeconds(50))
 
-        val fnrLåstAvTransaksjon2 = transactionTemplate.execute { outboxDbRepository.lasEldsteLedigeFnr() }
+        var låstAvTransaksjon1: OutboxDbRecord? = null
+        val låstAvTransaksjon2 =
+            medÅpenTransaksjonIAnnenTråd(
+                iTråd = { låstAvTransaksjon1 = outboxDbRepository.finnEldsteLedigeRadOgLas() },
+                iMellomtiden = { transactionTemplate.execute { outboxDbRepository.finnEldsteLedigeRadOgLas() } },
+            )
 
-        slippTransaksjon1.countDown()
-        tråd.join()
-
-        fnrLåstAvTransaksjon1 shouldBe "fnr-eldst"
-        fnrLåstAvTransaksjon2 shouldBe "fnr-nyest"
+        låstAvTransaksjon1?.id shouldBe x1.id
+        låstAvTransaksjon2.shouldBeNull()
     }
 
     @Test
@@ -362,60 +354,6 @@ class OutboxServiceIntegrasjonTest : FellesTestOppsett() {
         sendteSykmeldingIder.groupingBy { it }.eachCount().filterValues { it > 1 } shouldBe emptyMap()
         sendteSykmeldingIder shouldHaveSize antallRader
     }
-
-    @Test
-    fun `advisory lock på samme fnr fra LockRepository hindrer ikke outbox-låsen`() {
-        val fnr = "66666666666"
-        lagreUsendtRad(fnr = fnr, opprettetTimestamp = Instant.now())
-
-        var låstAnnetSted = emptyList<Boolean>()
-        val fnrLåstAvOutbox =
-            medÅpenTransaksjonIAnnenTråd(
-                iTråd = {
-                    låstAnnetSted =
-                        listOf(
-                            lockRepository.settAdvisoryLock(fnr.toLong()),
-                            settBigintLåsPåHashtext(fnr),
-                        )
-                },
-                iMellomtiden = {
-                    transactionTemplate.execute { outboxDbRepository.lasEldsteLedigeFnr() }
-                },
-            )
-
-        låstAnnetSted shouldBe listOf(true, true)
-        fnrLåstAvOutbox shouldBe fnr
-    }
-
-    @Test
-    fun `outbox-lås på samme fnr hindrer ikke advisory lock fra LockRepository`() {
-        val fnr = "77777777777"
-        lagreUsendtRad(fnr = fnr, opprettetTimestamp = Instant.now())
-
-        var fnrLåstAvOutbox: String? = null
-        val låstAnnetSted =
-            medÅpenTransaksjonIAnnenTråd(
-                iTråd = { fnrLåstAvOutbox = outboxDbRepository.lasEldsteLedigeFnr() },
-                iMellomtiden = {
-                    transactionTemplate.execute {
-                        listOf(
-                            lockRepository.settAdvisoryLock(fnr.toLong()),
-                            settBigintLåsPåHashtext(fnr),
-                        )
-                    }
-                },
-            )
-
-        fnrLåstAvOutbox shouldBe fnr
-        låstAnnetSted shouldBe listOf(true, true)
-    }
-
-    private fun settBigintLåsPåHashtext(fnr: String): Boolean =
-        namedParameterJdbcTemplate.queryForObject(
-            "SELECT pg_try_advisory_xact_lock(hashtext(:fnr)::bigint)",
-            MapSqlParameterSource("fnr", fnr),
-            Boolean::class.java,
-        )!!
 
     private fun <T> medÅpenTransaksjonIAnnenTråd(
         iTråd: () -> Unit,
