@@ -27,6 +27,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Duration
 
@@ -36,6 +37,9 @@ class TransaksjonshandteringTest : FellesTestOppsett() {
 
     @Autowired
     lateinit var outboxDbRepository: OutboxDbRepository
+
+    @Autowired
+    lateinit var jdbcTemplate: JdbcTemplate
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
@@ -81,10 +85,14 @@ class TransaksjonshandteringTest : FellesTestOppsett() {
         val usendte = outboxDbRepository.findAll().filter { it.sendtTimestamp == null }
         usendte.map { it.type } shouldBe listOf(OutboxType.SYKEPENGESOKNAD)
         usendte.single().fnr shouldBe fnr
+        (usendte.single().antallForsok > 0) shouldBe true
     }
 
     @Test
     fun `05 - kafka virker igjen og outboxen sender søknaden`() {
+        // Hopper over ventetiden etter feilene i forrige test, så vi slipper å vente på backoff.
+        jdbcTemplate.update("UPDATE outbox SET neste_forsok_timestamp = NULL WHERE sendt_timestamp IS NULL")
+
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.single().status shouldBe SoknadsstatusDTO.SENDT
 

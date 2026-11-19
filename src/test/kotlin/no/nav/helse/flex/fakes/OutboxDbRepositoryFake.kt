@@ -5,6 +5,7 @@ import no.nav.helse.flex.outbox.OutboxDbRepository
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
 private val nesteOutboxId = AtomicLong()
@@ -19,9 +20,16 @@ class OutboxDbRepositoryFake :
         generateId = { nesteOutboxId.incrementAndGet() },
     ),
     OutboxDbRepository {
-    // Den eldste usendte raden totalt har aldri eldre usendte rader for samme fnr. Uten låser gir det samme svar som spørringen.
-    override fun finnEldsteLedigeRadOgLas(): OutboxDbRecord? =
-        findAll()
+    // Uten låser gir dette samme svar som spørringen: eldste usendte rad per fnr, så lenge den ikke venter på nytt forsøk.
+    override fun finnEldsteLedigeRadOgLas(): OutboxDbRecord? {
+        val nå = Instant.now()
+        val eldsteFørst = compareBy<OutboxDbRecord>({ it.opprettetTimestamp }, { it.id })
+        return findAll()
             .filter { it.sendtTimestamp == null }
-            .minWithOrNull(compareBy({ it.opprettetTimestamp }, { it.id }))
+            .groupBy { it.fnr }
+            .values
+            .map { rader -> rader.minWith(eldsteFørst) }
+            .filter { it.nesteForsokTimestamp?.isAfter(nå) != true }
+            .minWithOrNull(eldsteFørst)
+    }
 }

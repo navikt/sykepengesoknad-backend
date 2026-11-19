@@ -14,4 +14,7 @@ data class OutboxDbRecord(
     val payload: PGobject,
     val opprettetTimestamp: Instant,
     val sendtTimestamp: Instant?,
+    val antallForsok: Int = 0,
+    val nesteForsokTimestamp: Instant? = null,
+    val sisteFeil: String? = null,
 )
