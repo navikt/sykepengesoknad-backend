@@ -7,8 +7,8 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.fortsattFriskmeldtTi
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.HentSoknadService
-import no.nav.helse.flex.service.IdentService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -16,7 +16,6 @@ import kotlin.jvm.optionals.getOrNull
 
 @Component
 class FjernFremtidigeFtaSoknaderService(
-    private val identService: IdentService,
     private val hentSoknadService: HentSoknadService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,
@@ -25,7 +24,10 @@ class FjernFremtidigeFtaSoknaderService(
     private val log = logger()
 
     @Transactional
-    fun fjernFremtidigeFriskmeldtSoknaderHvisFerdig(soknad: Sykepengesoknad) {
+    fun fjernFremtidigeFriskmeldtSoknaderHvisFerdig(
+        soknad: Sykepengesoknad,
+        identer: FolkeregisterIdenter,
+    ) {
         if (soknad.soknadstype != Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
             return
         }
@@ -36,8 +38,6 @@ class FjernFremtidigeFtaSoknaderService(
         val svartNeiFortsattFriskmeldt = soknad.fortsattFriskmeldtTilArbeidsformidling() == false
 
         if (svartNeiFortsattFriskmeldt) {
-            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
-
             val friskTilArbeidVedtakId = soknad.friskTilArbeidVedtakId ?: return
             val soknaderSomSkalSlettes =
                 hentSoknadService
