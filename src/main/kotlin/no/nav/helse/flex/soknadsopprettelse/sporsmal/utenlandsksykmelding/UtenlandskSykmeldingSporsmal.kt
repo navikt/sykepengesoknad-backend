@@ -1,11 +1,14 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding
 
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Sykepengesoknad
+import java.time.LocalDate
 
-fun utenlandskSykmeldingSporsmal(sykepengesoknad: Sykepengesoknad): List<Sporsmal> =
+fun utenlandskSykmeldingSporsmal(
+    fom: LocalDate,
+    tom: LocalDate,
+): List<Sporsmal> =
     listOf(
-        borDuINorge(sykepengesoknad),
+        borDuINorge(fom, tom),
         trygdUtenforNorge(),
         lønnetArbeidUtenforNorge(),
     )
