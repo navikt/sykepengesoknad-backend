@@ -175,7 +175,8 @@ class SporsmalGenerator(
                         .findById(vedtakId)
                         .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
                 return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom,
+                    tom = soknad.tom,
                     vedtakPeriode = friskTilArbeidVedtak.tilPeriode(),
                 ).tilSporsmalOgAndreKjenteArbeidsforhold()
             }

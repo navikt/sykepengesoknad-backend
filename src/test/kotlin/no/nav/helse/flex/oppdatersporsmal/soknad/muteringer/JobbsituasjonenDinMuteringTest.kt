@@ -53,7 +53,8 @@ class JobbsituasjonenDinMuteringTest {
         return soknad.copy(
             sporsmal =
                 settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom!!,
+                    tom = soknad.tom!!,
                     vedtakPeriode = Periode(fom, tom.plusDays(14)),
                 ),
         )
