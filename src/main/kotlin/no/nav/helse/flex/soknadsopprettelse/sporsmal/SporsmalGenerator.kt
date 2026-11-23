@@ -190,7 +190,12 @@ class SporsmalGenerator(
 
             val arbeidstakerSporsmal =
                 settOppSoknadArbeidstaker(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom,
+                    tom = soknad.tom,
+                    soknadstype = soknad.soknadstype,
+                    arbeidsgiverNavn = soknad.arbeidsgiverNavn,
+                    soknadPerioder = soknad.soknadPerioder!!,
+                    utenlandskSykmelding = soknad.utenlandskSykmelding,
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                     nyeArbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
                     kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,

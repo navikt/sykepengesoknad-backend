@@ -74,7 +74,12 @@ fun opprettNyArbeidstakerSoknad(
         soknadMetadata.copy(
             sporsmal =
                 settOppSoknadArbeidstaker(
-                    sykepengesoknad = soknadMetadata,
+                    fom = soknadMetadata.fom!!,
+                    tom = soknadMetadata.tom!!,
+                    soknadstype = soknadMetadata.soknadstype,
+                    arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
+                    soknadPerioder = soknadMetadata.soknadPerioder!!,
+                    utenlandskSykmelding = soknadMetadata.utenlandskSykmelding,
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     nyeArbeidsforholdFraAAreg = emptyList(),
                     kjentOppholdstillatelse = null,
