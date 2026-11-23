@@ -268,7 +268,10 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadArbeidsledig(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            soknadstype = soknad.soknadstype,
+                            utenlandskSykmelding = soknad.utenlandskSykmelding,
                             yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
