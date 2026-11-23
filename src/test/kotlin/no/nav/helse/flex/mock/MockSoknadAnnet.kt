@@ -55,7 +55,10 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
     return soknadMetadata.copy(
         sporsmal =
             settOppSoknadAnnetArbeidsforhold(
-                sykepengesoknad = soknadMetadata,
+                fom = soknadMetadata.fom!!,
+                tom = soknadMetadata.tom!!,
+                soknadstype = soknadMetadata.soknadstype,
+                utenlandskSykmelding = soknadMetadata.utenlandskSykmelding,
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 harTidligereUtenlandskSpm = false,
                 erForsteSoknadISykeforlop = false,
