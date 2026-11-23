@@ -156,7 +156,9 @@ class SporsmalGenerator(
 
             Soknadstype.REISETILSKUDD -> {
                 return skapReisetilskuddsoknad(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom,
+                    tom = soknad.tom,
+                    arbeidssituasjon = soknad.arbeidssituasjon!!,
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                 ).tilSporsmalOgAndreKjenteArbeidsforhold()
             }
