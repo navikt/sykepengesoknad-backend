@@ -242,7 +242,16 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadSelvstendigOgFrilanser(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            soknadstype = soknad.soknadstype,
+                            arbeidssituasjon = soknad.arbeidssituasjon,
+                            soknadPerioder = soknad.soknadPerioder!!,
+                            startSykeforlop = soknad.startSykeforlop,
+                            utenlandskSykmelding = soknad.utenlandskSykmelding,
+                            gradert = soknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                            erFiskerMedLott = soknad.erFiskerMedLott(),
+                            erTilsvarendeSelvstendig = soknad.erTilsvarendeSelvstendig(),
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,

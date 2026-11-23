@@ -80,7 +80,16 @@ fun opprettNyNaeringsdrivendeSoknadGradert(): Sykepengesoknad {
         .copy(
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
-                    sykepengesoknad = soknadMetadata,
+                    fom = soknadMetadata.fom!!,
+                    tom = soknadMetadata.tom!!,
+                    soknadstype = soknadMetadata.soknadstype,
+                    arbeidssituasjon = soknadMetadata.arbeidssituasjon!!,
+                    soknadPerioder = soknadMetadata.soknadPerioder!!,
+                    startSykeforlop = soknadMetadata.startSykeforlop!!,
+                    utenlandskSykmelding = soknadMetadata.utenlandskSykmelding,
+                    gradert = soknadMetadata.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                    erFiskerMedLott = soknadMetadata.erFiskerMedLott(),
+                    erTilsvarendeSelvstendig = soknadMetadata.erTilsvarendeSelvstendig(),
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = true,
                     ghostInntekter = emptyList(),
@@ -141,7 +150,16 @@ fun opprettNyNaeringsdrivendeSoknad100Prosent(): Sykepengesoknad {
         .copy(
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
-                    sykepengesoknad = soknadMetadata,
+                    fom = soknadMetadata.fom!!,
+                    tom = soknadMetadata.tom!!,
+                    soknadstype = soknadMetadata.soknadstype,
+                    arbeidssituasjon = soknadMetadata.arbeidssituasjon!!,
+                    soknadPerioder = soknadMetadata.soknadPerioder!!,
+                    startSykeforlop = soknadMetadata.startSykeforlop!!,
+                    utenlandskSykmelding = soknadMetadata.utenlandskSykmelding,
+                    gradert = soknadMetadata.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                    erFiskerMedLott = soknadMetadata.erFiskerMedLott(),
+                    erTilsvarendeSelvstendig = soknadMetadata.erTilsvarendeSelvstendig(),
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = true,
                     ghostInntekter = emptyList(),
@@ -201,7 +219,16 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         .copy(
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
-                    sykepengesoknad = soknadMetadata,
+                    fom = soknadMetadata.fom!!,
+                    tom = soknadMetadata.tom!!,
+                    soknadstype = soknadMetadata.soknadstype,
+                    arbeidssituasjon = soknadMetadata.arbeidssituasjon!!,
+                    soknadPerioder = soknadMetadata.soknadPerioder!!,
+                    startSykeforlop = soknadMetadata.startSykeforlop!!,
+                    utenlandskSykmelding = soknadMetadata.utenlandskSykmelding,
+                    gradert = soknadMetadata.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                    erFiskerMedLott = soknadMetadata.erFiskerMedLott(),
+                    erTilsvarendeSelvstendig = soknadMetadata.erTilsvarendeSelvstendig(),
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = false,
                     ghostInntekter = emptyList(),
