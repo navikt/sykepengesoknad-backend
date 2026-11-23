@@ -10,13 +10,21 @@ Bruk disse run configurations:
 |---|---|
 | Formatering | `sykepengesoknad-backend [ktlintFormat]` |
 | Tester | `sykepengesoknad-backend [test]` |
-| Bygg | `sykepengesoknad-backend [build]` |
+| Kompilering uten tester | En run configuration for Gradle-oppgaven `classes` |
 
-Hent tilgjengelige navn med `get_run_configurations`. Mangler en konfigurasjon, be brukeren opprette den i IntelliJ.
+`build` kjører også tester og kan ta flere minutter. Bruk `classes` for kompilering uten tester.
+
+Hent tilgjengelige navn med `get_run_configurations`. Opprett manglende Gradle-konfigurasjoner som beskrevet under.
 
 Testene ligger i `src/test/kotlin/`. For én testklasse eller test: kall `get_run_configurations` med `filePath` og kjør run point-et med `execute_run_configuration` (`filePath` + `line`).
 
 Hele testpakken tar lang tid. Sett høy `timeout` (for eksempel 1800000 ms) og ikke start en ny testkjøring mens en annen kjører, siden de deler Testcontainers og Kafka.
+
+## Opprette en Gradle-konfigurasjon
+
+1. Finn run configurations med `get_run_configurations`. Gradle-oppgaver kan finnes selv om de ikke er listet som run configurations.
+2. Mangler konfigurasjonen og MCP ikke kan opprette den, kopier en Gradle-konfigurasjon under `RunManager` i `.idea/workspace.xml`. Gi kopien et nytt navn, sett `taskNames` til ønsket oppgave og fjern uvedkommende `scriptParameters`. Behold eksisterende konfigurasjoner.
+3. Åpne `workspace.xml` i IntelliJ og kontroller med `get_run_configurations` at konfigurasjonen er lastet inn. Kjør den med `execute_run_configuration`. Ikke commit lokale IDE-innstillinger.
 
 ## IntelliJ-verktøy
 
