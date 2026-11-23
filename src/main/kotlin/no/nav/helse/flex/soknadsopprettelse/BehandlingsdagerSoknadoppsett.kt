@@ -1,8 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
+import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
@@ -10,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.behandlingsdagerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.flereInntektskilderGhostEllerAndreInntekterV2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
+import java.time.LocalDate
 
 fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int =
     when (this.tag) {
@@ -34,24 +36,27 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int =
     }
 
 fun settOppSykepengesoknadBehandlingsdager(
-    sykepengesoknad: Sykepengesoknad,
+    fom: LocalDate,
+    tom: LocalDate,
+    arbeidssituasjon: Arbeidssituasjon,
+    soknadPerioder: List<Soknadsperiode>,
     erForsteSoknadISykeforlop: Boolean,
     ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> =
     mutableListOf(
         ansvarserklaringSporsmal(),
         flereInntektskilderGhostEllerAndreInntekterV2(
-            fom = sykepengesoknad.fom!!,
-            tom = sykepengesoknad.tom!!,
+            fom = fom,
+            tom = tom,
             ghostInntekter = ghostInntekter,
         ),
     ).also {
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
         }
-        if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
-            it.add(ferieSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        if (arbeidssituasjon == ARBEIDSTAKER) {
+            it.add(ferieSporsmal(fom, tom))
         }
-        it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
+        it.addAll(behandlingsdagerSporsmal(soknadPerioder, arbeidssituasjon))
         it.add(tilSlutt())
     }.toList()

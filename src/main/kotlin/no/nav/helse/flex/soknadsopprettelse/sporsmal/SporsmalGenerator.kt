@@ -144,7 +144,10 @@ class SporsmalGenerator(
                 return SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSykepengesoknadBehandlingsdager(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            arbeidssituasjon = soknad.arbeidssituasjon!!,
+                            soknadPerioder = soknad.soknadPerioder!!,
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                             ghostInntekter = inntektsgrunnlag.ghostInntekter,
                         ),

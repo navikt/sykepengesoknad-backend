@@ -62,7 +62,10 @@ fun opprettBehandlingsdagsoknadTestadata(
     return soknadMetadata.copy(
         sporsmal =
             settOppSykepengesoknadBehandlingsdager(
-                sykepengesoknad = soknadMetadata,
+                fom = soknadMetadata.fom!!,
+                tom = soknadMetadata.tom!!,
+                arbeidssituasjon = soknadMetadata.arbeidssituasjon!!,
+                soknadPerioder = soknadMetadata.soknadPerioder!!,
                 erForsteSoknadISykeforlop = forsteSoknadIForlop,
                 ghostInntekter = emptyList(),
             ),

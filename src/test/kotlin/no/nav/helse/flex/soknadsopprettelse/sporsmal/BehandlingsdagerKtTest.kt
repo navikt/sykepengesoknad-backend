@@ -60,7 +60,11 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `oppretter spørsmål`() {
-        val sporsmalList = behandlingsdagerSporsmal(testSoknad)
+        val sporsmalList =
+            behandlingsdagerSporsmal(
+                testSoknad.soknadPerioder!!,
+                testSoknad.arbeidssituasjon!!,
+            )
         sporsmalList.shouldHaveSize(1)
 
         sporsmalList[0] shouldBe
@@ -91,7 +95,11 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `oppretter spørsmål for arbeidsledige`() {
-        val sporsmalList = behandlingsdagerSporsmal(testSoknad.copy(arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG))
+        val sporsmalList =
+            behandlingsdagerSporsmal(
+                testSoknad.soknadPerioder!!,
+                Arbeidssituasjon.ARBEIDSLEDIG,
+            )
         sporsmalList.shouldHaveSize(1)
         sporsmalList[0] shouldBe
             Sporsmal(
@@ -148,7 +156,11 @@ class BehandlingsdagerKtTest {
                             ),
                         ).tilSoknadsperioder(),
                 )
-        val sporsmalList = behandlingsdagerSporsmal(soknadMedFlerePerioder)
+        val sporsmalList =
+            behandlingsdagerSporsmal(
+                soknadMedFlerePerioder.soknadPerioder!!,
+                soknadMedFlerePerioder.arbeidssituasjon!!,
+            )
         assertEquals(sporsmalList.size, 2)
         assertEquals(
             sporsmalList[0].sporsmalstekst,
@@ -179,7 +191,11 @@ class BehandlingsdagerKtTest {
                             ),
                         ).tilSoknadsperioder(),
                 )
-        val sporsmalList = behandlingsdagerSporsmal(soknad)
+        val sporsmalList =
+            behandlingsdagerSporsmal(
+                soknad.soknadPerioder!!,
+                soknad.arbeidssituasjon!!,
+            )
         assertEquals(sporsmalList.size, 1)
         assertEquals(
             sporsmalList[0].sporsmalstekst,
