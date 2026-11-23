@@ -9,16 +9,14 @@ import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.*
 import no.nav.helse.flex.controller.mapper.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Avsendertype.BRUKER
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.*
-import no.nav.helse.flex.frisktilarbeid.FjernFremtidigeFtaSoknaderService
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
-import no.nav.helse.flex.sending.SoknadSender
+import no.nav.helse.flex.sending.SendSoknadService
 import no.nav.helse.flex.service.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
@@ -38,7 +36,7 @@ class SoknadBrukerController(
     private val contextHolder: TokenValidationContextHolder,
     private val identService: IdentService,
     private val gjenapneSoknadService: GjenapneSoknadService,
-    private val soknadSender: SoknadSender,
+    private val sendSoknadService: SendSoknadService,
     private val hentSoknadService: HentSoknadService,
     private val opprettSoknadService: OpprettSoknadService,
     private val korrigerSoknadService: KorrigerSoknadService,
@@ -48,8 +46,6 @@ class SoknadBrukerController(
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
-    private val oppholdUtenforEOSService: OppholdUtenforEOSService,
-    private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
     private val optInService: OptInService,
     @param:Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
@@ -127,16 +123,15 @@ class SoknadBrukerController(
 
         val sendtSoknad =
             try {
-                soknadSender.sendSoknad(soknadFraBase, BRUKER, null, identer).also {
+                sendSoknadService.sendSoknadFraBruker(soknadFraBase, identer).also {
                     log.info("Soknad sendt id: ${soknadFraBase.id}")
                 }
             } catch (e: Exception) {
                 log.error("Innsending av søknad ${soknadFraBase.id} feilet")
                 throw e
             }
-        oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
-        fjernFremtidigeFtaSoknaderService.fjernFremtidigeFriskmeldtSoknaderHvisFerdig(sendtSoknad)
 
+        // TODO vurdere hvor denne bør ligge, siden den gjør et eksternt post kall. Kanskje i SendSoknadService med fallback via outbox?
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)
         } catch (_: Exception) {
