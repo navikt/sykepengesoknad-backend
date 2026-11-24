@@ -311,7 +311,7 @@ class SporsmalGenerator(
             finnGhostInntekter(
                 arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
                 arbeidsforholdFraAareg = arbeidsforholdFraAareg,
-                arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
+                skjulOrgnumre = setOfNotNull(soknad.arbeidsgiverOrgnummer, soknad.tidligereArbeidsgiverOrgnummer),
             )
 
         return Inntektsgrunnlag(

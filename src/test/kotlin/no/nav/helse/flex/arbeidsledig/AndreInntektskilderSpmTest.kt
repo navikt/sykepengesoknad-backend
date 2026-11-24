@@ -181,6 +181,32 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
     }
 
     @Test
+    fun `Tidligere arbeidsgiver blir ikke ghost-inntekt`() {
+        val fnr = "11111234569"
+        InntektskomponentenMockDispatcher.enqueue(
+            skapHentInntekterResponse(
+                fnr = fnr,
+                loennsinntektOrgnumre = listOf("999333666", "999333667"),
+            ),
+        )
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                tidligereArbeidsgiverOrgnummer = "999333666",
+            ),
+        )
+
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
+        soknaden.ghostInntekter!!.map { it.orgnummer } shouldBe listOf("999333667")
+    }
+
+    @Test
     fun `V2 på toppnivå fjernes ved mutering av eldre søknad med ghost-inntekter`() {
         val fnr = "11111234568"
         sendSykmelding(

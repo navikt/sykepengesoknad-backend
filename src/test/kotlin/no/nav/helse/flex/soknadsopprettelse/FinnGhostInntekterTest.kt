@@ -47,7 +47,7 @@ class FinnGhostInntekterTest {
         ) = finnGhostInntekter(
             arbeidsforholdFraInntektskomponenten = inntektskomponenten,
             arbeidsforholdFraAareg = aareg,
-            arbeidsgiverOrgnummerSoknad = soknadsOrgnummer,
+            skjulOrgnumre = setOfNotNull(soknadsOrgnummer),
         )
 
         @Test
@@ -112,7 +112,7 @@ class FinnGhostInntekterTest {
         ) = finnGhostInntekter(
             arbeidsforholdFraInntektskomponenten = inntektskomponenten,
             arbeidsforholdFraAareg = aareg,
-            arbeidsgiverOrgnummerSoknad = soknadsOrgnummer,
+            skjulOrgnumre = setOfNotNull(soknadsOrgnummer),
         )
 
         @Test
@@ -141,6 +141,44 @@ class FinnGhostInntekterTest {
                 inntektskomponenten = listOf(inntektskomponenten(inntektskomponentenOrgnummer)),
                 soknadsOrgnummer = null,
             ).map { it.orgnummer } shouldBe listOf(inntektskomponentenOrgnummer)
+        }
+    }
+
+    @Nested
+    inner class Arbeidsledig {
+        private val tidligereArbeidsgiverOrgnummer = "444444444"
+
+        private fun finn(
+            inntektskomponenten: List<ArbeidsforholdFraInntektskomponenten> = emptyList(),
+            skjulOrgnumre: Set<String> = setOf(tidligereArbeidsgiverOrgnummer),
+        ) = finnGhostInntekter(
+            arbeidsforholdFraInntektskomponenten = inntektskomponenten,
+            arbeidsforholdFraAareg = emptyList(),
+            skjulOrgnumre = skjulOrgnumre,
+        )
+
+        @Test
+        fun `orgnumre i settet filtreres bort`() {
+            finn(inntektskomponenten = listOf(inntektskomponenten(tidligereArbeidsgiverOrgnummer))).shouldBeEmpty()
+        }
+
+        @Test
+        fun `andre orgnumre blir værende som ghost`() {
+            finn(
+                inntektskomponenten =
+                    listOf(
+                        inntektskomponenten(tidligereArbeidsgiverOrgnummer),
+                        inntektskomponenten(inntektskomponentenOrgnummer),
+                    ),
+            ) shouldBe listOf(kjentFraInntektskomponenten(inntektskomponentenOrgnummer))
+        }
+
+        @Test
+        fun `tomt sett filtrerer ingenting`() {
+            finn(
+                inntektskomponenten = listOf(inntektskomponenten(tidligereArbeidsgiverOrgnummer)),
+                skjulOrgnumre = emptySet(),
+            ).map { it.orgnummer } shouldBe listOf(tidligereArbeidsgiverOrgnummer)
         }
     }
 }

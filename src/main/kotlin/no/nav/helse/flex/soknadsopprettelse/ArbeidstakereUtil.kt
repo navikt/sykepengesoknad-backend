@@ -28,7 +28,7 @@ fun jobbetDuIPeriodenSporsmal(
 fun finnGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>,
-    arbeidsgiverOrgnummerSoknad: String?,
+    skjulOrgnumre: Set<String>,
 ): List<KjentInntektskilde> {
     val andreInntekter =
         arbeidsforholdFraInntektskomponenten.map { inntekt ->
@@ -43,6 +43,6 @@ fun finnGhostInntekter(
 
     return andreInntekter
         .toSet()
-        .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
+        .filterNot { it.orgnummer in skjulOrgnumre }
         .filterNot { it.orgnummer in tilkomneInntekterOrgNummer }
 }
