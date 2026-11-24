@@ -4,7 +4,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.soknadsopprettelse.ENKELTSTAENDE_BEHANDLINGSDAGER
 import no.nav.helse.flex.soknadsopprettelse.ENKELTSTAENDE_BEHANDLINGSDAGER_UKE
@@ -16,19 +15,22 @@ import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.min
 import java.time.LocalDate
 
-fun behandlingsdagerSporsmal(soknadMetadata: Sykepengesoknad): List<Sporsmal> =
-    soknadMetadata.soknadPerioder!!
+fun behandlingsdagerSporsmal(
+    soknadPerioder: List<Soknadsperiode>,
+    arbeidssituasjon: Arbeidssituasjon,
+): List<Sporsmal> =
+    soknadPerioder
         .filter { it.sykmeldingstype == Sykmeldingstype.BEHANDLINGSDAGER }
         .sortedBy { it.fom }
         .lastIndex
         .downTo(0)
         .reversed()
         .map { index ->
-            val periode = soknadMetadata.soknadPerioder[index]
+            val periode = soknadPerioder[index]
             val uker = splittPeriodeIUker(periode)
 
             val sporsmalstekst =
-                if (soknadMetadata.arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {
+                if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {
                     "Hvilke dager kunne du ikke være arbeidssøker på grunn av behandling mellom ${formatterPeriode(
                         periode.fom,
                         periode.tom,

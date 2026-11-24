@@ -154,7 +154,10 @@ class EttersendingSoknadServiceTest {
         return soknadMetadata.copy(
             sporsmal =
                 settOppSykepengesoknadBehandlingsdager(
-                    sykepengesoknad = soknadMetadata,
+                    fom = soknadMetadata.fom!!,
+                    tom = soknadMetadata.tom!!,
+                    arbeidssituasjon = soknadMetadata.arbeidssituasjon!!,
+                    soknadPerioder = soknadMetadata.soknadPerioder!!,
                     erForsteSoknadISykeforlop = true,
                     ghostInntekter = emptyList(),
                 ),
@@ -198,7 +201,12 @@ class EttersendingSoknadServiceTest {
         return soknadMetadata.copy(
             sporsmal =
                 settOppSoknadArbeidstaker(
-                    sykepengesoknad = soknadMetadata,
+                    fom = soknadMetadata.fom!!,
+                    tom = soknadMetadata.tom!!,
+                    soknadstype = soknadMetadata.soknadstype,
+                    arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
+                    soknadPerioder = soknadMetadata.soknadPerioder!!,
+                    utenlandskSykmelding = soknadMetadata.utenlandskSykmelding,
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     nyeArbeidsforholdFraAAreg = emptyList(),
                     kjentOppholdstillatelse = null,

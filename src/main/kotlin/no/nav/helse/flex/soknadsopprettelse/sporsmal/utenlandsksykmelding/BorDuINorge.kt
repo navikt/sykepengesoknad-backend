@@ -3,12 +3,15 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Svartype.*
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.*
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun borDuINorge(sykepengesoknad: Sykepengesoknad): Sporsmal =
+fun borDuINorge(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
     Sporsmal(
         tag = UTENLANDSK_SYKMELDING_BOSTED,
         sporsmalstekst = "Bor du i utlandet?",
@@ -102,8 +105,8 @@ fun borDuINorge(sykepengesoknad: Sykepengesoknad): Sporsmal =
                     sporsmalstekst = "Hvor lenge skal denne adressen brukes?",
                     undertekst = "Du velger selv hvor lenge adressen skal være gyldig, maksimalt 1 år.",
                     svartype = Svartype.DATO,
-                    min = sykepengesoknad.fom!!.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    max = sykepengesoknad.tom!!.plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                     kriterieForVisningAvUndersporsmal = null,
                     svar = emptyList(),
                     undersporsmal = emptyList(),

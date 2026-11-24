@@ -56,7 +56,9 @@ fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate): Sykepengesoknad {
     return soknadMetadata.copy(
         sporsmal =
             skapReisetilskuddsoknad(
-                sykepengesoknad = soknadMetadata,
+                fom = soknadMetadata.fom!!,
+                tom = soknadMetadata.tom!!,
+                arbeidssituasjon = soknadMetadata.arbeidssituasjon!!,
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
             ),
     )

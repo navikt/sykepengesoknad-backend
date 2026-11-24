@@ -1,8 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.domain.Soknadsperiode
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
@@ -12,6 +13,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
+import java.time.LocalDate
 
 interface MedlemskapSporsmalTag
 
@@ -27,7 +29,12 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 }
 
 fun settOppSoknadArbeidstaker(
-    sykepengesoknad: Sykepengesoknad,
+    fom: LocalDate,
+    tom: LocalDate,
+    soknadstype: Soknadstype,
+    arbeidsgiverNavn: String?,
+    soknadPerioder: List<Soknadsperiode>,
+    utenlandskSykmelding: Boolean,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
     nyeArbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>,
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
@@ -36,30 +43,30 @@ fun settOppSoknadArbeidstaker(
     erForsteSoknadISykeforlop: Boolean,
     ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> {
-    val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
+    val erGradertReisetilskudd = soknadstype == GRADERT_REISETILSKUDD
     return mutableListOf<Sporsmal>().apply {
         add(ansvarserklaringSporsmal())
         add(
             if (erGradertReisetilskudd) {
-                tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
+                tilbakeIFulltArbeidGradertReisetilskuddSporsmal(fom, tom)
             } else {
-                tilbakeIFulltArbeidSporsmal(sykepengesoknad.arbeidsgiverNavn, sykepengesoknad.fom!!, sykepengesoknad.tom!!)
+                tilbakeIFulltArbeidSporsmal(arbeidsgiverNavn, fom, tom)
             },
         )
-        add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-        add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
-        add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(ferieSporsmal(fom, tom))
+        add(permisjonSporsmal(fom, tom))
+        add(oppholdUtenforEOSSporsmal(fom, tom))
         add(tilSlutt())
         addAll(yrkesskade.yrkeskadeSporsmal())
 
-        if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
-            addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+        if (utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
+            addAll(utenlandskSykmeldingSporsmal(fom, tom))
         }
         addAll(
             nyttArbeidsforholdSporsmal(
                 nyeArbeidsforhold = nyeArbeidsforholdFraAAreg,
-                fom = sykepengesoknad.fom,
-                tom = sykepengesoknad.tom,
+                fom = fom,
+                tom = tom,
             ),
         )
 
@@ -67,15 +74,15 @@ fun settOppSoknadArbeidstaker(
             add(
                 flereInntektskilderGhost(
                     andreKjenteInntektskilder = ghostInntekter,
-                    fom = sykepengesoknad.fom,
-                    tom = sykepengesoknad.tom,
+                    fom = fom,
+                    tom = tom,
                 ),
             )
         } else {
             add(andreInntektskilderV2())
         }
 
-        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
+        addAll(jobbetDuIPeriodenSporsmal(soknadPerioder, arbeidsgiverNavn))
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
@@ -86,22 +93,22 @@ fun settOppSoknadArbeidstaker(
                 when (it) {
                     LovMeSporsmalTag.OPPHOLDSTILATELSE -> {
                         lagSporsmalOmOppholdstillatelse(
-                            sykepengesoknad.fom,
-                            sykepengesoknad.tom,
+                            fom,
+                            tom,
                             kjentOppholdstillatelse,
                         )
                     }
 
                     LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> {
-                        lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.fom, sykepengesoknad.tom)
+                        lagSporsmalOmArbeidUtenforNorge(fom, tom)
                     }
 
                     LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> {
-                        lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.fom, sykepengesoknad.tom)
+                        lagSporsmalOmOppholdUtenforNorge(fom, tom)
                     }
 
                     LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> {
-                        lagSporsmalOmOppholdUtenforEos(sykepengesoknad.fom, sykepengesoknad.tom)
+                        lagSporsmalOmOppholdUtenforEos(fom, tom)
                     }
 
                     SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> {

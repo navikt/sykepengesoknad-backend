@@ -144,7 +144,10 @@ class SporsmalGenerator(
                 return SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSykepengesoknadBehandlingsdager(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            arbeidssituasjon = soknad.arbeidssituasjon!!,
+                            soknadPerioder = soknad.soknadPerioder!!,
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                             ghostInntekter = inntektsgrunnlag.ghostInntekter,
                         ),
@@ -156,7 +159,9 @@ class SporsmalGenerator(
 
             Soknadstype.REISETILSKUDD -> {
                 return skapReisetilskuddsoknad(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom,
+                    tom = soknad.tom,
+                    arbeidssituasjon = soknad.arbeidssituasjon!!,
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                 ).tilSporsmalOgAndreKjenteArbeidsforhold()
             }
@@ -170,7 +175,8 @@ class SporsmalGenerator(
                         .findById(vedtakId)
                         .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
                 return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom,
+                    tom = soknad.tom,
                     vedtakPeriode = friskTilArbeidVedtak.tilPeriode(),
                 ).tilSporsmalOgAndreKjenteArbeidsforhold()
             }
@@ -184,7 +190,12 @@ class SporsmalGenerator(
 
             val arbeidstakerSporsmal =
                 settOppSoknadArbeidstaker(
-                    sykepengesoknad = soknad,
+                    fom = soknad.fom,
+                    tom = soknad.tom,
+                    soknadstype = soknad.soknadstype,
+                    arbeidsgiverNavn = soknad.arbeidsgiverNavn,
+                    soknadPerioder = soknad.soknadPerioder!!,
+                    utenlandskSykmelding = soknad.utenlandskSykmelding,
                     yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                     nyeArbeidsforholdFraAAreg = inntektsgrunnlag.arbeidsforholdFraAAreg,
                     kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
@@ -231,7 +242,16 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadSelvstendigOgFrilanser(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            soknadstype = soknad.soknadstype,
+                            arbeidssituasjon = soknad.arbeidssituasjon,
+                            soknadPerioder = soknad.soknadPerioder!!,
+                            startSykeforlop = soknad.startSykeforlop,
+                            utenlandskSykmelding = soknad.utenlandskSykmelding,
+                            gradert = soknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
+                            erFiskerMedLott = soknad.erFiskerMedLott(),
+                            erTilsvarendeSelvstendig = soknad.erTilsvarendeSelvstendig(),
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
@@ -248,7 +268,10 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadArbeidsledig(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            soknadstype = soknad.soknadstype,
+                            utenlandskSykmelding = soknad.utenlandskSykmelding,
                             yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
@@ -265,7 +288,10 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal =
                         settOppSoknadAnnetArbeidsforhold(
-                            sykepengesoknad = soknad,
+                            fom = soknad.fom,
+                            tom = soknad.tom,
+                            soknadstype = soknad.soknadstype,
+                            utenlandskSykmelding = soknad.utenlandskSykmelding,
                             yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,

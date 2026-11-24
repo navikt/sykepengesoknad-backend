@@ -13,62 +13,71 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
-    sykepengesoknad: Sykepengesoknad,
+    fom: LocalDate,
+    tom: LocalDate,
+    soknadstype: Soknadstype,
+    arbeidssituasjon: Arbeidssituasjon,
+    soknadPerioder: List<Soknadsperiode>,
+    startSykeforlop: LocalDate,
+    utenlandskSykmelding: Boolean,
+    gradert: Boolean,
+    erFiskerMedLott: Boolean,
+    erTilsvarendeSelvstendig: Boolean,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
     ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> {
-    val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
+    val erGradertReisetilskudd = soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()
         .apply {
             add(ansvarserklaringSporsmal())
             add(
                 if (erGradertReisetilskudd) {
-                    tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
+                    tilbakeIFulltArbeidGradertReisetilskuddSporsmal(fom, tom)
                 } else {
-                    tilbakeIFulltArbeidSporsmal(sykepengesoknad)
+                    tilbakeIFulltArbeidSporsmal(fom, tom, arbeidssituasjon)
                 },
             )
             if (ghostInntekter.isNotEmpty()) {
                 add(
                     flereInntektskilderGhost(
                         andreKjenteInntektskilder = ghostInntekter,
-                        fom = sykepengesoknad.fom!!,
-                        tom = sykepengesoknad.tom!!,
+                        fom = fom,
+                        tom = tom,
                     ),
                 )
             } else {
                 add(andreInntektskilderV2())
             }
-            add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+            add(oppholdUtenforEOSSporsmal(fom, tom))
             add(tilSlutt())
             addAll(
                 jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
-                    sykepengesoknad.soknadPerioder!!,
-                    sykepengesoknad.arbeidssituasjon!!,
+                    soknadPerioder,
+                    arbeidssituasjon,
                 ),
             )
-            if (sykepengesoknad.erTilsvarendeSelvstendig()) {
+            if (erTilsvarendeSelvstendig) {
                 addAll(
                     fellesLottOgSelvstendigSporsmal(
-                        fom = sykepengesoknad.fom,
-                        tom = sykepengesoknad.tom,
-                        startSykeforlop = sykepengesoknad.startSykeforlop!!,
+                        fom = fom,
+                        tom = tom,
+                        startSykeforlop = startSykeforlop,
                         erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
-                        gradert = sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis(),
-                        erFiskerMedLott = sykepengesoknad.erFiskerMedLott(),
-                        erTilsvarendeSelvstendig = sykepengesoknad.erTilsvarendeSelvstendig(),
+                        gradert = gradert,
+                        erFiskerMedLott = erFiskerMedLott,
+                        erTilsvarendeSelvstendig = erTilsvarendeSelvstendig,
                     ),
                 )
             } else if (erForsteSoknadISykeforlop) {
                 add(arbeidUtenforNorge())
             }
 
-            if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
-                addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+            if (utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
+                addAll(utenlandskSykmeldingSporsmal(fom, tom))
             }
             if (erGradertReisetilskudd) {
                 add(brukteReisetilskuddetSpørsmål())
@@ -135,14 +144,14 @@ fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
             }
         }
 
-private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
+private fun tilbakeIFulltArbeidSporsmal(
+    fom: LocalDate,
+    tom: LocalDate,
+    arbeidssituasjon: Arbeidssituasjon,
+): Sporsmal =
     Sporsmal(
         tag = TILBAKE_I_ARBEID,
-        sporsmalstekst = "Var du tilbake i fullt arbeid som ${soknadMetadata.arbeidssituasjon} før sykmeldingsperioden utløp ${
-            formatterDato(
-                soknadMetadata.tom!!,
-            )
-        }?",
+        sporsmalstekst = "Var du tilbake i fullt arbeid som $arbeidssituasjon før sykmeldingsperioden utløp ${formatterDato(tom)}?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
@@ -151,8 +160,8 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                     tag = TILBAKE_NAR,
                     sporsmalstekst = "Når begynte du å jobbe igjen?",
                     svartype = DATO,
-                    min = soknadMetadata.fom!!.format(ISO_LOCAL_DATE),
-                    max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
+                    min = fom.format(ISO_LOCAL_DATE),
+                    max = tom.format(ISO_LOCAL_DATE),
                 ),
             ),
     )
