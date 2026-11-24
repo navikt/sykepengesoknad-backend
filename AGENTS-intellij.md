@@ -18,6 +18,10 @@ Testene ligger i `src/test/kotlin/`. For én testklasse eller test: kall `get_ru
 
 Hele testpakken tar lang tid. Sett høy `timeout` (for eksempel 1800000 ms) og ikke start en ny testkjøring mens en annen kjører, siden de deler Testcontainers og Kafka.
 
+## Kompilatoradvarsler
+
+`allWarningsAsErrors` er på, og `ktlintFormat` retter ikke kompilatoradvarsler. Kjør `lint_files` på endrede filer, rett funnene manuelt og kjør igjen til listen er tom.
+
 ## IntelliJ-verktøy
 
 - Bruk IntelliJ MCP til å søke i kode, lese og redigere filer og inspisere kodeproblemer.

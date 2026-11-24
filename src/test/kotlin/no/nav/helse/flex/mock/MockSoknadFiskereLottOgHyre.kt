@@ -109,8 +109,8 @@ fun opprettNyFiskerLottOgHyreSoknad(
                     ghostInntekter = emptyList(),
                 ) +
                     fellesLottOgSelvstendigSporsmal(
-                        fom = soknadMetadata.fom!!,
-                        tom = soknadMetadata.tom!!,
+                        fom = soknadMetadata.fom,
+                        tom = soknadMetadata.tom,
                         startSykeforlop = soknadMetadata.startSykeforlop!!,
                         erForsteSoknadISykeforlop = soknadMetadata.forstegangssoknad,
                         sykepengegrunnlagNaeringsdrivende = soknadMetadata.selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
