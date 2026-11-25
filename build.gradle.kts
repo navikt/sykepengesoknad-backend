@@ -36,7 +36,7 @@ val kotestVersion = "6.2.7"
 val jsonSchemaValidatorVersion = "3.0.9"
 val unleashVersion = "12.3.2"
 val opentelemetryApiVersion = "1.68.0"
-val opentelemetryInstrumentationVersion = "2.33.1"
+val opentelemetryInstrumentationVersion = "2.34.0"
 val mockWebServerVersion = "5.5.1"
 
 dependencies {
