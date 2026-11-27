@@ -36,7 +36,6 @@ class DatabaseReset(
         aktorIder.forEach {
             sykepengesoknadDAO.nullstillSoknader(it)
         }
-        namedParameterJdbcTemplate.update("DELETE FROM julesoknadkandidat", MapSqlParameterSource())
         klippMetrikkRepository.deleteAll()
         medlemskapVurderingRepository.deleteAll()
         friskTilArbeidRepository.deleteAll()

@@ -1,6 +1,5 @@
 package no.nav.helse.flex.repository
 
-import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -19,26 +18,6 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
     fun findBySykmeldingUuid(sykmeldingUuid: String): List<SykepengesoknadDbRecord>
 
     fun findBySykmeldingUuidIn(sykmeldingUuid: Set<String>): List<SykepengesoknadDbRecord>
-
-    @Modifying
-    @Query(
-        """
-        UPDATE sykepengesoknad
-        SET aktivert_julesoknad_kandidat = true
-        WHERE id = :id
-          AND status = 'FREMTIDIG'
-        """,
-    )
-    fun settErAktivertJulesoknadKandidat(id: String): Boolean
-
-    @Query(
-        """
-        SELECT COALESCE(aktivert_julesoknad_kandidat, FALSE)
-        FROM sykepengesoknad
-        WHERE sykepengesoknad_uuid = :id
-        """,
-    )
-    fun erAktivertJulesoknadKandidat(id: String): Boolean
 
     @Query(
         """

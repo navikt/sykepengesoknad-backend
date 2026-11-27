@@ -7,7 +7,6 @@ import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingTilSoknadOpprettelse
 import no.nav.helse.flex.domain.sykmelding.Sykmeldingsperiode
 import no.nav.helse.flex.domain.sykmelding.bestemSoknadsTypeNy
-import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -38,7 +37,6 @@ class OpprettSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val klippMetrikk: KlippMetrikk,
     private val soknadProducer: SoknadProducer,
-    private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
     private val selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService,
 ) {
@@ -146,7 +144,6 @@ class OpprettSoknadService(
                                 ventetidSykmeldingUuid = ventetidSykmeldingUuid,
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
-                        .also { it.lagreJulesoknadKandidater() }
                 }.flatten()
 
         if (eksisterendeSoknaderForSm.isNotEmpty()) {
@@ -195,8 +192,6 @@ class OpprettSoknadService(
         } else {
             null
         }
-
-    private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
 
     fun Sykepengesoknad.lagreSykepengesoknad(): Sykepengesoknad {
         log.info("Oppretter ${this.soknadstype} søknad: ${this.id} for sykmelding: ${this.sykmeldingId} med status ${this.status}")

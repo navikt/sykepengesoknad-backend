@@ -53,7 +53,6 @@ data class Sykepengesoknad(
     val fiskerLottOgHyre: FiskerLottOgHyre? = null,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
     val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>? = null,
-    val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
     val selvstendigNaringsdrivende: SelvstendigNaringsdrivendeInfo? = null,
     val ventetidSykmeldingUuid: String? = null,

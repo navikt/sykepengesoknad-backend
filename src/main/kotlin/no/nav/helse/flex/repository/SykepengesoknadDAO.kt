@@ -670,7 +670,6 @@ class SykepengesoknadDAOPostgres(
                         resultSet
                             .getNullableString("arbeidsforhold_fra_aareg")
                             .lesJson<List<ArbeidsforholdFraAAreg>>(),
-                    julesoknad = resultSet.getNullableBoolean("aktivert_julesoknad_kandidat") ?: false,
                     friskTilArbeidVedtakId = resultSet.getNullableString("frisk_til_arbeid_vedtak_id"),
                     selvstendigNaringsdrivende =
                         resultSet
