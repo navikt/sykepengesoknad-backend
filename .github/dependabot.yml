@@ -1,4 +1,9 @@
 version: 2
+registries:
+  maven-github:
+    type: maven-repository
+    url: https://github-package-registry-mirror.gc.nav.no/cached/maven-release
+
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -8,6 +13,8 @@ updates:
     open-pull-requests-limit: 10
 
   - package-ecosystem: gradle
+    registries:
+      - "maven-github"
     directory: "/"
     schedule:
       interval: daily
