@@ -138,13 +138,28 @@ management:
 spring:
   profiles.active: test,cronjobber,sykmeldinger,frisktilarbeid,fakeunleash
   main.banner-mode: 'off'
+  data:
+    redis:
+      ssl.enabled: false
+      host: ${VALKEY_HOST_SYKEPENGESOKNAD_IDENTER_V2}
+      port: ${VALKEY_PORT_SYKEPENGESOKNAD_IDENTER_V2}
+      username: ${VALKEY_USERNAME_SYKEPENGESOKNAD_IDENTER_V2}
+      password: ${VALKEY_PASSWORD_SYKEPENGESOKNAD_IDENTER_V2}
+      timeout: 1s
+      connect-timeout: 2s
   kafka:
     consumer:
       group-id: sykepengesoknad-local
       max-poll-records: 1
       auto-offset-reset: latest
       enable-auto-commit: false
-  cache.type: redis
+  cache:
+    type: redis
+    cache-names:
+      - flex-folkeregister-identer-med-historikk
+    redis:
+      enable-statistics: true
+      time-to-live: 1h
 
 KAFKA_TRUSTSTORE_PATH: ""
 KAFKA_CREDSTORE_PASSWORD: ""

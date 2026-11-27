@@ -35,9 +35,9 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
         "spring.main.allow-bean-definition-overriding=true",
         "spring.data.jdbc.repositories.enabled=false",
         "spring.profiles.active=fakes,fakeunleash,frisktilarbeid",
-        "spring.main.allow-bean-definition-overriding=true",
         "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration," +
-            "org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration",
+            "org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration," +
+            "org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration",
         "spring.flyway.enabled=false",
         "spring.kafka.listener.auto-startup=false",
         "KAFKA_BROKERS=$IGNORED_KAFKA_BROKERS",

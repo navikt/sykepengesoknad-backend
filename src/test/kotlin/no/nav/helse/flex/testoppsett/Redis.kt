@@ -11,8 +11,9 @@ fun startValkeyContainer() {
         withExposedPorts(6379)
         start()
 
-        System.setProperty("VALKEY_URI_IDENTER", "valkeys://$host:$firstMappedPort")
-        System.setProperty("VALKEY_USERNAME_IDENTER", "default")
-        System.setProperty("VALKEY_PASSWORD_IDENTER", "")
+        System.setProperty("VALKEY_HOST_SYKEPENGESOKNAD_IDENTER_V2", host)
+        System.setProperty("VALKEY_PORT_SYKEPENGESOKNAD_IDENTER_V2", firstMappedPort.toString())
+        System.setProperty("VALKEY_USERNAME_SYKEPENGESOKNAD_IDENTER_V2", "default")
+        System.setProperty("VALKEY_PASSWORD_SYKEPENGESOKNAD_IDENTER_V2", "")
     }
 }

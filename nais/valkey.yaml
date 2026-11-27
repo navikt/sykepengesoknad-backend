@@ -1,0 +1,10 @@
+version: v1
+type: Valkey
+name: sykepengesoknad-identer-v2
+spec:
+  tier: SingleNode
+  memory: 1GB
+  version: "9.1"
+  maxMemoryPolicy: allkeys-lru
+  persistence:
+    disabled: true

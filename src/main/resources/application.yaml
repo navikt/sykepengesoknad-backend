@@ -128,6 +128,7 @@ management:
     metrics:
       export:
         enabled: true
+  health.redis.enabled: false
 
 server:
   shutdown: graceful
@@ -160,7 +161,22 @@ spring:
       max-poll-records: 1
       auto-offset-reset: none
       enable-auto-commit: false
-  cache.type: redis
+  data:
+    redis:
+      ssl.enabled: true
+      username: ${VALKEY_USERNAME_SYKEPENGESOKNAD_IDENTER_V2}
+      password: ${VALKEY_PASSWORD_SYKEPENGESOKNAD_IDENTER_V2}
+      host: ${VALKEY_HOST_SYKEPENGESOKNAD_IDENTER_V2}
+      port: ${VALKEY_PORT_SYKEPENGESOKNAD_IDENTER_V2}
+      timeout: 1s
+      connect-timeout: 2s
+  cache:
+    type: redis
+    cache-names:
+      - flex-folkeregister-identer-med-historikk
+    redis:
+      enable-statistics: true
+      time-to-live: 1h
 
 aiven-kafka:
   auto-offset-reset: none

@@ -1,0 +1,29 @@
+name: Deploy Valkey
+
+on:
+  workflow_dispatch:
+    inputs:
+      miljø:
+        description: Nais-miljø
+        required: true
+        type: choice
+        options:
+          - dev-gcp
+          - prod-gcp
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: nais/setup@fb8692f65df9c904e2cdac5d395630ac876abdcf # v1.0.3
+      - name: Opprett Valkey
+        run: nais apply nais/valkey.yaml --team flex --environment "${{ inputs.miljø }}"

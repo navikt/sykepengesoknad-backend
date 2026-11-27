@@ -43,7 +43,7 @@ spec:
   tokenx:
     enabled: true
   valkey:
-    - instance: identer
+    - instance: sykepengesoknad-identer-v2
       access: readwrite
   observability:
     autoInstrumentation:
