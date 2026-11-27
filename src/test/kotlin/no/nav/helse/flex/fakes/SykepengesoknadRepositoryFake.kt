@@ -51,14 +51,6 @@ class SykepengesoknadRepositoryFake :
             it.sykmeldingUuid in sykmeldingUuid
         }
 
-    override fun settErAktivertJulesoknadKandidat(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun erAktivertJulesoknadKandidat(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun findEldsteSoknaden(
         identer: List<String>,
         fom: LocalDate?,

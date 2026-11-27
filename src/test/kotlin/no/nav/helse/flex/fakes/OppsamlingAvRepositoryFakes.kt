@@ -23,23 +23,6 @@ import java.util.*
 @Repository
 @Primary
 @Profile("fakes")
-class JulesoknadkandidatDAOFake : JulesoknadkandidatDAO {
-    override fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat> {
-        TODO("Not yet implemented")
-    }
-
-    override fun lagreJulesoknadkandidat(sykepengesoknadUuid: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun slettJulesoknadkandidat(julesoknadkandidatId: String) {
-        TODO("Not yet implemented")
-    }
-}
-
-@Repository
-@Primary
-@Profile("fakes")
 class OppsamlingAvRepositoryFakes : RetryRepository {
     override fun inkrementerRetries(
         id: String,

@@ -36,7 +36,6 @@ data class RSSykepengesoknad(
     val korrigeringsfristUtlopt: Boolean?,
     val forstegangssoknad: Boolean?,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
-    val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
     val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? = null,
     val ventetidSykmeldingUuid: String? = null,

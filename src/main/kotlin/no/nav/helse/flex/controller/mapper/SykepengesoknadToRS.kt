@@ -111,7 +111,6 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         inntektsopplysningerInnsendingDokumenter = this.inntektsopplysningerInnsendingDokumenter?.map { it.tittel },
         forstegangssoknad = this.forstegangssoknad,
         kjentOppholdstillatelse = this.kjentOppholdstillatelse,
-        julesoknad = this.julesoknad,
         friskTilArbeidVedtakId = this.friskTilArbeidVedtakId,
         selvstendigNaringsdrivendeInfo = this.selvstendigNaringsdrivende,
         ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
